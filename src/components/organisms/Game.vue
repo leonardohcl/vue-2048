@@ -4,7 +4,7 @@
       <button class="game_control" @click="game.start()">New Game</button>
     </div>
     <div class="game__score">Score: {{ game.score }}</div>
-    <Board :board="game.board" :size="game.size" />
+    <Board :board="game.board" :size="game.size" :transition-duration="game.updateDelay"/>
     <div class="game__controls">
       <button
         class="game_control"
