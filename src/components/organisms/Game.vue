@@ -2,13 +2,6 @@
   <div class="game">
     <div class="game__overlay">
       <button class="game_control" @click="game.start()">New Game</button>
-      <button
-        class="game_control"
-        @click="game.undo()"
-        :disabled="game.isOver || game.movementHistory.length === 0"
-      >
-        Undo ({{ game.movementHistory.length }})
-      </button>
     </div>
     <div class="game__score">Score: {{ game.score }}</div>
     <Board :board="game.board" :size="game.size" />

@@ -186,23 +186,6 @@ export default class GameController {
     }
   }
 
-  undo(){
-    if(this.isOver) return;
-    const lastMovements = this.movementHistory.pop()
-    lastMovements.forEach(move => {
-
-      const origin = this.#getSquare(move.origin.row, move.origin.col), 
-            target = this.#getSquare(move.target.row, move.target.col)
-
-      if(move.isMerge){
-        this.score -= move.origin.value + move.target.value
-      }
-
-      origin.setValue(move.origin.value)
-      target.setValue(move.target.value)
-      
-    })
-  }
 
   move(dir) {
     switch (dir) {
