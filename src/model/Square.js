@@ -65,8 +65,11 @@ const selectedMove = (sqr, movements) => {
 
 export default class Square {
   merged = false
-  previousValue = null
-  nextValue = null  
+  nextMove = {
+    vertical: 0,
+    horizontal: 0
+  }
+
 
   constructor(row, col, value = 0) {
     this.value = value

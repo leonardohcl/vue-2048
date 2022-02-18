@@ -1,25 +1,34 @@
 import Square from './Square'
 
-class Movement{
-  constructor(originRow, originCol, originVal,targetRow, targetCol, targetVal){
+class Movement {
+  constructor(
+    originRow,
+    originCol,
+    originVal,
+    targetRow,
+    targetCol,
+    targetVal
+  ) {
     this.origin = {
       row: originRow,
       col: originCol,
-      value: originVal
+      value: originVal,
     }
     this.target = {
       row: targetRow,
-      col:targetCol,
-      value: targetVal
+      col: targetCol,
+      value: targetVal,
     }
   }
 
-  get isMerge(){
+  get isMerge() {
     return this.target.value !== 0
   }
 
-  get isSpawn(){
-    return this.target.col == this.origin.col && this.target.row == this.origin.row
+  get isSpawn() {
+    return (
+      this.target.col == this.origin.col && this.target.row == this.origin.row
+    )
   }
 }
 
@@ -29,10 +38,12 @@ export default class GameController {
   board = []
   movementHistory = []
   #currentMovements = []
+  #updateTimeout = null
 
-  constructor(size = 4, historySize = 3) {
+  constructor(size = 4, historySize = 1, updateDelay = 0) {
     this.size = size
     this.historySize = historySize
+    this.updateDelay = updateDelay
     this.#clearBoard()
   }
 
@@ -47,7 +58,7 @@ export default class GameController {
   get canMoveRight() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, "right")
+      const movement = Square.getMovement(squares[i], this.board, 'right')
       if (movement !== null) return true
     }
     return false
@@ -56,7 +67,7 @@ export default class GameController {
   get canMoveLeft() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, "left")
+      const movement = Square.getMovement(squares[i], this.board, 'left')
       if (movement !== null) return true
     }
     return false
@@ -65,7 +76,7 @@ export default class GameController {
   get canMoveDown() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, "down")
+      const movement = Square.getMovement(squares[i], this.board, 'down')
       if (movement !== null) return true
     }
     return false
@@ -74,14 +85,21 @@ export default class GameController {
   get canMoveUp() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, "up")
+      const movement = Square.getMovement(squares[i], this.board, 'up')
       if (movement !== null) return true
     }
     return false
   }
 
-  #getSquare(row,col){
-    return this.board.find(x => x.col == col && x.row == row)
+  #getSquare(row, col) {
+    return this.board.find((x) => x.col == col && x.row == row)
+  }
+
+  #getMovementSquares(move) {
+    const origin = this.#getSquare(move.origin.row, move.origin.col),
+      target = this.#getSquare(move.target.row, move.target.col)
+
+    return [origin, target]
   }
 
   #spawnBlock() {
@@ -108,28 +126,48 @@ export default class GameController {
     this.board.filter((sqr) => sqr.merged).forEach((sqr) => sqr.mergeComplete())
   }
 
-  #storeMovement(origin, target){
-    this.#currentMovements.push(new Movement(origin.row, origin.col, origin.value, target.row, target.col, target.value))
+  #storeMovement(origin, target) {
+    this.#currentMovements.push(
+      new Movement(
+        origin.row,
+        origin.col,
+        origin.value,
+        target.row,
+        target.col,
+        target.value
+      )
+    )
   }
 
-  #updateHistory(){
+  #updateHistory() {
     this.movementHistory.push([...this.#currentMovements])
     this.movementHistory = this.movementHistory.slice(-this.historySize)
     this.#currentMovements = []
   }
 
-  #moveSquare(sqr,target) {    
+  #moveSquare(sqr, target) {
     if (target == null) return
 
-    this.#storeMovement(sqr,target)
+    this.#storeMovement(sqr, target)
 
-    if (target.value !== 0) {
-      target.merge()
-      this.score += sqr.value + sqr.value
-    } else {
-      target.setValue(sqr.value)
-    }
-    sqr.setValue(0)
+    sqr.nextMove.vertical = sqr.row - target.row
+    sqr.nextMove.horizontal = sqr.col - target.col
+  }
+
+  #applyMovement(moveset) {
+    moveset.forEach((move) => {
+      const [origin, target] = this.#getMovementSquares(move)
+
+      if (target.value !== 0) {
+        target.merge()
+        this.score += origin.value + target.value
+      } else {
+        target.setValue(origin.value)
+      }
+      origin.setValue(0)
+      origin.nextMove.vertical = 0
+      origin.nextMove.horizontal = 0
+    })
   }
 
   #moveRight() {
@@ -137,7 +175,7 @@ export default class GameController {
     this.#filledSquares
       .sort((a, b) => b.col - a.col)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, "right")
+        const selectedMovement = Square.getMovement(sqr, this.board, 'right')
         this.#moveSquare(sqr, selectedMovement)
       })
   }
@@ -147,9 +185,8 @@ export default class GameController {
     this.#filledSquares
       .sort((a, b) => a.col - b.col)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, "left")
+        const selectedMovement = Square.getMovement(sqr, this.board, 'left')
         this.#moveSquare(sqr, selectedMovement)
-
       })
   }
 
@@ -158,9 +195,8 @@ export default class GameController {
     this.#filledSquares
       .sort((a, b) => a.row - b.row)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, "up")
+        const selectedMovement = Square.getMovement(sqr, this.board, 'up')
         this.#moveSquare(sqr, selectedMovement)
-
       })
   }
 
@@ -169,7 +205,7 @@ export default class GameController {
     this.#filledSquares
       .sort((a, b) => b.row - a.row)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, "down")
+        const selectedMovement = Square.getMovement(sqr, this.board, 'down')
         this.#moveSquare(sqr, selectedMovement)
       })
   }
@@ -186,8 +222,18 @@ export default class GameController {
     }
   }
 
+  #updateBoard(moveset) {
+    this.#applyMovement(moveset)
+    this.#clearMergedFlags()
+    this.#spawnBlock()
+    this.#updateHistory()
+    this.#checkGameState()
+    this.#updateTimeout = null
+  }
 
   move(dir) {
+    if (this.#updateTimeout) return
+
     switch (dir) {
       case 'right':
         this.#moveRight()
@@ -203,10 +249,9 @@ export default class GameController {
         break
     }
 
-    this.#clearMergedFlags()
-    this.#spawnBlock()
-    this.#updateHistory()
-    this.#checkGameState()
+    this.#updateTimeout = setTimeout(() => {
+      this.#updateBoard(this.#currentMovements)
+    }, this.updateDelay)
   }
 
   start() {
