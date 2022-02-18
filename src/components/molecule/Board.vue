@@ -1,7 +1,7 @@
 <template>
   <div class="board" :style="boardStyle">
     <Square
-      v-for="(sqr, idx) in board"
+      v-for="(sqr, idx) in board.squares"
       :key="idx"
       :data="sqr"
       :transition-duration="transitionDuration"
@@ -11,6 +11,7 @@
 </template>
 
 <script>
+  import Board from '../../model/Board'
   import Square from '../atoms/Square.vue'
 
   export default {
@@ -22,7 +23,7 @@
         required: true,
       },
       board: {
-        type: Array,
+        type: Board,
         required: true,
       },
       transitionDuration: {

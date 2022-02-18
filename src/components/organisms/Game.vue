@@ -9,28 +9,28 @@
       <button
         class="game_control"
         @click="game.move('left')"
-        :disabled="game.isOver || !game.canMoveLeft"
+        :disabled="game.isGameOver || !game.canMoveLeft"
       >
         left
       </button>
       <button
         class="game_control"
         @click="game.move('up')"
-        :disabled="game.isOver || !game.canMoveUp"
+        :disabled="game.isGameOver || !game.canMoveUp"
       >
         up
       </button>
       <button
         class="game_control"
         @click="game.move('down')"
-        :disabled="game.isOver || !game.canMoveDown"
+        :disabled="game.isGameOver || !game.canMoveDown"
       >
         down
       </button>
       <button
         class="game_control"
         @click="game.move('right')"
-        :disabled="game.isOver || !game.canMoveRight"
+        :disabled="game.isGameOver || !game.canMoveRight"
       >
         right
       </button>

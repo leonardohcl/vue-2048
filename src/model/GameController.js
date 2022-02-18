@@ -1,216 +1,163 @@
-import Square from './Square'
-
-class Movement {
-  constructor(
-    originRow,
-    originCol,
-    originVal,
-    targetRow,
-    targetCol,
-    targetVal
-  ) {
-    this.origin = {
-      row: originRow,
-      col: originCol,
-      value: originVal,
-    }
-    this.target = {
-      row: targetRow,
-      col: targetCol,
-      value: targetVal,
-    }
-  }
-
-  get isMerge() {
-    return this.target.value !== 0
-  }
-
-  get isSpawn() {
-    return (
-      this.target.col == this.origin.col && this.target.row == this.origin.row
-    )
-  }
-}
-
+import Board from './Board'
+import { orderBy } from 'lodash'
 export default class GameController {
   score = 0
-  isOver = true
-  board = []
-  movementHistory = []
-  #currentMovements = []
+  #isOver = true
+  board = null
   #updateTimeout = null
 
-  constructor(size = 4, historySize = 1, updateDelay = 0) {
+  canMoveRight = false
+  canMoveLeft = false
+  canMoveUp = false
+  canMoveDown = false
+
+  constructor(size = 4, updateDelay = 0) {
     this.size = size
-    this.historySize = historySize
     this.updateDelay = updateDelay
     this.#clearBoard()
   }
 
-  get #emptySquares() {
-    return this.board.filter((square) => square.isEmpty === true)
+  get isGameOver(){
+    return this.#isOver
   }
 
-  get #filledSquares() {
-    return this.board.filter((square) => square.isEmpty === false)
+  #checkMoveRight() {
+    const nextBoard = this.#moveRight()[0]
+    this.canMoveRight =
+      nextBoard.filledSquares.length != this.board.filledSquares.length ||
+      nextBoard.filledSquares.some((sqr) => {
+        const matching = this.board.getSquare(sqr.row, sqr.col)
+        return matching ? matching.value != sqr.value : true
+      })
   }
 
-  get canMoveRight() {
-    const squares = this.#filledSquares
-    for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, 'right')
-      if (movement !== null) return true
-    }
-    return false
+  #checkMoveLeft() {
+    const nextBoard = this.#moveLeft()[0]
+    this.canMoveLeft =
+      nextBoard.filledSquares.length != this.board.filledSquares.length ||
+      nextBoard.filledSquares.some((sqr) => {
+        const matching = this.board.getSquare(sqr.row, sqr.col)
+        return matching ? matching.value != sqr.value : true
+      })
   }
 
-  get canMoveLeft() {
-    const squares = this.#filledSquares
-    for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, 'left')
-      if (movement !== null) return true
-    }
-    return false
+  #checkMoveUp() {
+    const nextBoard = this.#moveUp()[0]
+    this.canMoveUp =
+      nextBoard.filledSquares.length != this.board.filledSquares.length ||
+      nextBoard.filledSquares.some((sqr) => {
+        const matching = this.board.getSquare(sqr.row, sqr.col)
+        return matching ? matching.value != sqr.value : true
+      })
   }
 
-  get canMoveDown() {
-    const squares = this.#filledSquares
-    for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, 'down')
-      if (movement !== null) return true
-    }
-    return false
+  #checkMoveDown() {
+    const nextBoard = this.#moveDown()[0]
+    this.canMoveDown =
+      nextBoard.filledSquares.length != this.board.filledSquares.length ||
+      nextBoard.filledSquares.some((sqr) => {
+        const matching = this.board.getSquare(sqr.row, sqr.col)
+        return matching ? matching.value != sqr.value : true
+      })
   }
 
-  get canMoveUp() {
-    const squares = this.#filledSquares
-    for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovement(squares[i], this.board, 'up')
-      if (movement !== null) return true
-    }
-    return false
-  }
+  #spawnBlock(board) {
+    const options = board.emptySquares
 
-  #getSquare(row, col) {
-    return this.board.find((x) => x.col == col && x.row == row)
-  }
-
-  #getMovementSquares(move) {
-    const origin = this.#getSquare(move.origin.row, move.origin.col),
-      target = this.#getSquare(move.target.row, move.target.col)
-
-    return [origin, target]
-  }
-
-  #spawnBlock() {
-    const options = this.#emptySquares
     if (options.length === 0) return
 
     const selectedIndex = Math.floor(Math.random() * options.length)
-
-    this.#storeMovement(options[selectedIndex], options[selectedIndex])
 
     if (Math.random() > 0.1) options[selectedIndex].setValue(2)
     else options[selectedIndex].setValue(4)
   }
 
   #clearBoard() {
-    this.board = new Array(this.size * this.size).fill().map((x, ind) => {
-      const row = Math.floor(ind / this.size),
-        col = ind % this.size
-      return new Square(row, col)
-    })
+    this.board = new Board(this.size)
   }
 
-  #clearMergedFlags() {
-    this.board.filter((sqr) => sqr.merged).forEach((sqr) => sqr.mergeComplete())
-  }
-
-  #storeMovement(origin, target) {
-    this.#currentMovements.push(
-      new Movement(
-        origin.row,
-        origin.col,
-        origin.value,
-        target.row,
-        target.col,
-        target.value
+  #moveRight(storeMovement = false) {
+    const nextBoard = new Board(this.size)
+    let score = 0
+    orderBy(this.board.filledSquares, ['col'], ['desc']).forEach((sqr) => {
+      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
+      const [nextRow, nextCol] = nextBoard.getValidMovement(
+        sqr.row,
+        sqr.col,
+        'right'
       )
-    )
-  }
-
-  #updateHistory() {
-    this.movementHistory.push([...this.#currentMovements])
-    this.movementHistory = this.movementHistory.slice(-this.historySize)
-    this.#currentMovements = []
-  }
-
-  #moveSquare(sqr, target) {
-    if (target == null) return
-
-    this.#storeMovement(sqr, target)
-
-    sqr.nextMove.vertical = sqr.row - target.row
-    sqr.nextMove.horizontal = sqr.col - target.col
-  }
-
-  #applyMovement(moveset) {
-    moveset.forEach((move) => {
-      const [origin, target] = this.#getMovementSquares(move)
-
-      if (target.value !== 0) {
-        target.merge()
-        this.score += origin.value + target.value
-      } else {
-        target.setValue(origin.value)
+      if (nextRow != null || nextCol != null) {
+        nextBoard.updateSquare(sqr.row, sqr.col, 0)
+        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
+        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
       }
-      origin.setValue(0)
-      origin.nextMove.vertical = 0
-      origin.nextMove.horizontal = 0
     })
+    return [nextBoard, score]
   }
 
-  #moveRight() {
-    if (!this.canMoveRight) return
-    this.#filledSquares
-      .sort((a, b) => b.col - a.col)
-      .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, 'right')
-        this.#moveSquare(sqr, selectedMovement)
-      })
+  #moveLeft(storeMovement = false) {
+    const nextBoard = new Board(this.size)
+    let score = 0
+    orderBy(this.board.filledSquares, ['col'], ['asc']).forEach((sqr) => {
+      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
+      const [nextRow, nextCol] = nextBoard.getValidMovement(
+        sqr.row,
+        sqr.col,
+        'left'
+      )
+      if (nextRow !== null || nextCol !== null) {
+        nextBoard.updateSquare(sqr.row, sqr.col, 0)
+        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
+        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
+      }
+    })
+    return [nextBoard, score]
   }
 
-  #moveLeft() {
-    if (!this.canMoveLeft) return
-    this.#filledSquares
-      .sort((a, b) => a.col - b.col)
-      .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, 'left')
-        this.#moveSquare(sqr, selectedMovement)
-      })
+  #moveUp(storeMovement = false) {
+    const nextBoard = new Board(this.size)
+    let score = 0
+    orderBy(this.board.filledSquares, ['row'], ['asc']).forEach((sqr) => {
+      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
+      const [nextRow, nextCol] = nextBoard.getValidMovement(
+        sqr.row,
+        sqr.col,
+        'up'
+      )
+      if (nextRow !== null || nextCol !== null) {
+        nextBoard.updateSquare(sqr.row, sqr.col, 0)
+        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
+        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
+      }
+    })
+    return [nextBoard, score]
   }
 
-  #moveUp() {
-    if (!this.canMoveUp) return
-    this.#filledSquares
-      .sort((a, b) => a.row - b.row)
-      .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, 'up')
-        this.#moveSquare(sqr, selectedMovement)
-      })
+  #moveDown(storeMovement = false) {
+    const nextBoard = new Board(this.size)
+    let score = 0
+    orderBy(this.board.filledSquares, ['row'], ['desc']).forEach((sqr) => {
+      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
+      const [nextRow, nextCol] = nextBoard.getValidMovement(
+        sqr.row,
+        sqr.col,
+        'down'
+      )
+      if (nextRow !== null || nextCol !== null) {
+        nextBoard.updateSquare(sqr.row, sqr.col, 0)
+        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
+        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
+      }
+    })
+    return [nextBoard, score]
   }
 
-  #moveDown() {
-    if (!this.canMoveDown) return
-    this.#filledSquares
-      .sort((a, b) => b.row - a.row)
-      .forEach((sqr) => {
-        const selectedMovement = Square.getMovement(sqr, this.board, 'down')
-        this.#moveSquare(sqr, selectedMovement)
-      })
-  }
+  #updateGameState() {
+    this.#checkMoveRight()
+    this.#checkMoveLeft()
+    this.#checkMoveUp()
+    this.#checkMoveDown()
 
-  #checkGameState() {
     if (
       !this.canMoveUp &&
       !this.canMoveDown &&
@@ -218,49 +165,47 @@ export default class GameController {
       !this.canMoveLeft
     ) {
       console.log('Game Over')
-      this.isOver = true
+      this.#isOver = true
     }
   }
 
-  #updateBoard(moveset) {
-    this.#applyMovement(moveset)
-    this.#clearMergedFlags()
-    this.#spawnBlock()
-    this.#updateHistory()
-    this.#checkGameState()
+  #updateBoard(nextBoard, nextScore) {
+    this.score += nextScore
     this.#updateTimeout = null
+    this.#spawnBlock(nextBoard)
+    this.board = nextBoard
+    this.#updateGameState()
   }
 
   move(dir) {
     if (this.#updateTimeout) return
-
+    let nextBoard, nextScore
     switch (dir) {
       case 'right':
-        this.#moveRight()
+        [nextBoard, nextScore] = this.#moveRight(true)
         break
       case 'left':
-        this.#moveLeft()
+        [nextBoard, nextScore] = this.#moveLeft(true)
         break
       case 'up':
-        this.#moveUp()
+        [nextBoard, nextScore] = this.#moveUp(true)
         break
       case 'down':
-        this.#moveDown()
+        [nextBoard, nextScore] = this.#moveDown(true)
         break
     }
 
     this.#updateTimeout = setTimeout(() => {
-      this.#updateBoard(this.#currentMovements)
+      this.#updateBoard(nextBoard, nextScore)
     }, this.updateDelay)
   }
 
   start() {
     this.score = 0
-    this.isOver = false
-    this.movementHistory = []
+    this.#isOver = false
     this.#clearBoard()
-    this.#spawnBlock()
-    this.#spawnBlock()
-    this.#currentMovements = []
+    this.#spawnBlock(this.board)
+    this.#spawnBlock(this.board)
+    this.#updateGameState()
   }
 }
