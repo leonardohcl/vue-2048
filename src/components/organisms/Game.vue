@@ -2,6 +2,13 @@
   <div class="game">
     <div class="game__overlay">
       <button class="game_control" @click="game.start()">New Game</button>
+      <button
+        class="game_control"
+        @click="game.undo()"
+        :disabled="game.isOver || game.movementHistory.length === 0"
+      >
+        Undo ({{ game.movementHistory.length }})
+      </button>
     </div>
     <div class="game__score">Score: {{ game.score }}</div>
     <Board :board="game.board" :size="game.size" />
@@ -34,6 +41,22 @@
       >
         right
       </button>
+    </div>
+
+    Last Movements
+    <hr />
+    <div v-for="(state, idx) in game.movementHistory" :key="idx">
+      <div v-for="(move, idx) in state" :key="idx">
+        {{ move.origin.row }},{{ move.origin.col }}({{ move.origin.value }})
+        <span v-if="move.isSpawn"> [spawned] </span>
+        <span v-else>
+          -> {{ move.target.row }},{{ move.target.col }}({{
+            move.target.value
+          }})
+        </span>
+        <span v-if="move.isMerge">[merge]</span>
+      </div>
+      <hr />
     </div>
   </div>
 </template>
