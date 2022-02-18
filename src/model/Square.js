@@ -1,45 +1,73 @@
 const getPossibleMovementsUpwards = (sqr, sqrList) => {
   return sqrList.filter(
     (pos) =>
-      pos.row < sqr.row &&
-      pos.col == sqr.col &&
-      !pos.merged &&
-      (pos.value == 0 || pos.value == sqr.value)
+    pos.row < sqr.row &&
+    pos.col == sqr.col
   )
 }
 
 const getPossibleMovementsDownwards = (sqr, sqrList) => {
   return sqrList.filter(
     (pos) =>
-      pos.row > sqr.row &&
-      pos.col == sqr.col &&
-      !pos.merged &&
-      (pos.value == 0 || pos.value == sqr.value)
+    pos.row > sqr.row &&
+    pos.col == sqr.col
   )
 }
 
 const getPossibleMovementsToTheRight = (sqr, sqrList) => {
   return sqrList.filter(
     (pos) =>
-      pos.row == sqr.row &&
-      pos.col > sqr.col &&
-      !pos.merged &&
-      (pos.value == 0 || pos.value == sqr.value)
+    pos.row == sqr.row &&
+    pos.col > sqr.col
   )
 }
 
 const getPossibleMovementsToTheLeft = (sqr, sqrList) => {
   return sqrList.filter(
     (pos) =>
-      pos.row == sqr.row &&
-      pos.col < sqr.col &&
-      !pos.merged &&
-      (pos.value == 0 || pos.value == sqr.value)
+    pos.row == sqr.row &&
+    pos.col < sqr.col
   )
+}
+
+const getMovementToTheRight = (sqr, sqrList) => {
+  const movementCandidates = getPossibleMovementsToTheRight(sqr, sqrList)
+  return selectedMove(sqr, movementCandidates.sort((a, b) => a.col - b.col));
+}
+
+const getMovementToTheLeft = (sqr, sqrList) => {
+  const movementCandidates = getPossibleMovementsToTheLeft(sqr, sqrList)
+  return selectedMove(sqr, movementCandidates.sort((a, b) => b.col - a.col));
+}
+
+const getMovementDownwards = (sqr, sqrList) => {
+  const movementCandidates = getPossibleMovementsDownwards(sqr, sqrList)
+  return selectedMove(sqr, movementCandidates.sort((a, b) => a.row - b.row));
+}
+
+const getMovementUpwards = (sqr, sqrList) => {
+  const movementCandidates = getPossibleMovementsUpwards(sqr, sqrList)
+  return selectedMove(sqr, movementCandidates.sort((a, b) => b.row - a.row));
+}
+
+const selectedMove = (sqr, movements) => {
+  let selectedMove = null;
+  movements.some(move => {
+    if (move.value === 0) selectedMove = move;
+    else if (move.value === sqr.value && !move.merged) {
+      selectedMove = move;
+      return true;
+    } else if (move.value > sqr.value || move.value < sqr.value) return true;
+  });
+
+  return selectedMove;
 }
 
 export default class Square {
   merged = false
+  previousValue = null
+  nextValue = null  
+
   constructor(row, col, value = 0) {
     this.value = value
     this.row = row
@@ -63,39 +91,16 @@ export default class Square {
     this.value = value
   }
 
-  static getMovementToTheRight(sqr, sqrList) {
-    const movementCandidates = getPossibleMovementsToTheRight(sqr, sqrList)
-
-    if (movementCandidates.length == 0) return null
-
-    movementCandidates.sort((a, b) => b.col - a.col)
-    return movementCandidates[0]
-  }
-
-  static getMovementToTheLeft(sqr, sqrList) {
-    const movementCandidates = getPossibleMovementsToTheLeft(sqr, sqrList)
-
-    if (movementCandidates.length == 0) return null
-
-    movementCandidates.sort((a, b) => a.col - b.col)
-    return movementCandidates[0]
-  }
-
-  static getMovementDownwards(sqr, sqrList) {
-    const movementCandidates = getPossibleMovementsDownwards(sqr, sqrList)
-
-    if (movementCandidates.length == 0) return null
-
-    movementCandidates.sort((a, b) => b.row - a.row)
-    return movementCandidates[0]
-  }
-
-  static getMovementUpwards(sqr, sqrList) {
-    const movementCandidates = getPossibleMovementsUpwards(sqr, sqrList)
-
-    if (movementCandidates.length == 0) return null
-
-    movementCandidates.sort((a, b) => a.row - b.row)
-    return movementCandidates[0]
+  static getMovement(sqr, sqrList, dir) {
+    switch (dir) {
+      case "left":
+        return getMovementToTheLeft(sqr, sqrList);
+      case "right":
+        return getMovementToTheRight(sqr, sqrList);
+      case "up":
+        return getMovementUpwards(sqr, sqrList);
+      case "down":
+        return getMovementDownwards(sqr, sqrList);
+    }
   }
 }

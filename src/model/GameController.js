@@ -1,6 +1,6 @@
 import Square from './Square'
 
-export default class Game {
+export default class GameController {
   score = 0
   isOver = true
   board = []
@@ -21,7 +21,7 @@ export default class Game {
   get canMoveRight() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovementToTheRight(squares[i], this.board)
+      const movement = Square.getMovement(squares[i], this.board, "right")
       if (movement !== null) return true
     }
     return false
@@ -30,7 +30,7 @@ export default class Game {
   get canMoveLeft() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovementToTheLeft(squares[i], this.board)
+      const movement = Square.getMovement(squares[i], this.board, "left")
       if (movement !== null) return true
     }
     return false
@@ -39,7 +39,7 @@ export default class Game {
   get canMoveDown() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovementDownwards(squares[i], this.board)
+      const movement = Square.getMovement(squares[i], this.board, "down")
       if (movement !== null) return true
     }
     return false
@@ -48,7 +48,7 @@ export default class Game {
   get canMoveUp() {
     const squares = this.#filledSquares
     for (let i = 0; i < squares.length; i++) {
-      const movement = Square.getMovementUpwards(squares[i], this.board)
+      const movement = Square.getMovement(squares[i], this.board, "up")
       if (movement !== null) return true
     }
     return false
@@ -76,10 +76,8 @@ export default class Game {
     this.board.filter((sqr) => sqr.merged).forEach((sqr) => sqr.mergeComplete())
   }
 
-  #moveSquare(sqr, target) {
+  #moveSquare(sqr,target) {    
     if (target == null) return
-
-    // console.log(`${sqr.row},${sqr.col} -> ${target.row},${target.col}`)
 
     if (target.value !== 0) {
       target.merge()
@@ -95,8 +93,7 @@ export default class Game {
     this.#filledSquares
       .sort((a, b) => b.col - a.col)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovementToTheRight(sqr, this.board)
-
+        const selectedMovement = Square.getMovement(sqr, this.board, "right")
         this.#moveSquare(sqr, selectedMovement)
       })
   }
@@ -106,9 +103,9 @@ export default class Game {
     this.#filledSquares
       .sort((a, b) => a.col - b.col)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovementToTheLeft(sqr, this.board)
-
+        const selectedMovement = Square.getMovement(sqr, this.board, "left")
         this.#moveSquare(sqr, selectedMovement)
+
       })
   }
 
@@ -117,9 +114,9 @@ export default class Game {
     this.#filledSquares
       .sort((a, b) => a.row - b.row)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovementUpwards(sqr, this.board)
-
+        const selectedMovement = Square.getMovement(sqr, this.board, "up")
         this.#moveSquare(sqr, selectedMovement)
+
       })
   }
 
@@ -128,9 +125,9 @@ export default class Game {
     this.#filledSquares
       .sort((a, b) => b.row - a.row)
       .forEach((sqr) => {
-        const selectedMovement = Square.getMovementDownwards(sqr, this.board)
-
+        const selectedMovement = Square.getMovement(sqr, this.board, "down")
         this.#moveSquare(sqr, selectedMovement)
+
       })
   }
 
