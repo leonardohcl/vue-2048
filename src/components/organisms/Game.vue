@@ -132,10 +132,6 @@ export default {
       type: Game,
       required: true,
     },
-    inputCooldown: {
-      type: Number,
-      default: 200,
-    },
   },
   data() {
     return {
@@ -144,26 +140,25 @@ export default {
   },
   methods: {
     keyboardCommand(cmd) {
-      if (COOLDOWN.active || this.game.isGameOver) return;
+      if (COOLDOWN.active || this.game.isGameOver || this.game.winner) return;
 
       if (COMMAND_KEYS[cmd.event.key]) {
-        COOLDOWN.active = true;
-
-        this.game.move(COMMAND_KEYS[cmd.event.key]);
         this.startCooldown();
+        this.game.move(COMMAND_KEYS[cmd.event.key]);
       }
     },
     swipeCommand(cmd) {
-      if (COOLDOWN.active || this.game.isGameOver) return;
+      if (COOLDOWN.active || this.game.isGameOver || this.game.winner) return;
+      this.startCooldown();
 
       this.game.move(COMMAND_KEYS[cmd]);
-      this.startCooldown();
     },
     startCooldown() {
+      COOLDOWN.active = true;
       if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout);
       COOLDOWN.timeout = setTimeout(() => {
         COOLDOWN.active = false;
-      }, this.inputCooldown);
+      }, this.game.updateDelay);
     },
   },
 };
@@ -180,10 +175,13 @@ export default {
   width: 100%;
   min-width: 200px;
   max-width: 400px;
+  touch-action: pan-x;
 
   &--over {
-    .game__hud {
-      opacity: 0;
+    .game {
+      &__hud {
+        opacity: 0;
+      }
     }
   }
 
