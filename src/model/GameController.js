@@ -1,5 +1,8 @@
 import Board from './Board'
 import { orderBy } from 'lodash'
+
+const ResolvedPromise = () => new Promise(resolve => resolve())
+
 export default class GameController {
   score = 0
   #isOver = true
@@ -179,26 +182,41 @@ export default class GameController {
   }
 
   move(dir) {
-    if (this.#updateTimeout) return
+    if (this.#updateTimeout) return ResolvedPromise()
     let nextBoard, nextScore
     switch (dir) {
       case 'right':
-        [nextBoard, nextScore] = this.#moveRight(true)
-        break
+        if(this.canMoveRight) {
+          [nextBoard, nextScore] = this.#moveRight(true)
+          break
+        }
+        else return ResolvedPromise()
       case 'left':
-        [nextBoard, nextScore] = this.#moveLeft(true)
-        break
+        if(this.canMoveLeft) {
+          [nextBoard, nextScore] = this.#moveLeft(true)
+          break
+        }
+        else return ResolvedPromise()
       case 'up':
-        [nextBoard, nextScore] = this.#moveUp(true)
-        break
+        if(this.canMoveUp){
+          [nextBoard, nextScore] = this.#moveUp(true)
+          break
+        }
+        else return ResolvedPromise()
       case 'down':
-        [nextBoard, nextScore] = this.#moveDown(true)
-        break
+        if(this.canMoveDown){
+          [nextBoard, nextScore] = this.#moveDown(true)
+          break
+        }
+        else return ResolvedPromise()
     }
 
-    this.#updateTimeout = setTimeout(() => {
-      this.#updateBoard(nextBoard, nextScore)
-    }, this.updateDelay)
+    return new Promise((resolve) => {
+      this.#updateTimeout = setTimeout(() => {
+        this.#updateBoard(nextBoard, nextScore)
+        resolve()
+      }, this.updateDelay)
+    })
   }
 
   start() {

@@ -10,7 +10,7 @@
     name: 'Home',
     data() {
       return {
-        game: new GameController(4,200),
+        game: new GameController(4,100),
       }
     },
     components: { Game },
