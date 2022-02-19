@@ -1,4 +1,6 @@
 export default class Square {
+  willMerge = true
+
   nextMove = {
     spawn: false,
     vertical: 0,

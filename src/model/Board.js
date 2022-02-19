@@ -31,6 +31,7 @@ export default class Board {
     const sqr = this.getSquare(row, col)
     if (sqr) {
       if (sqr.value == val) {
+        sqr.willMerge = false;
         sqr.setValue(sqr.value + val)
         return sqr.value
       } else {
@@ -63,7 +64,9 @@ export default class Board {
       selectedNeighbor = null
     while (neighbor != null) {
       if (neighbor.value == sqr.value) {
-        selectedNeighbor = neighbor
+        if(neighbor.willMerge){
+          selectedNeighbor = neighbor
+        }
         break
       } else if (neighbor.value == 0) {
         selectedNeighbor = neighbor
