@@ -68,6 +68,7 @@ export default class GameController {
 
     const selectedIndex = Math.floor(Math.random() * options.length)
 
+    options[selectedIndex].setSpawn()
     if (Math.random() > 0.1) options[selectedIndex].setValue(2)
     else options[selectedIndex].setValue(4)
   }

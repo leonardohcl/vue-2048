@@ -1,5 +1,6 @@
 export default class Square {
   nextMove = {
+    spawn: false,
     vertical: 0,
     horizontal: 0,
   }
@@ -20,6 +21,10 @@ export default class Square {
 
   setValue(value) {
     this.value = value
+  }
+
+  setSpawn() {
+    this.nextMove.spawn = true;
   }
 
   setMove(vertical, horizontal) {
