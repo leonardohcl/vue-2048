@@ -140,17 +140,15 @@ export default {
   },
   methods: {
     keyboardCommand(cmd) {
-      if (COOLDOWN.active || this.game.isGameOver || this.game.winner) return;
-
       if (COMMAND_KEYS[cmd.event.key]) {
+        if (!this.canMove()) return;
         this.startCooldown();
         this.game.move(COMMAND_KEYS[cmd.event.key]);
       }
     },
     swipeCommand(cmd) {
-      if (COOLDOWN.active || this.game.isGameOver || this.game.winner) return;
+      if (!this.canMove()) return;
       this.startCooldown();
-
       this.game.move(COMMAND_KEYS[cmd]);
     },
     startCooldown() {
@@ -159,6 +157,12 @@ export default {
       COOLDOWN.timeout = setTimeout(() => {
         COOLDOWN.active = false;
       }, this.game.updateDelay);
+    },
+    canMove() {
+      if (COOLDOWN.active) return false;
+      if (this.game.isGameOver) return false;
+      if (this.game.winner && !this.ignoreWin) return false;
+      return true;
     },
   },
 };
