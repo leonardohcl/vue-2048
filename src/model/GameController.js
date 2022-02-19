@@ -5,6 +5,7 @@ const ResolvedPromise = () => new Promise(resolve => resolve())
 
 export default class GameController {
   score = 0
+  #win = false
   #isOver = true
   board = null
   #updateTimeout = null
@@ -22,6 +23,10 @@ export default class GameController {
 
   get isGameOver(){
     return this.#isOver
+  }
+
+  get winner(){
+    return this.#win
   }
 
   #checkMoveRight() {
@@ -157,6 +162,11 @@ export default class GameController {
   }
 
   #updateGameState() {
+    if(!this.#win && this.board.highestValue >= 2048){
+      console.log("Win!!!")
+      this.#win = true;
+    }
+
     this.#checkMoveRight()
     this.#checkMoveLeft()
     this.#checkMoveUp()

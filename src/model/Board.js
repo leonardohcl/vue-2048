@@ -1,4 +1,7 @@
 import Square from './Square'
+import {
+  orderBy
+} from 'lodash'
 
 export default class Board {
   constructor(size) {
@@ -16,6 +19,12 @@ export default class Board {
 
   get filledSquares() {
     return this.squares.filter((square) => square.isEmpty === false)
+  }
+
+  get highestValue() {
+    const orderedList = orderBy(this.filledSquares, "value", "desc")
+
+    return orderedList.length ? orderedList[0].value : 0
   }
 
   updateSquare(row, col, val) {
@@ -64,8 +73,10 @@ export default class Board {
       neighbor = this.getSquareNeighbor(neighbor.row, neighbor.col, dir)
     }
 
-    return selectedNeighbor
-      ? [selectedNeighbor.row, selectedNeighbor.col]
-      : [null, null]
+    return selectedNeighbor ?
+      [selectedNeighbor.row, selectedNeighbor.col] :
+      [null, null]
   }
+
+
 }
