@@ -11,46 +11,50 @@
 </template>
 
 <script>
-  import Board from '../../model/Board'
-  import Square from '../atoms/Square.vue'
+import Board from "../../model/Board";
+import Square from "../atoms/Square.vue";
 
-  export default {
-    components: { Square },
-    name: 'Board',
-    props: {
-      size: {
-        type: Number,
-        required: true,
-      },
-      board: {
-        type: Board,
-        required: true,
-      },
-      transitionDuration: {
-        type: Number,
-        required: true,
-      },
-      gap: {
-        type: Number,
-        default: 0.25,
-      },
+export default {
+  components: { Square },
+  name: "Board",
+  props: {
+    size: {
+      type: Number,
+      required: true,
     },
-    computed: {
-      boardStyle() {
-        return {
-          'grid-template-rows': `repeat(${this.size}, min-content)`,
-          'grid-template-columns': `repeat(${this.size}, min-content)`,
-          gap: `${this.gap}em`,
-        }
-      },
+    board: {
+      type: Board,
+      required: true,
     },
-  }
+    transitionDuration: {
+      type: Number,
+      required: true,
+    },
+    gap: {
+      type: Number,
+      default: 0.25,
+    },
+  },
+  computed: {
+    boardStyle() {
+      return {
+        "grid-template-rows": `repeat(${this.size}, 1fr)`,
+        "grid-template-columns": `repeat(${this.size}, 1fr)`,
+        gap: `${this.gap}em`,
+        padding: `${this.gap}em`,
+      };
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  @import '../../assets/styles/base';
+@import "../../assets/styles/base";
 
-  .board {
-    display: grid;
-  }
+.board {
+  background-color: $bg-surface;
+  border-radius: $square-border-radius;
+  display: grid;
+  width: 100%;
+}
 </style>

@@ -45,6 +45,9 @@ export default {
         trasition: "",
         transform: "",
         "animation-duration": `${this.transitionDuration}ms`,
+        "font-size": `${
+          this.data.value >= 1000 ? 1 : this.data.value > 100 ? 1.2 : 1.3
+        }em`,
       };
       if (this.stepSize) {
         styles.transition = `transform ${this.transitionDuration}ms ease-out`;
@@ -69,12 +72,16 @@ export default {
 @import "../../assets/styles/base";
 
 .square {
-  width: $square-size;
-  height: $square-size;
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
   border-radius: $square-border-radius;
-  background-color: $square-color;
+  background-color: fade-out($square-color, 0.8);
+  font-size: 1.3rem;
 
   &__block {
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     border-radius: inherit;
@@ -84,6 +91,7 @@ export default {
     align-items: center;
     justify-content: center;
     transform: translate(0, 0);
+    position: absolute;
 
     &--spawn {
       animation: spawn;

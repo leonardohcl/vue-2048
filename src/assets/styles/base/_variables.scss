@@ -1,17 +1,36 @@
 $text-size: 16px;
-$square-size: 40px;
-$square-border-radius: .5rem;
-$square-color: lightgrey;
+$text-color: white;
 
+$bg: #1B1B1E;
+$bg-surface: #373F51;
 
-$block-colors: ("2": #37C4EF,
-    "4": #4895ef,
-    "8":#4361EE,
-    "16":#3F37C9,
-    "32":#3A0CA3,
-    "64":#480CA8,
-    "128":#560BAD,
-    "256":#7209B7,
-    "512":#B5179E,
-    "1024":#F72585,
-    "2048":#f72553);
+$primary: #00a7da;
+$secondary: #4361EE;
+
+$square-border-radius: 0.5rem;
+$square-color: #a9bcd0;
+
+$themes:("primary": $primary,
+  "secondary": $secondary);
+
+$block-colors: ("2": #00a7da,
+  "4": #1870d4,
+  "8": #294ce7,
+  "16": #2b22c7,
+  "32": #3a0ca3,
+  "64": #480ca8,
+  "128": #560bad,
+  "256": #7209b7,
+  "512": #b5179e,
+  "1024": #f72585,
+  "2048": #f72553,
+  "4096": #f73e25,
+  "8192": #d85701,
+);
+
+$breakpoints: ("sm": 576px,
+  "md": 768px,
+  "lg": 992px,
+  "xl": 1200px,
+  "xxl": 1400px,
+);
