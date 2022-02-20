@@ -198,7 +198,7 @@ export default {
     left: 0;
     display: flex;
     flex-direction: column;
-    border-radius: inherit;
+    border-radius: $square-border-radius;
     justify-content: center;
     align-items: center;
     z-index: 1;

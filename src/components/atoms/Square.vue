@@ -44,7 +44,6 @@ export default {
       const styles = {
         trasition: "",
         transform: "",
-        "animation-duration": `${this.transitionDuration}ms`,
         "font-size": `${
           this.data.value >= 1000 ? 1 : this.data.value > 100 ? 1.2 : 1.3
         }em`,
@@ -94,7 +93,14 @@ export default {
     position: absolute;
 
     &--spawn {
+      width: 10%;
+      height: 10%;
+      left: 45%;
+      top: 45%;
+      opacity: 0.3;
       animation: spawn;
+      animation-fill-mode: forwards;
+      animation-duration: 200ms;
     }
 
     @each $key, $value in $block-colors {
@@ -106,11 +112,12 @@ export default {
 }
 
 @keyframes spawn {
-  0% {
-    transform: scale(0);
-  }
   100% {
-    transform: scale(1);
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    opacity: 1;
   }
 }
 </style>
