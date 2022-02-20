@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="`game ${game.isGameOver ? 'game--over' : 'game--running'}`"
-    v-touch:swipe="swipeCommand"
-  >
+  <div :class="`game ${game.isGameOver ? 'game--over' : 'game--running'}`">
     <Transition name="fade">
       <div
         class="game__overlay"
@@ -29,6 +26,7 @@
       </div>
     </div>
     <div class="game__board">
+      <div class="game__board--touch-area" ref="touchArea"></div>
       <Board
         :board="game.board"
         :size="game.size"
@@ -108,6 +106,11 @@ import Board from "@/components/molecule/Board.vue";
 import Btn from "@/components/atoms/Btn.vue";
 import Keypress from "vue-keypress";
 
+const TOUCH_INFO = {
+  start: null,
+  minimumSwipeSize: 30, //px
+};
+
 const COMMAND_KEYS = {
   ArrowUp: "up",
   ArrowRight: "right",
@@ -164,6 +167,60 @@ export default {
       if (this.game.winner && !this.ignoreWin) return false;
       return true;
     },
+    handleTouchStart(evt) {
+      evt.preventDefault();
+      if (TOUCH_INFO.start) return;
+      TOUCH_INFO.start = {
+        id: evt.touches[0].identifier,
+        x: evt.touches[0].clientX,
+        y: evt.touches[0].clientY,
+      };
+    },
+    handleTouchEnd(evt) {
+      evt.preventDefault();
+      if (!TOUCH_INFO.start) return;
+      let touch;
+      for (let i = 0; i < evt.changedTouches.length; i++) {
+        if (evt.changedTouches[i].identifier === TOUCH_INFO.start.id) {
+          touch = evt.changedTouches[i];
+          break;
+        }
+      }
+      if (!touch) return;
+
+      const end = {
+          id: touch.identifier,
+          x: touch.clientX,
+          y: touch.clientY,
+        },
+        deltaX = Math.abs(TOUCH_INFO.start.x - end.x),
+        deltaY = Math.abs(TOUCH_INFO.start.y - end.y);
+
+      let command;
+      if (deltaX > deltaY && deltaX > TOUCH_INFO.minimumSwipeSize) {
+        if (TOUCH_INFO.start.x > end.x) command = "left";
+        else command = "right";
+      } else if (deltaY > TOUCH_INFO.minimumSwipeSize) {
+        if (TOUCH_INFO.start.y > end.y) command = "top";
+        else command = "bottom";
+      }
+
+      if (command) {
+        this.swipeCommand(command);
+      }
+      TOUCH_INFO.start = null;
+    },
+  },
+  mounted() {
+    this.$refs.touchArea.addEventListener("touchstart", this.handleTouchStart);
+    this.$refs.touchArea.addEventListener("touchend", this.handleTouchEnd);
+  },
+  beforeDestroy() {
+    this.$refs.touchArea.removeEventListener(
+      "touchstart",
+      this.handleTouchStart
+    );
+    this.$refs.touchArea.removeEventListener("touchend", this.handleTouchEnd);
   },
 };
 </script>
@@ -179,12 +236,17 @@ export default {
   width: 100%;
   min-width: 200px;
   max-width: 400px;
-  touch-action: pan-x;
 
   &--over {
     .game {
       &__hud {
         opacity: 0;
+      }
+
+      &__board{
+        &--touch-area{
+          display: none;
+        }
       }
     }
   }
@@ -234,6 +296,18 @@ export default {
         font-size: 1.3em;
         font-weight: bold;
       }
+    }
+  }
+
+  &__board{
+    position: relative;
+    &--touch-area{
+      position: absolute;
+      top: 0;
+      left: -1rem;
+      width: calc(100% + 2rem);
+      height : 100%;
+      z-index: 1;
     }
   }
 
