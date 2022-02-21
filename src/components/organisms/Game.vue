@@ -273,7 +273,7 @@ export default {
     border-radius: $square-border-radius;
     justify-content: center;
     align-items: center;
-    z-index: 1;
+    z-index: 2;
 
     &--score {
       color: black;

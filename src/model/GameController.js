@@ -232,6 +232,7 @@ export default class GameController {
   start() {
     this.score = 0
     this.#isOver = false
+    this.#win = false
     this.#clearBoard()
     this.#spawnBlock(this.board)
     this.#spawnBlock(this.board)
