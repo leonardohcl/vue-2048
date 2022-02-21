@@ -108,7 +108,9 @@ import Keypress from "vue-keypress";
 
 const TOUCH_INFO = {
   start: null,
-  minimumSwipeSize: 30, //px
+  minimumSwipeSize: 30, //px,
+  releaseTouchTime: 1500, //ms
+  releaseTimeOut: null
 };
 
 const COMMAND_KEYS = {
@@ -175,6 +177,9 @@ export default {
         x: evt.touches[0].clientX,
         y: evt.touches[0].clientY,
       };
+      TOUCH_INFO.releaseTimeOut = setTimeout(() =>{
+        TOUCH_INFO.start = null;
+      }, TOUCH_INFO.releaseTouchTime)
     },
     handleTouchEnd(evt) {
       evt.preventDefault();
@@ -207,6 +212,11 @@ export default {
 
       if (command) {
         this.swipeCommand(command);
+      }
+
+      if(TOUCH_INFO.releaseTimeOut){
+        clearTimeout(TOUCH_INFO.releaseTimeOut);
+        TOUCH_INFO.releaseTimeOut = null
       }
       TOUCH_INFO.start = null;
     },
