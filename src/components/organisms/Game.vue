@@ -101,7 +101,7 @@
 </template>
 
 <script>
-import Game from "@/model/GameController";
+import Game from "@/model/2048/GameController";
 import Board from "@/components/molecule/Board.vue";
 import Btn from "@/components/atoms/Btn.vue";
 import Keypress from "vue-keypress";

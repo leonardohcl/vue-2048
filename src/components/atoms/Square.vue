@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Square from "../../model/Square";
+import Square from "@/model/2048/Square";
 
 export default {
   name: "Square",

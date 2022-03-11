@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import Game from "../components/organisms/Game.vue";
-import GameController from "../model/GameController";
+import Game from "@/components/organisms/Game.vue";
+import GameController from "@/model/2048/GameController";
 
 export default {
   name: "Home",

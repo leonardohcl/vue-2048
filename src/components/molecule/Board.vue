@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import Board from "../../model/Board";
-import Square from "../atoms/Square.vue";
+import Board from "@/model/2048/Board";
+import Square from "@/components/atoms/Square.vue";
 
 export default {
   components: { Square },
