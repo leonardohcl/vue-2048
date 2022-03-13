@@ -1,5 +1,6 @@
 import Game from "../2048/GameController"
 import NeuralNetwork from "./NeuralNetwork";
+import WeightedRoulette from "./WeighedRoulette";
 
 const moves = {
     NONE: -1,
@@ -40,7 +41,11 @@ export default class Robot {
         return this._game.board
     }
 
-    async play() {
+    get brain() {
+        return this._brain;
+    }
+
+    async play(highestBlock = 2048) {
         this._game.start()
         let move;
         do {
@@ -59,7 +64,7 @@ export default class Robot {
                     await this._game.move("down");
                     break;
             }
-        } while (!this._game.isGameOver && move != moves.NONE)
+        } while (!this._game.isGameOver && move != moves.NONE && this._game.board.highestValue < highestBlock)
 
         return this._game.score
     }
@@ -106,6 +111,51 @@ export default class Robot {
         });
 
         return intToMove(bestIndex)
+    }
+
+    crossover(robot, crossoverPoint, mutationProbability = 0) {
+        this._brain.crossover(robot.brain, crossoverPoint, mutationProbability)
+    }
+
+    static async getTrained(innerLayers, populationSize, generationCount, mutationProbability, withElitism = true) {
+        const game = new Game(4, 0)
+        const robots = new Array(populationSize).fill(0).map(() => new Robot(innerLayers, game))
+        var bestRobot, bestScore = -Infinity,
+            scores = new Array(populationSize).fill(0),
+            goatRobot, goatScore = -Infinity;
+
+        for (let gen = 1; gen <= generationCount; gen++) {
+            bestRobot = null;
+            bestScore = -Infinity;
+            console.log(`gen ${gen}`)
+
+            // Get fitness
+            for (let i = 0; i < robots.length; i++) {
+                scores[i] = await robots[i].play();
+                if (scores[i] > bestScore) {
+                    bestScore = scores[i];
+                    bestRobot = robots[i];
+
+                    if (scores[i] > goatScore) {
+                        console.log(`NEW BEST!! score ${scores[i]}`)
+                        goatRobot = robots[i]
+                        goatScore = scores[i]
+                    }
+                }
+            }
+            const roulette = new WeightedRoulette(scores);
+
+
+            // Breed and mutate
+            for (let i = 0; i < robots.length; i++) {
+                if (withElitism && robots[i] === bestRobot) continue;
+                const breedingRobot = robots[roulette.getIndex()]
+                const crossoverPoint = Math.random()
+                robots[i].crossover(breedingRobot, crossoverPoint, mutationProbability)
+            }
+        }
+
+        return goatRobot
     }
 
 }

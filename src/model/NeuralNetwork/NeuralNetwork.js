@@ -1,13 +1,6 @@
+import { softmax } from "../../utils/array";
 import Layer from "./Layer";
 import Matrix from "./Matrix";
-
-const softmax = arr => {
-    const arrExpSum = arr.map(x => Math.exp(x)).reduce((acc, next) => acc + next, 0);
-    return arr.map((x) => {
-        if (arrExpSum == 0) return 0;
-        return Math.exp(x) / arrExpSum
-    })
-}
 
 export default class NeuralNetwork {
     constructor(layerSizes, useBias = true, useBatchNormalization = true) {
@@ -17,6 +10,14 @@ export default class NeuralNetwork {
         const layers = new Array(layerSizes.length - 1).fill(0);
         this._layers =
             layers.map((x, idx) => new Layer(layerSizes[idx], layerSizes[idx + 1], useBias, useBatchNormalization))
+    }
+
+    get layerCount() {
+        return this.layerSizes.length
+    }
+
+    get layers() {
+        return this._layers
     }
 
     processInput(input, useSoftmax) {
@@ -32,5 +33,12 @@ export default class NeuralNetwork {
         })
 
         return useSoftmax ? [softmax(result[0])] : result;
+    }
+
+    crossover(net, crossoverPoint, mutationProbability = 0) {
+        if (this.layerCount != net.layerCount) throw "Can't crossover networks with different structures"
+        for (let i = 0; i < this._layers.length; i++) {
+            this._layers[i].crossover(net.layers[i], crossoverPoint, mutationProbability)
+        }
     }
 }
