@@ -28,7 +28,7 @@ export default {
     },
     transitionDuration: {
       type: Number,
-      required: true,
+      default: 0
     },
     gap: {
       type: Number,
