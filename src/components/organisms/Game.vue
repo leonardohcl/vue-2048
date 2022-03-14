@@ -270,7 +270,7 @@ export default {
     left: 0;
     display: flex;
     flex-direction: column;
-    border-radius: $square-border-radius;
+    border-radius: $square-border-radius/2;
     justify-content: center;
     align-items: center;
     z-index: 2;
