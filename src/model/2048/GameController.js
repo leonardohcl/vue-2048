@@ -163,7 +163,6 @@ export default class GameController {
 
   #updateGameState() {
     if(!this.#win && this.board.highestValue >= 2048){
-      console.log("Win!!!")
       this.#win = true;
     }
 
@@ -178,7 +177,6 @@ export default class GameController {
       !this.canMoveRight &&
       !this.canMoveLeft
     ) {
-      console.log('Game Over')
       this.#isOver = true
     }
   }

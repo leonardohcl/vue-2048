@@ -23,7 +23,7 @@ export default {
       required: true,
     },
     board: {
-      type: Board,
+      type: [Board, Object],
       required: true,
     },
     transitionDuration: {

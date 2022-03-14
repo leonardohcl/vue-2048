@@ -27,6 +27,12 @@ export default class Board {
     return orderedList.length ? orderedList[0].value : 0
   }
 
+  clone(){
+    const copy = new Board(this.size);
+    copy.squares = this.squares.map(square => square.clone())
+    return copy;
+  }
+
   updateSquare(row, col, val) {
     const sqr = this.getSquare(row, col)
     if (sqr) {

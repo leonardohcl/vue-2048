@@ -21,6 +21,12 @@ export default class Square {
     return `${this.row}, ${this.col}`
   }
 
+  clone(){
+    const copy = new Square(this.row, this.col, this.value);
+    copy.nextMove = {...this.nextMove}
+    return copy;
+  }
+
   setValue(value) {
     this.value = value
   }

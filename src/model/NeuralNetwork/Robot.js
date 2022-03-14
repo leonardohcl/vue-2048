@@ -117,7 +117,7 @@ export default class Robot {
         this._brain.crossover(robot.brain, crossoverPoint, mutationProbability)
     }
 
-    static async getTrained(innerLayers, populationSize, generationCount, mutationProbability, withElitism = true) {
+    static async getTrained(innerLayers, populationSize, generationCount, mutationProbability, withElitism = true, generationCallback = () => null, elementCallback = () => null) {
         const game = new Game(4, 0)
         const robots = new Array(populationSize).fill(0).map(() => new Robot(innerLayers, game))
         var bestRobot, bestScore = -Infinity,
@@ -127,7 +127,6 @@ export default class Robot {
         for (let gen = 1; gen <= generationCount; gen++) {
             bestRobot = null;
             bestScore = -Infinity;
-            console.log(`gen ${gen}`)
 
             // Get fitness
             for (let i = 0; i < robots.length; i++) {
@@ -137,11 +136,14 @@ export default class Robot {
                     bestRobot = robots[i];
 
                     if (scores[i] > goatScore) {
-                        console.log(`NEW BEST!! score ${scores[i]}`)
                         goatRobot = robots[i]
                         goatScore = scores[i]
                     }
                 }
+                elementCallback({
+                    element: i,
+                    elementCount: robots.length 
+                })
             }
             const roulette = new WeightedRoulette(scores);
 
@@ -153,6 +155,13 @@ export default class Robot {
                 const crossoverPoint = Math.random()
                 robots[i].crossover(breedingRobot, crossoverPoint, mutationProbability)
             }
+
+            generationCallback({
+                bestScore,
+                scores,
+                generation: gen,
+                generationCount: generationCount
+            })
         }
 
         return goatRobot
