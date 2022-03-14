@@ -3,6 +3,9 @@
     class="progress-bar"
     :class="{ 'progress-bar--no-animations': disableAnimations }"
   >
+    <span class="progress-bar__percentage progress-bar__percentage--reverse"
+      >{{ percentage }}%</span
+    >
     <div
       class="progress-bar__progress"
       :class="{ 'progress-bar__progress--active': active }"
@@ -22,8 +25,11 @@
     computed: {
       progressStyle() {
         return {
-          width: `${this.percent * 100}%`,
+          width: `${this.percentage}%`,
         }
+      },
+      percentage() {
+        return (this.percent * 100).toFixed(2)
       },
     },
   }
@@ -35,6 +41,7 @@
   .progress-bar {
     $container: &;
 
+    position: relative;
     height: 1.5em;
     width: 100%;
     background-color: $bg-surface;
@@ -42,6 +49,13 @@
     margin: 0.5rem 0;
     text-align: center;
     overflow: hidden;
+
+    &__percentage {
+      position: absolute;
+      text-align: center;
+      left: 0;
+      right: 0;
+    }
 
     &:not(#{$container}--no-animations) {
       &__progress {

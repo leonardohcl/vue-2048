@@ -35,6 +35,9 @@
     <div class="progress">
       <b>Training</b>
       <ProgressBar :percent="percent" :active="training" disable-animations />
+      <div class="text-right">
+        <Timer :id="timerId" />
+      </div>
     </div>
   </form>
 </template>
@@ -44,20 +47,21 @@
   import Input from '@/components/atoms/Input.vue'
   import Robot from '@/model/NeuralNetwork/Robot'
   import ProgressBar from '../atoms/ProgressBar.vue'
+  import Timer from '../atoms/Timer.vue'
 
   const trainingProgress = {
     current: 0,
     diff: 0,
-    updateThreshold: 0
+    updateThreshold: 0,
   }
 
   export default {
-    components: { Btn, Input, ProgressBar },
+    components: { Btn, Input, ProgressBar, Timer },
     name: 'RobotTrainingForm',
     props: {
       progressUpdateThreshold: {
         type: Number,
-        default: 0.005,
+        default: 0,
       },
       haltTimeout: {
         type: Number,
@@ -69,6 +73,7 @@
         training: false,
         percent: 0,
         trainingPromise: null,
+        timerId: 'training-timer',
         form: {
           mutation: 0,
           generationCount: 0,
@@ -81,10 +86,13 @@
       async trainRobot(evt) {
         evt.preventDefault()
         this.training = true
+        this.$root.$emit('timerClear', this.timerId)
+        this.$root.$emit('timerStart', this.timerId)
         this.percent = 0
-        trainingProgress.updateThreshold =  this.progressUpdateThreshold / this.form.generationCount
+        trainingProgress.updateThreshold =
+          this.progressUpdateThreshold / this.form.generationCount
         const trainingPromise = Robot.getTrained(
-          [64,16],
+          [],
           this.form.populationSize,
           this.form.generationCount,
           this.form.mutation,
@@ -96,6 +104,7 @@
         trainingPromise
           .then((robot) => {
             this.$emit('trained', { robot })
+            this.$root.$emit('timerStop', this.timerId)
           })
           .finally(() => {
             this.training = false
