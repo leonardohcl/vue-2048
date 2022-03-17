@@ -13,9 +13,8 @@ export default class RobotFactory {
   #population = [];
   #goatRobot = null;
   #goatScore = -Infinity;
-  #bestRobot = null;
-  #bestScore = -Infinity;
   #currentGeneration = 1;
+  #shouldStop = false;
 
   constructor(
     boardSize,
@@ -42,17 +41,46 @@ export default class RobotFactory {
     return this.#goatRobot;
   }
 
-  async train(generationCallback = () => null) {
+  get score() {
+    return this.#goatScore;
+  }
+
+  get currentGeneration() {
+    return this.#currentGeneration;
+  }
+
+  get records() {
+    const records = {
+      boardSize: this.boardSize,
+      brainStructure: this.brainStructure,
+      populationSize: this.populationSize,
+      generationCount: this.generationCount,
+      currentGeneration: this.#currentGeneration,
+      mutationProbability: this.mutationProbability,
+      useElitism: this.useElitism,
+      restBetweenGenerations: this.restBetweenGenerations,
+      population: this.#population.map(robot => robot.synapses),
+      goatRobot: this.#goatRobot.synapses,
+      goatScore: this.#goatScore,
+    };
+
+    return JSON.stringify(records);
+  }
+
+  async train(
+    generationCallback = () => null,
+    shouldStopTraining = () => false
+  ) {
     while (this.#currentGeneration <= this.generationCount) {
-      let bestRobotIndex = -1;
+      let bestRobotIndex = -1,
+        bestScore = -Infinity;
 
       // Get fitness
       const scores = this.#population.map((robot, idx) => {
         const score = robot.play();
-        if (score > this.#bestScore) {
+        if (score > bestScore) {
           bestRobotIndex = idx;
-          this.#bestScore = score;
-          this.#bestRobot = robot.clone();
+          bestScore = score;
 
           if (score > this.#goatScore) {
             this.#goatRobot = robot.clone();
@@ -76,7 +104,7 @@ export default class RobotFactory {
       });
 
       generationCallback({
-        bestScore: this.#bestScore,
+        bestScore: bestScore,
         scores,
         generation: this.#currentGeneration,
         generationCount: this.generationCount,
@@ -84,7 +112,27 @@ export default class RobotFactory {
 
       this.#currentGeneration++;
 
+      if (shouldStopTraining()) return;
       await rest(this.restBetweenGenerations);
     }
+  }
+
+  loadRecords(records) {
+    const data = JSON.parse(records);
+
+    this.boardSize = data.boardSize;
+    this.brainStructure = data.brainStructure;
+    this.populationSize = data.populationSize;
+    this.generationCount = data.generationCount;
+    this.#currentGeneration = data.currentGeneration;
+    this.mutationProbability = data.mutationProbability;
+    this.useElitism = data.useElitism;
+    this.restBetweenGenerations = data.restBetweenGenerations;
+    this.#population.forEach((robot, idx) =>
+      robot.loadBrain(data.population[idx])
+    );
+    this.#goatRobot = new Robot(this.brainStructure, new Game(this.boardSize));
+    this.#goatRobot.loadBrain(data.goatRobot);
+    this.#goatScore = data.goatScore;
   }
 }
