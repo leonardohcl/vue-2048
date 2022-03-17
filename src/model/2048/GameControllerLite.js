@@ -3,7 +3,6 @@ import { orderBy } from 'lodash'
 
 export default class GameController {
   score = 0
-  #win = false
   #isOver = true
   #lastMove = null
   board = null
@@ -20,10 +19,6 @@ export default class GameController {
 
   get isGameOver() {
     return this.#isOver
-  }
-
-  get winner() {
-    return this.#win
   }
 
   #spawnBlock(board) {
@@ -122,10 +117,6 @@ export default class GameController {
   }
 
   #updateGameState() {
-    if (!this.#win && this.board.highestValue >= 2048) {
-      this.#win = true
-    }
-
     if (
       !this.canMoveUp &&
       !this.canMoveDown &&
@@ -196,7 +187,6 @@ export default class GameController {
   start() {
     this.score = 0
     this.#isOver = false
-    this.#win = false
     this.#clearBoard()
     this.#clearMovements()
     this.#spawnBlock(this.board)

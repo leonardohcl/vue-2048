@@ -2,7 +2,7 @@
   <div class="container robot-lab">
     <h1>Robot Lab</h1>
     <Card title="Train your robot">
-      <RobotTrainingForm @trained="handleTrainingUpdate" />
+      <RobotFactory @trained="handleTrainingUpdate" />
     </Card>
     <Card v-if="samples.length > 0" title="Games played by the robot">
       <div class="samples">
@@ -17,11 +17,11 @@
 
 <script>
   import Card from '../components/atoms/Card.vue'
-  import RobotTrainingForm from '../components/molecule/RobotTrainingForm.vue'
+  import RobotFactory from '../components/molecule/RobotFactory.vue'
   import Board from '../components/molecule/Board.vue'
 
   export default {
-    components: { Card, RobotTrainingForm, Board },
+    components: { Card, RobotFactory, Board },
     data() {
       return {
         robot: null,

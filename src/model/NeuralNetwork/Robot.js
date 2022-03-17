@@ -1,6 +1,5 @@
 import Game from '../2048/GameControllerLite'
 import NeuralNetwork from './NeuralNetwork'
-import WeightedRoulette from './WeighedRoulette'
 
 const moves = {
   NONE: -1,
@@ -28,7 +27,7 @@ export default class Robot {
   #game = null
   #brain = null
   constructor(
-    innerLayers = [],
+    brainStructure = [],
     game = new Game(),
     config = {
       useBias: true,
@@ -37,7 +36,7 @@ export default class Robot {
   ) {
     this.#game = game
     this.#brain = new NeuralNetwork(
-      [this.#game.size * this.#game.size, ...innerLayers, 4],
+      [this.#game.size * this.#game.size, ...brainStructure, 4],
       config.useBias,
       config.useBatchNormalization
     )
@@ -126,68 +125,5 @@ export default class Robot {
 
   crossover(robot, crossoverPoint, mutationProbability = 0) {
     this.#brain.crossover(robot.brain, crossoverPoint, mutationProbability)
-  }
-
-  static async getTrained(
-    innerLayers,
-    populationSize,
-    generationCount,
-    mutationProbability,
-    withElitism = true,
-    generationCallback = () => null,
-    haltGeneration = 100
-  ) {
-    const game = new Game(4, 0)
-    const robots = new Array(populationSize)
-      .fill(0)
-      .map(() => new Robot(innerLayers, game))
-    var bestRobot,
-      bestScore = -Infinity,
-      scores = new Array(populationSize).fill(0),
-      goatRobot,
-      goatScore = -Infinity
-
-    for (let gen = 1; gen <= generationCount; gen++) {
-      bestRobot = null
-      bestScore = -Infinity
-
-      // Get fitness
-      for (let i = 0; i < robots.length; i++) {
-        scores[i] = robots[i].play()
-        if (scores[i] > bestScore) {
-          bestScore = scores[i]
-          bestRobot = robots[i]
-
-          if (scores[i] > goatScore) {
-            goatRobot = robots[i]
-            goatScore = scores[i]
-          }
-        }
-      }
-      const roulette = new WeightedRoulette(scores)
-
-      // Breed and mutate
-      for (let i = 0; i < robots.length; i++) {
-        if (withElitism && robots[i] === bestRobot) continue
-        const breedingRobot = robots[roulette.getIndex()]
-        const crossoverPoint = Math.random()
-        robots[i].crossover(breedingRobot, crossoverPoint, mutationProbability)
-      }
-
-      generationCallback({
-        bestScore,
-        scores,
-        generation: gen,
-        generationCount: generationCount,
-      })
-
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve()
-        }, haltGeneration)
-      })
-    }
-
-    return goatRobot
   }
 }
