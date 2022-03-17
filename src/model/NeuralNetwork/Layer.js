@@ -1,11 +1,11 @@
-import { batchNormaliztion } from '../../utils/array'
-import Matrix from './Matrix'
+import { batchNormaliztion } from "../../utils/array";
+import Matrix from "./Matrix";
 
 export default class Layer {
-  #inputSize = 0
-  #outputSize = 0
-  #bias = null
-  #weights = null
+  #inputSize = 0;
+  #outputSize = 0;
+  #bias = null;
+  #weights = null;
   constructor(
     inputSize,
     outputSize,
@@ -13,45 +13,47 @@ export default class Layer {
     useBatchNormalization = true,
     randomWeights = true
   ) {
-    this.#inputSize = inputSize
-    this.#outputSize = outputSize
-    this.useBias = useBias
-    this.useBatchNormalization = useBatchNormalization
+    this.#inputSize = inputSize;
+    this.#outputSize = outputSize;
+    this.useBias = useBias;
+    this.useBatchNormalization = useBatchNormalization;
     this.#bias = useBias
       ? randomWeights
         ? Matrix.random(1, outputSize)
         : Matrix.zeros(1, outputSize)
-      : null
+      : null;
     this.#weights = randomWeights
       ? Matrix.random(inputSize, outputSize)
-      : Matrix.zeros(inputSize, outputSize)
+      : Matrix.zeros(inputSize, outputSize);
   }
 
   get inputSize() {
-    return this.#inputSize
+    return this.#inputSize;
   }
 
   get outputSize() {
-    return this.#outputSize
+    return this.#outputSize;
   }
 
   get weights() {
-    return this.#weights
+    return Matrix.clone(this.#weights);
   }
 
   get bias() {
-    return this.#bias
+    return this.#bias;
   }
 
   processInput(input) {
-    let output = Matrix.multiply(input, this.#weights)
-    if (this.useBias) output = Matrix.add(output, this.#bias)
-    if (this.useBatchNormalization) output = [batchNormaliztion(output[0])]
-    return output
+    let output = Matrix.multiply(input, this.#weights);
+    if (this.useBias) output = Matrix.add(output, this.#bias);
+    if (this.useBatchNormalization) output = [batchNormaliztion(output[0])];
+    return output;
   }
 
   loadWeights(weights) {
-    this.#weights = weights
+    if (!Matrix.hasSameShape(this.#weights, weights))
+      throw "Can't load weights to layer. Received weights shape doesn't match layer weights";
+    this.#weights = weights;
   }
 
   crossover(layer, crossoverPoint, mutationProbability = 0) {
@@ -60,8 +62,8 @@ export default class Layer {
       layer.weights,
       crossoverPoint,
       mutationProbability
-    )
-    this.loadWeights(weights)
+    );
+    this.loadWeights(weights);
 
     if (this.useBias) {
       this.#bias = Matrix.crossover(
@@ -69,7 +71,7 @@ export default class Layer {
         layer.bias,
         crossoverPoint,
         mutationProbability
-      )
+      );
     }
   }
 }

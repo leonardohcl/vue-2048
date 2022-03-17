@@ -138,4 +138,8 @@ export default class Matrix {
         })
     }
 
+    static clone(matrix){ 
+        return matrix.map(row => row.map(x => x))
+    }
+
 }

@@ -1,5 +1,5 @@
 import Robot from "./Robot";
-import WeighedRoulette from "./WeighedRoulette"
+import WeighedRoulette from "./WeighedRoulette";
 import Game from "../2048/GameControllerLite";
 
 const rest = async restTime =>
@@ -52,10 +52,10 @@ export default class RobotFactory {
         if (score > this.#bestScore) {
           bestRobotIndex = idx;
           this.#bestScore = score;
-          this.#bestRobot = robot;
+          this.#bestRobot = robot.clone();
 
           if (score > this.#goatScore) {
-            this.#goatRobot = robot;
+            this.#goatRobot = robot.clone();
             this.#goatScore = score;
           }
         }

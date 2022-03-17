@@ -98,7 +98,7 @@
 
         await factory.train(this.updateProgress);
 
-        this.$emit("trained", { robot: factory.robot });
+        this.$emit("trained", { robot: factory.robot.clone() });
         this.$root.$emit("timerStop", this.timerId);
 
         this.training = false;
