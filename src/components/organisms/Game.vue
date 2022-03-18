@@ -98,7 +98,7 @@
 
 <script>
 import Game from "@/model/2048/GameController";
-import Board from "@/components/molecule/Board.vue";
+import Board from "@/components/molecules/Board.vue";
 import Btn from "@/components/atoms/Btn.vue";
 import Keypress from "vue-keypress";
 

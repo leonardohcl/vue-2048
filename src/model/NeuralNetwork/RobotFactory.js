@@ -13,7 +13,7 @@ export default class RobotFactory {
   #population = [];
   #goatRobot = null;
   #goatScore = -Infinity;
-  #currentGeneration = 1;
+  #currentGeneration = 0;
   #shouldStop = false;
 
   constructor(
@@ -71,7 +71,7 @@ export default class RobotFactory {
     generationCallback = () => null,
     shouldStopTraining = () => false
   ) {
-    while (this.#currentGeneration <= this.generationCount) {
+    while (this.#currentGeneration < this.generationCount) {
       let bestRobotIndex = -1,
         bestScore = -Infinity;
 
@@ -106,7 +106,7 @@ export default class RobotFactory {
       generationCallback({
         bestScore: bestScore,
         scores,
-        generation: this.#currentGeneration,
+        generation: this.#currentGeneration + 1,
         generationCount: this.generationCount,
       });
 
