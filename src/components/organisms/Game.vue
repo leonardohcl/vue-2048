@@ -76,25 +76,21 @@
         :key="37"
         key-event="keydown"
         @success="keyboardCommand"
-        prevent-default
       />
       <Keypress
         :key="38"
         key-event="keydown"
         @success="keyboardCommand"
-        prevent-default
       />
       <Keypress
         :key="39"
         key-event="keydown"
         @success="keyboardCommand"
-        prevent-default
       />
       <Keypress
         :key="40"
         key-event="keydown"
         @success="keyboardCommand"
-        prevent-default
       />
     </div>
   </div>
@@ -146,6 +142,7 @@ export default {
   methods: {
     keyboardCommand(cmd) {
       if (COMMAND_KEYS[cmd.event.key]) {
+        cmd.event.preventDefault()
         if (!this.canMove()) return;
         this.startCooldown();
         this.game.move(COMMAND_KEYS[cmd.event.key]);
