@@ -8,6 +8,7 @@
     <p><b>Population Size: </b>{{ factory.generationCount }}</p>
     <p><b>Mutation Probability: </b>{{ factory.mutationProbability * 100 }}%</p>
     <div class="text-right" v-if="percent < 1">
+      <Btn :disabled="training" @click="handleSave">Save</Btn>
       <Btn :disabled="!training" @click="training = false">Stop</Btn>
       <Btn :disabled="training" @click="trainRobot">Train</Btn>
     </div>
@@ -26,6 +27,7 @@
   import RobotFactory from '@/model/NeuralNetwork/RobotFactory'
   import ProgressBar from '@/components/atoms/ProgressBar.vue'
   import Timer from '@/components/atoms/Timer.vue'
+  import { mapMutations } from 'vuex'
 
   const trainingProgress = {
     current: 0,
@@ -49,10 +51,14 @@
         training: false,
         percent: this.factory.currentGeneration / this.factory.generationCount,
         trainingPromise: null,
-        timerId: 'training-timer',      
+        timerId: 'training-timer',
       }
     },
     methods: {
+      ...mapMutations('robots', ['saveFactory']),
+      handleSave() {
+        this.saveFactory(this.factory)
+      },
       async trainRobot() {
         trainingProgress.updateThreshold =
           this.progressUpdateThreshold / this.factory.generationCount

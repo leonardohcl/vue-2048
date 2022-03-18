@@ -1,11 +1,17 @@
 <template>
   <div class="container robot-lab">
     <h1>Robot Lab</h1>
-    <Card title="Create your robot template" v-if="factory === null">
+    <Card title="Create your robot template" v-if="!factory">
       <RobotFactoryForm @created="handleFactoryCreated" />
     </Card>
     <Card title="Train your robot" v-else>
-      <RobotFactoryControls :factory="factory" @training="handleTrainingUpdate" />
+      <div class="text-right">
+        <Btn @click="resetFactory">Create New</Btn>
+      </div>
+      <RobotFactoryControls
+        :factory="factory"
+        @training="handleTrainingUpdate"
+      />
     </Card>
     <Card v-if="samples.length > 0" title="Games played by the robot">
       <div class="samples">
@@ -23,9 +29,11 @@
   import RobotFactoryControls from '@/components/molecules/RobotFactoryControls.vue'
   import Board from '@/components/molecules/Board.vue'
   import RobotFactoryForm from '@/components/molecules/RobotFactoryForm.vue'
+  import { mapGetters, mapMutations } from 'vuex'
+  import Btn from '../components/atoms/Btn.vue'
 
   export default {
-    components: { Card, Board, RobotFactoryControls, RobotFactoryForm },
+    components: { Card, Board, RobotFactoryControls, RobotFactoryForm, Btn },
     data() {
       return {
         robot: null,
@@ -36,9 +44,17 @@
         samples: [],
       }
     },
+    computed: {
+      ...mapGetters('robots', ['getFactory']),
+    },
     methods: {
-      handleFactoryCreated(factory){
-        this.factory = factory;
+      ...mapMutations('robots', ['removeFactory']),
+      resetFactory() {
+        this.removeFactory(this.factory.id)
+        this.factory = null
+      },
+      handleFactoryCreated(factory) {
+        this.factory = factory
       },
       handleTrainingUpdate(update) {
         if (update.status === 'stopped' || update.status === 'finished') {
@@ -55,6 +71,12 @@
           })
         }
       },
+      loadFactory() {
+        this.factory = this.getFactory('factory')
+      },
+    },
+    mounted() {
+      this.loadFactory()
     },
   }
 </script>

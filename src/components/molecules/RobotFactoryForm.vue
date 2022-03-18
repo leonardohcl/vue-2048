@@ -51,6 +51,7 @@
     methods: {
       createRobot() {
         const factory = new RobotFactory(
+          "factory",
           4,
           [],
           this.populationSize,
