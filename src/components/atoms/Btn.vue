@@ -1,7 +1,7 @@
 <template>
   <button class="btn" :class="classes" :type="type" @click.stop="handleClick">
     <slot>
-      {{title}}
+      {{ title }}
     </slot>
   </button>
 </template>
@@ -25,8 +25,8 @@
         default: "button",
       },
       title: {
-        type: String
-      }
+        type: String,
+      },
     },
     methods: {
       handleClick(evt) {
@@ -62,6 +62,7 @@
     &--sm {
       height: 20px;
       font-size: 0.8rem;
+      padding: 0 0.5em;
     }
 
     @each $key, $value in $themes {
@@ -116,6 +117,7 @@
       &--sm {
         height: 30px;
         font-size: 0.9rem;
+        padding: 0 0.75em;
       }
     }
   }

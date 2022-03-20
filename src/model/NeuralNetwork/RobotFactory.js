@@ -65,7 +65,7 @@ export default class RobotFactory {
   }
 
   get robot() {
-    return this.#goatRobot.clone();
+    return this.#goatRobot ? this.#goatRobot.clone() : null;
   }
 
   get mutationProbability() {
@@ -76,16 +76,16 @@ export default class RobotFactory {
     return this.#generationCount;
   }
 
-  get populationSize(){
-    return this.#populationSize
+  get populationSize() {
+    return this.#populationSize;
   }
 
-  get useBias(){
-    return this.#useBias
+  get useBias() {
+    return this.#useBias;
   }
 
-  get useElitism(){
-    return this.#useElitism
+  get useElitism() {
+    return this.#useElitism;
   }
 
   get score() {

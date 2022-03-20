@@ -16,7 +16,7 @@
       </span>
     </Btn>
     <transition name="slide-down">
-      <ul class="dropdown__items" v-if="open">
+      <ul class="dropdown__items" :class="`dropdown__items--align-${align}`" v-if="open">
         <li
           class="dropdown__item"
           v-for="(action, idx) in actions"
@@ -42,6 +42,7 @@
       size: String,
       outlined: Boolean,
       theme: { type: String, default: "primary" },
+      align: { type: String, default: "left" },
     },
     data() {
       return {
@@ -88,12 +89,19 @@
       background: $bg-secondary;
       position: absolute;
       top: calc(100% + #{$list-space});
-      left: 0;
       min-width: 100%;
       border-radius: $border-radius;
       z-index: 100;
 
       @include transition-animation(slide-down, 0.1s, ease);
+
+      &--align-left {
+        left: 0;
+      }
+
+      &--align-right {
+        right: 0;
+      }
     }
 
     &__item {

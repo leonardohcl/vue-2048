@@ -26,7 +26,7 @@
         <Btn
           size="sm"
           title="Play"
-          @click="getPlayedBoards"
+          @click="handleRobotPlay"
           class="float-end"
         />
       </template>
@@ -65,6 +65,7 @@
     },
     data() {
       return {
+        robot: null,
         factory: null,
         training: false,
         percent: 0,
@@ -76,6 +77,7 @@
       ...mapMutations("robots", ["removeFactory"]),
       resetFactory() {
         this.factory = null;
+        this.robot = null;
       },
       handleRobotSelection(factory) {
         this.$modal.close("factory-modal");
@@ -83,15 +85,20 @@
       },
       selectFactory(factory) {
         this.factory = factory;
+        this.robot = this.factory.robot
       },
       handleTrainingUpdate(update) {
-        if (update.status === "finished") {
+        if (update.status === "finished" || update.status == "stopped") {
+          this.robot = this.factory.robot
           this.getPlayedBoards();
         }
       },
-      getPlayedBoards(count = 12) {
+      handleRobotPlay(){
+        this.getPlayedBoards();
+      },
+      getPlayedBoards(boardCount = 12) {
         const samples = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < boardCount; i++) {
           samples.push({
             score: this.robot.play(),
             board: this.robot.board.clone(),
@@ -101,11 +108,6 @@
       },
       openRobotList() {
         this.$modal.open("factory-modal");
-      },
-    },
-    computed: {
-      robot() {
-        return this.factory ? this.factory.robot : null;
       },
     },
     mounted() {

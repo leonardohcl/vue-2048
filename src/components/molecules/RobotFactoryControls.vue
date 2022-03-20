@@ -29,12 +29,7 @@
       </div>
     </div>
     <div class="text-end">
-      <Btn
-        :disabled="training || factory.currentGeneration == 0"
-        @click="handleSave"
-        title="Save"
-        size="sm"
-      />
+      <Btn :disabled="training" @click="handleSave" title="Save" size="sm" />
       <Btn
         :disabled="!training"
         @click="training = false"
@@ -43,7 +38,13 @@
         size="sm"
         v-if="percent < 1"
       />
-      <Btn :disabled="training" @click="trainRobot" title="Train" size="sm"   v-if="percent < 1"/>
+      <Btn
+        :disabled="training"
+        @click="trainRobot"
+        title="Train"
+        size="sm"
+        v-if="percent < 1"
+      />
     </div>
   </Card>
 </template>
@@ -114,6 +115,7 @@
             status: "stopped",
             robot: this.factory.robot.clone(),
           });
+          this.training = false;
           trainingProgress.halted = false;
         }
       },

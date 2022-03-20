@@ -1,11 +1,16 @@
 <template>
-  <ul class="robot-factory-list">
+  <ul class="robot-factory-list" v-if="list.length > 0">
     <RobotFactoryListItem
       v-for="factory in list"
       :key="factory.id"
       :factory="factory"
       :event-target="eventTarget || $option.name"
     />
+  </ul>
+  <ul class="robot-factory-list" v-else>
+    <li class="text-center">
+      No Robots Available
+    </li>
   </ul>
 </template>
 
@@ -24,5 +29,6 @@
 <style lang="scss" scoped>
   .robot-factory-list {
     padding: 0;
+    list-style: none;
   }
 </style>
