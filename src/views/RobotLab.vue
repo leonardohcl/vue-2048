@@ -1,11 +1,18 @@
 <template>
   <div class="container robot-lab">
     <h1>Robot Lab</h1>
-    <div class="text-right mb-3">
-        <Btn @click="resetFactory" size="sm" title="Create New" v-if="this.factory"/>
+    <div class="text-end mb-3">
+      <Btn @click="openRobotList" size="sm" title="Load" />
+      <Btn
+        @click="resetFactory"
+        size="sm"
+        title="Create New"
+        class="ms-2"
+        v-if="this.factory"
+      />
     </div>
     <Card title="Create your robot template" v-if="!factory">
-      <RobotFactoryForm @created="handleFactoryCreated" />
+      <RobotFactoryForm @created="selectFactory" />
     </Card>
     <div v-else>
       <RobotFactoryControls
@@ -13,71 +20,96 @@
         @training="handleTrainingUpdate"
       />
     </div>
-    <Card v-if="this.robot" title="Games played by the robot" class="mt-3">
+    <Card v-if="this.robot" class="mt-3">
+      <template v-slot:title>
+        Games played by the robot
+        <Btn
+          size="sm"
+          title="Play"
+          @click="getPlayedBoards"
+          class="float-end"
+        />
+      </template>
       <div class="row">
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xxl-2" v-for="(sample, idx) in samples" :key="idx">
+        <div
+          class="col-12 col-sm-6 col-md-4 col-lg-3 col-xxl-2 mt-3"
+          v-for="(sample, idx) in samples"
+          :key="idx"
+        >
           <b>Score: </b> {{ sample.score }}
           <Board :board="sample.board" :size="4" :transitionDuration="0" />
         </div>
       </div>
     </Card>
+    <RobotFactoryModal @select="handleRobotSelection" />
   </div>
 </template>
 
 <script>
-  import Card from '@/components/atoms/Card.vue'
-  import RobotFactoryControls from '@/components/molecules/RobotFactoryControls.vue'
-  import Board from '@/components/molecules/Board.vue'
-  import RobotFactoryForm from '@/components/molecules/RobotFactoryForm.vue'
-  import { mapGetters, mapMutations } from 'vuex'
-  import Btn from '../components/atoms/Btn.vue'
+  import Card from "@/components/atoms/Card.vue";
+  import RobotFactoryControls from "@/components/molecules/RobotFactoryControls.vue";
+  import Board from "@/components/molecules/Board.vue";
+  import RobotFactoryForm from "@/components/molecules/RobotFactoryForm.vue";
+  import Btn from "@/components/atoms/Btn.vue";
+  import RobotFactoryModal from "@/components/organisms/RobotFactoryModal.vue";
+  import { mapMutations } from "vuex";
 
   export default {
-    components: { Card, Board, RobotFactoryControls, RobotFactoryForm, Btn },
+    components: {
+      Card,
+      Board,
+      RobotFactoryControls,
+      RobotFactoryForm,
+      Btn,
+      RobotFactoryModal,
+    },
     data() {
       return {
-        robot: null,
         factory: null,
         training: false,
         percent: 0,
         elementPercent: 0,
         samples: [],
-      }
-    },
-    computed: {
-      ...mapGetters('robots', ['getFactory']),
+      };
     },
     methods: {
-      ...mapMutations('robots', ['removeFactory']),
+      ...mapMutations("robots", ["removeFactory"]),
       resetFactory() {
-        this.removeFactory(this.factory.id)
-        this.factory = null
+        this.factory = null;
       },
-      handleFactoryCreated(factory) {
-        this.factory = factory
+      handleRobotSelection(factory) {
+        this.$modal.close("factory-modal");
+        this.selectFactory(factory);
+      },
+      selectFactory(factory) {
+        this.factory = factory;
       },
       handleTrainingUpdate(update) {
-        if (update.status === 'stopped' || update.status === 'finished') {
-          this.robot = update.robot
-          this.getSampleBoards()
+        if (update.status === "finished") {
+          this.getPlayedBoards();
         }
       },
-      getSampleBoards(count = 12) {
-        const samples = []
+      getPlayedBoards(count = 12) {
+        const samples = [];
         for (let i = 0; i < count; i++) {
           samples.push({
             score: this.robot.play(),
             board: this.robot.board.clone(),
-          })
+          });
         }
-        this.samples = samples;
+        this.samples = samples.sort((a, b) => b.score - a.score);
       },
-      loadFactory() {
-        this.factory = this.getFactory('factory')
+      openRobotList() {
+        this.$modal.open("factory-modal");
+      },
+    },
+    computed: {
+      robot() {
+        return this.factory ? this.factory.robot : null;
       },
     },
     mounted() {
-      this.loadFactory()
+      this.openRobotList();
     },
-  }
+  };
 </script>

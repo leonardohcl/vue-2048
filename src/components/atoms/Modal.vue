@@ -108,26 +108,26 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: fade-out($bg, 0.25);
+      background-color: fade-out($bg-secondary, 0.5);
     }
 
     &__window {
       position: relative;
-      background-color: $bg-secondary;
+      background-color: $bg;
       border-radius: $border-radius;
-      padding: 0.75rem;
+      padding: $default-spacing/2;
       max-height: 80vh;
       max-width: 350px;
       width: 100%;
 
       @include screen-above(sm) {
-        max-width: map-get($breakpoints, sm) * 0.75;
+        max-width: map-get($grid-breakpoints, sm) * 0.75;
       }
       @include screen-above(md) {
-        max-width: map-get($breakpoints, md) * 0.75;
+        max-width: map-get($grid-breakpoints, md) * 0.75;
       }
       @include screen-above(lg) {
-        max-width: map-get($breakpoints, lg) * 0.75;
+        max-width: map-get($grid-breakpoints, lg) * 0.75;
       }
 
       &--full-width {

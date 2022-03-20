@@ -1,19 +1,24 @@
 $text-size: 16px;
 $text-color: white;
 
-$bg: #1B1B1E;
-$bg-secondary: #373F51;
+$bg: #1b1b1e;
+$bg-secondary: #373f51;
 
 $primary: #00a7da;
-$secondary: #4361EE;
+$secondary: #4361ee;
 
+
+$default-spacing: 2rem;
 $border-radius: 0.5rem;
 $square-color: #a9bcd0;
 
-$themes:("primary": $primary,
-  "secondary": $secondary);
+$themes: (
+  "primary": $primary,
+  "secondary": $secondary,
+);
 
-$block-colors: ("2": #00a7da,
+$block-colors: (
+  "2": #00a7da,
   "4": #1870d4,
   "8": #294ce7,
   "16": #2b22c7,
@@ -28,9 +33,14 @@ $block-colors: ("2": #00a7da,
   "8192": #d85701,
 );
 
-$breakpoints: ("sm": 576px,
+$grid-breakpoints: (
+  "xs": 0,
+  "sm": 576px,
   "md": 768px,
   "lg": 992px,
   "xl": 1200px,
   "xxl": 1400px,
 );
+
+
+$grid-gutter-width: $default-spacing;

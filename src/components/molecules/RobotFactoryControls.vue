@@ -18,27 +18,32 @@
     <p><b>Using Elitism:</b> {{ factory.useElitism ? "Yes" : "No" }}</p>
     <div class="progress mb-3">
       <b>Training</b>
-      <ProgressBar :percent="percent" :active="training" disable-animations />
-      <div class="text-right">
+      <ProgressBar
+        :percent="percent"
+        :active="training"
+        disable-animations
+        show-progress
+      />
+      <div class="text-end">
         <Timer :id="timerId" />
       </div>
     </div>
-    <div class="text-right" v-if="percent < 1">
+    <div class="text-end">
       <Btn
         :disabled="training || factory.currentGeneration == 0"
         @click="handleSave"
-        class="me-2"
         title="Save"
         size="sm"
       />
       <Btn
         :disabled="!training"
         @click="training = false"
-        class="me-2"
+        class="mx-2"
         title="Stop"
         size="sm"
+        v-if="percent < 1"
       />
-      <Btn :disabled="training" @click="trainRobot" title="Train" size="sm" />
+      <Btn :disabled="training" @click="trainRobot" title="Train" size="sm"   v-if="percent < 1"/>
     </div>
   </Card>
 </template>

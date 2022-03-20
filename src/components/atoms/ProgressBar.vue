@@ -1,11 +1,14 @@
 <template>
   <div
     class="progress-bar"
-    :class="{ 'progress-bar--no-animations': disableAnimations }"
+    :class="{
+      'progress-bar--no-animations': disableAnimations,
+      'progress-bar--small': small,
+    }"
   >
-    <span class="progress-bar__percentage progress-bar__percentage--reverse"
-      >{{ percentage }}%</span
-    >
+    <span class="progress-bar__percentage progress-bar__percentage--reverse" v-if="showProgress">
+      {{ percentage }}%
+    </span>
     <div
       class="progress-bar__progress"
       :class="{ 'progress-bar__progress--active': active }"
@@ -16,23 +19,25 @@
 
 <script>
   export default {
-    name: 'ProgressBar',
+    name: "ProgressBar",
     props: {
-      percent: Number,
+      percent: { type: Number, default: 0 },
+      small: Boolean,
       active: Boolean,
+      showProgress: Boolean,
       disableAnimations: Boolean,
     },
     computed: {
       progressStyle() {
         return {
           width: `${this.percentage}%`,
-        }
+        };
       },
       percentage() {
-        return (this.percent * 100).toFixed(2)
+        return (this.percent * 100).toFixed(2);
       },
     },
-  }
+  };
 </script>
 
 <style lang="scss" scoped>
@@ -40,7 +45,7 @@
     $container: &;
 
     position: relative;
-    height: 1.5em;
+    height: 1.5rem;
     width: 100%;
     background-color: $bg-secondary;
     border-radius: $border-radius;
@@ -53,6 +58,11 @@
       text-align: center;
       left: 0;
       right: 0;
+    }
+
+    &--small {
+      height: 0.8rem;
+      font-size: 0.75rem;
     }
 
     &:not(#{$container}--no-animations) {

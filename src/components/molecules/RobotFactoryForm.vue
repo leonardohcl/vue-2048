@@ -66,7 +66,7 @@
         class="col-12"
       />
     </div>
-    <div class="text-right w-100">
+    <div class="text-end w-100">
       <Btn type="submit">Create</Btn>
     </div>
   </form>

@@ -1,6 +1,13 @@
 <template>
   <div class="card">
-    <div class="card__title" v-if="title">{{ title }}</div>
+    <div class="card__title" v-if="title">
+      <span class="mb-2">
+        {{ title }}
+      </span>
+    </div>
+    <div class="card__title" v-else>
+      <slot name="title" />
+    </div>
     <div class="card__body">
       <slot />
     </div>
@@ -8,24 +15,23 @@
 </template>
 
 <script>
-export default {
-  name: "Card",
-  props: {
-    title: String,
-  },
-};
+  export default {
+    name: "Card",
+    props: {
+      title: String,
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-.card {
-  padding: 0.75rem;
-  border-radius: $border-radius;
-  border: solid 1px $bg-secondary;
+  .card {
+    padding: $default-spacing / 2;
+    border-radius: $border-radius;
+    border: solid 1px $bg-secondary;
 
-  &__title{
+    &__title {
       font-weight: bold;
       font-size: 1.2rem;
-      margin-bottom: 1em;
+    }
   }
-}
 </style>

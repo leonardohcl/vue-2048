@@ -1,7 +1,7 @@
 
 @mixin screen-above($size) {
-    @if map-has-key($breakpoints, $size) {
-        @media (min-width: map-get($breakpoints, $size)) {
+    @if map-has-key($grid-breakpoints, $size) {
+        @media (min-width: map-get($grid-breakpoints, $size)) {
             @content;
         }
     }
