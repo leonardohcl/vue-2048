@@ -28,7 +28,6 @@ export default class Robot {
   #brain = null;
   #brainStructure = [];
   #usebias = false;
-  #useBatchNormalization;
   constructor(
     brainStructure = [],
     game = new Game(),
@@ -40,7 +39,6 @@ export default class Robot {
     this.#game = game;
     this.#brainStructure = brainStructure;
     this.#usebias = config.useBias;
-    this.#useBatchNormalization = config.useBatchNormalization;
 
     this.#brain = new NeuralNetwork(
       [this.#game.size * this.#game.size, ...brainStructure, 4],
@@ -145,7 +143,6 @@ export default class Robot {
   clone() {
     const clone = new Robot(this.#brainStructure, new Game(this.#game.size), {
       useBias: this.#usebias,
-      useBatchNormalization: this.#useBatchNormalization,
     });
 
     clone.loadBrain(this.synapses);

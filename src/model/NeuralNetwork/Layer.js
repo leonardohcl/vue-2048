@@ -10,13 +10,11 @@ export default class Layer {
     inputSize,
     outputSize,
     useBias = true,
-    useBatchNormalization = true,
     randomWeights = true
   ) {
     this.#inputSize = inputSize;
     this.#outputSize = outputSize;
     this.useBias = useBias;
-    this.useBatchNormalization = useBatchNormalization;
     this.#bias = useBias
       ? randomWeights
         ? Matrix.random(1, outputSize)
@@ -46,8 +44,7 @@ export default class Layer {
   processInput(input) {
     let output = Matrix.multiply(input, this.#weights);
     if (this.useBias) output = Matrix.add(output, this.#bias);
-    if (this.useBatchNormalization) output = [batchNormaliztion(output[0])];
-    return output;
+    return [batchNormaliztion(output[0])];
   }
 
   loadWeights(weights) {

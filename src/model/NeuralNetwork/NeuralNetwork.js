@@ -4,39 +4,45 @@ import Matrix from "./Matrix";
 
 export default class NeuralNetwork {
   #layers = [];
+  #layerSizes = [];
+  #useBias = true;
 
-  constructor(layerSizes, useBias = true, useBatchNormalization = true) {
-    this.layerSizes = layerSizes;
-    this.useBias = useBias;
+  constructor(layerSizes, useBias = true) {
+    this.#layerSizes = layerSizes;
+    this.#useBias = useBias;
 
     const layers = new Array(layerSizes.length - 1).fill(0);
     this.#layers = layers.map(
-      (x, idx) =>
-        new Layer(
-          layerSizes[idx],
-          layerSizes[idx + 1],
-          useBias,
-          useBatchNormalization
-        )
+      (x, idx) => new Layer(layerSizes[idx], layerSizes[idx + 1], useBias)
     );
   }
 
   get layerCount() {
-    return this.layerSizes.length;
+    return this.#layerSizes.length;
+  }
+
+  get layerSizes() {
+    return [...this.layerSizes];
   }
 
   get layers() {
     return this.#layers;
   }
 
-  get weights(){
-      return this.#layers.map(layer => layer.weights)
+  get useBias() {
+    return this.#useBias;
+  }
+
+  get weights() {
+    return this.#layers.map(layer => layer.weights);
   }
 
   processInput(input, useSoftmax) {
     const { m, n } = Matrix.shape(input);
-    if (m !== 1 || n != this.layerSizes[0])
-      throw `Invalid input. Expects a Matrix of shape 1x${this.layerSizes[0]}, received ${m}x${n}`;
+    if (m !== 1 || n != this.#layerSizes[0])
+      throw `Invalid input. Expects a Matrix of shape 1x${
+        this.#layerSizes[0]
+      }, received ${m}x${n}`;
 
     let result = input;
     this.#layers.forEach(layer => {
