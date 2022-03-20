@@ -49,8 +49,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/styles/base";
-
 .board {
   background-color: $bg-surface;
   border-radius: $square-border-radius;

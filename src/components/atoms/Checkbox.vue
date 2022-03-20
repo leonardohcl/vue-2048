@@ -29,8 +29,6 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "@/assets/styles/base";
-
   .checkbox {
     display: flex;
     align-items: center;

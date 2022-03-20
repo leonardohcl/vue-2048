@@ -42,8 +42,6 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "@/assets/styles/base";
-
   .input {
     display: flex;
     flex-direction: column;

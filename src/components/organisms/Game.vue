@@ -233,8 +233,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/base";
-
 .game {
   border-radius: $square-border-radius;
   border: solid 3px $bg-surface;

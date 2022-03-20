@@ -17,8 +17,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/base";
-
 .card {
   padding: 2 * $square-border-radius;
   border-radius: $square-border-radius;

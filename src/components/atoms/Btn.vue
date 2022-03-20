@@ -41,8 +41,6 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "@/assets/styles/base";
-
   .btn {
     border: none;
     outline: none;
