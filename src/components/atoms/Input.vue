@@ -8,83 +8,70 @@
       :min="min"
       :max="max"
       :disabled="disabled"
-      v-model="model"
-      @change="update"
+      v-model="inputVal"
     />
   </div>
 </template>
 
 <script>
-export default {
-  name: "Input",
-  props: {
-    id: { type: String, required: true },
-    type: { type: String, default: "text" },
-    label: String,
-    step: { type: [Number, String] },
-    min: { type: [Number, String] },
-    max: { type: [Number, String] },
-    default: { type: [Number, String] },
-    debounce: { type: Number, default: 500 },
-    disabled: {type: Boolean, default: false}
-  },
-  data() {
-    return {
-      model: this.default,
-      timers: {
-        debounce: null,
-      },
-    };
-  },
-  methods: {
-    update(timeout) {
-      if (this.timers.debounce) clearTimeout(this.timers.debounce);
-      this.timers.debounce = setTimeout(
-        () => {
-          this.$emit("change", this.model);
-          this.timers.debounce = null;
-        },
-        timeout === undefined ? this.debounce : timeout
-      );
+  export default {
+    name: "Input",
+    props: {
+      value: {},
+      id: { type: String, required: true },
+      type: { type: String, default: "text" },
+      label: String,
+      step: { type: [Number, String] },
+      min: { type: [Number, String] },
+      max: { type: [Number, String] },
+      default: { type: [Number, String] },
+      debounce: { type: Number, default: 500 },
+      disabled: { type: Boolean, default: false },
     },
-  },
-  created() {
-    this.update(0);
-  },
-};
+    computed: {
+      inputVal: {
+        get() {
+          return this.value;
+        },
+        set(val) {
+          this.$emit("input", val);
+        },
+      },
+    }
+  };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/base";
+  @import "@/assets/styles/base";
 
-.input {
-  display: flex;
-  flex-direction: column;
+  .input {
+    display: flex;
+    flex-direction: column;
 
-  label {
-    margin-bottom: 0.25em;
-  }
-
-  input {
-    background-color: inherit;
-    border: solid 1px $bg-surface;
-    border-radius: $square-border-radius;
-    padding: 0.5em;
-    color: $text-color;
-    transition: border-color 0.11s, background-color 0.11s;
-    margin-bottom: 0.5em;
-
-    &:focus,
-    &:focus-visible {
-      outline: none;
-      border-color: $primary;
-      background-color: darken($bg-surface, 10%);
+    label {
+      margin-bottom: 0.25em;
     }
 
-    &:disabled{
-      background-color: darken($bg-surface, 5%);
-      color: fade-out($text-color, 0.5)
+    input {
+      background-color: inherit;
+      border: solid 1px $bg-surface;
+      border-radius: $square-border-radius;
+      padding: 0.5em;
+      color: $text-color;
+      transition: border-color 0.11s, background-color 0.11s;
+      margin-bottom: 0.5em;
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        border-color: $primary;
+        background-color: darken($bg-surface, 10%);
+      }
+
+      &:disabled {
+        background-color: darken($bg-surface, 5%);
+        color: fade-out($text-color, 0.5);
+      }
     }
   }
-}
 </style>

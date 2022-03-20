@@ -4,27 +4,27 @@
       id="population"
       label="Population Size"
       type="number"
-      :default="100"
       :min="2"
-      @change="(value) => (populationSize = +value)"
+      v-model="populationSize"
+      required
     />
     <Input
       id="generation"
       label="Generations"
       type="number"
-      :default="1000"
       :min="1"
-      @change="(value) => (generationCount = +value)"
+      v-model="generationCount"
+      required
     />
     <Input
       id="mutation"
       label="Mutation Probability"
       type="number"
-      :default="0.2"
       :min="0"
       :max="1"
       :step="0.05"
-      @change="(value) => (mutationProbability = +value)"
+      v-model="mutationProbability"
+      required
     />
     <div class="text-right">
       <Btn type="submit">Create</Btn>
@@ -45,6 +45,9 @@
         mutationProbability: 0,
         generationCount: 0,
         populationSize: 0,
+        mutationProbability: 0.2,
+        generationCount: 1000,
+        populationSize: 100,
         useBias: false,
       }
     },
