@@ -68,13 +68,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/styles/base";
-
 .square {
   position: relative;
   width: 100%;
   padding-top: 100%;
-  border-radius: $square-border-radius;
+  border-radius: $border-radius;
   background-color: fade-out($square-color, 0.8);
   font-size: 1.3rem;
 

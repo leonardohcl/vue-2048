@@ -1,21 +1,21 @@
 <template>
   <div class="container robot-lab">
     <h1>Robot Lab</h1>
+    <div class="text-right mb-3">
+        <Btn @click="resetFactory" size="sm" title="Create New" v-if="this.factory"/>
+    </div>
     <Card title="Create your robot template" v-if="!factory">
       <RobotFactoryForm @created="handleFactoryCreated" />
     </Card>
-    <Card title="Train your robot" v-else>
-      <div class="text-right">
-        <Btn @click="resetFactory">Create New</Btn>
-      </div>
+    <div v-else>
       <RobotFactoryControls
         :factory="factory"
         @training="handleTrainingUpdate"
       />
-    </Card>
-    <Card v-if="samples.length > 0" title="Games played by the robot">
-      <div class="samples">
-        <div class="sample" v-for="(sample, idx) in samples" :key="idx">
+    </div>
+    <Card v-if="this.robot" title="Games played by the robot" class="mt-3">
+      <div class="row">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xxl-2" v-for="(sample, idx) in samples" :key="idx">
           <b>Score: </b> {{ sample.score }}
           <Board :board="sample.board" :size="4" :transitionDuration="0" />
         </div>
@@ -63,13 +63,14 @@
         }
       },
       getSampleBoards(count = 12) {
-        this.samples = []
+        const samples = []
         for (let i = 0; i < count; i++) {
-          this.samples.push({
+          samples.push({
             score: this.robot.play(),
             board: this.robot.board.clone(),
           })
         }
+        this.samples = samples;
       },
       loadFactory() {
         this.factory = this.getFactory('factory')
@@ -80,15 +81,3 @@
     },
   }
 </script>
-
-<style lang="scss" scoped>
-  .samples {
-    display: flex;
-    flex-wrap: wrap;
-
-    .sample {
-      width: 250px;
-      padding: 1em;
-    }
-  }
-</style>

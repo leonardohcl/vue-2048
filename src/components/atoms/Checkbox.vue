@@ -45,7 +45,7 @@
       width: 0;
 
       & ~ .checkmark {
-        background-color: $bg-surface;
+        background-color: $bg-secondary;
       }
 
       &:checked {
@@ -71,7 +71,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: $square-border-radius/2;
+    border-radius: $border-radius/2;
 
     &::after {
       content: "";

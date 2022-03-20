@@ -1,6 +1,8 @@
 <template>
   <button class="btn" :class="classes" :type="type" @click="handleClick">
-    <slot />
+    <slot>
+      {{title}}
+    </slot>
   </button>
 </template>
 
@@ -22,6 +24,9 @@
         type: String,
         default: "button",
       },
+      title: {
+        type: String
+      }
     },
     methods: {
       handleClick() {
@@ -46,7 +51,7 @@
     outline: none;
     height: 40px;
     padding: 0 1em;
-    border-radius: $square-border-radius;
+    border-radius: $border-radius;
     font-size: 1.2rem;
     font-family: inherit;
     font-weight: bold;

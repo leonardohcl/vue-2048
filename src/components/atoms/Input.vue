@@ -52,8 +52,8 @@
 
     input {
       background-color: inherit;
-      border: solid 1px $bg-surface;
-      border-radius: $square-border-radius;
+      border: solid 1px $bg-secondary;
+      border-radius: $border-radius;
       padding: 0.5em;
       color: $text-color;
       transition: border-color 0.11s, background-color 0.11s;
@@ -63,11 +63,11 @@
       &:focus-visible {
         outline: none;
         border-color: $primary;
-        background-color: darken($bg-surface, 10%);
+        background-color: darken($bg-secondary, 10%);
       }
 
       &:disabled {
-        background-color: darken($bg-surface, 5%);
+        background-color: darken($bg-secondary, 5%);
         color: fade-out($text-color, 0.5);
       }
     }

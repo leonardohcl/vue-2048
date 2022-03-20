@@ -19,6 +19,9 @@ export default class RobotFactory {
   #brainStructure = [];
   #useBias = true;
   #useElitism = true;
+  #mutationProbability = 0;
+  #generationCount = 0;
+  #populationSize = 0;
   #restBetweenGenerations = 10;
 
   constructor(
@@ -35,20 +38,18 @@ export default class RobotFactory {
     this.#id = id;
     this.#boardSize = boardSize;
     this.#brainStructure = brainStructure;
-    this.populationSize = populationSize;
-    this.generationCount = generationCount;
-    this.mutationProbability = mutationProbability;
+    this.#populationSize = populationSize;
+    this.#generationCount = generationCount;
+    this.#mutationProbability = mutationProbability;
     this.#useElitism = useElitism;
     this.#useBias = useBias;
     this.#restBetweenGenerations = restBetweenGenerations;
-    this.#population = new Array(this.populationSize)
-      .fill(0)
-      .map(
-        () =>
-          new Robot(brainStructure, new Game(boardSize), {
-            useBias: this.#useBias,
-          })
-      );
+    this.#population = new Array(this.#populationSize).fill(0).map(
+      () =>
+        new Robot(brainStructure, new Game(boardSize), {
+          useBias: this.#useBias,
+        })
+    );
   }
 
   get id() {
@@ -67,6 +68,26 @@ export default class RobotFactory {
     return this.#goatRobot.clone();
   }
 
+  get mutationProbability() {
+    return this.#mutationProbability;
+  }
+
+  get generationCount() {
+    return this.#generationCount;
+  }
+
+  get populationSize(){
+    return this.#populationSize
+  }
+
+  get useBias(){
+    return this.#useBias
+  }
+
+  get useElitism(){
+    return this.#useElitism
+  }
+
   get score() {
     return this.#goatScore;
   }
@@ -80,10 +101,10 @@ export default class RobotFactory {
       id: this.#id,
       boardSize: this.boardSize,
       brainStructure: this.#brainStructure,
-      populationSize: this.populationSize,
-      generationCount: this.generationCount,
+      populationSize: this.#populationSize,
+      generationCount: this.#generationCount,
       currentGeneration: this.#currentGeneration,
-      mutationProbability: this.mutationProbability,
+      mutationProbability: this.#mutationProbability,
       useElitism: this.#useElitism,
       restBetweenGenerations: this.#restBetweenGenerations,
       population: this.#population.map(robot => robot.synapses),
@@ -98,7 +119,7 @@ export default class RobotFactory {
     generationCallback = () => null,
     shouldStopTraining = () => false
   ) {
-    while (this.#currentGeneration < this.generationCount) {
+    while (this.#currentGeneration < this.#generationCount) {
       let bestRobotIndex = -1,
         bestScore = -Infinity;
 
@@ -126,7 +147,7 @@ export default class RobotFactory {
         robot.crossover(
           breedingRobot,
           crossoverPoint,
-          this.mutationProbability
+          this.#mutationProbability
         );
       });
 
@@ -134,7 +155,7 @@ export default class RobotFactory {
         bestScore: bestScore,
         scores,
         generation: this.#currentGeneration + 1,
-        generationCount: this.generationCount,
+        generationCount: this.#generationCount,
       });
 
       this.#currentGeneration++;

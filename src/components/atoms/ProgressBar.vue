@@ -42,8 +42,8 @@
     position: relative;
     height: 1.5em;
     width: 100%;
-    background-color: $bg-surface;
-    border-radius: $square-border-radius;
+    background-color: $bg-secondary;
+    border-radius: $border-radius;
     margin: 0.5rem 0;
     text-align: center;
     overflow: hidden;

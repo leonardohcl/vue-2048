@@ -18,9 +18,9 @@ export default {
 
 <style lang="scss" scoped>
 .card {
-  padding: 2 * $square-border-radius;
-  border-radius: $square-border-radius;
-  border: solid 1px $bg-surface;
+  padding: 0.75rem;
+  border-radius: $border-radius;
+  border: solid 1px $bg-secondary;
 
   &__title{
       font-weight: bold;

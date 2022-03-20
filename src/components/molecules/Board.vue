@@ -50,8 +50,8 @@ export default {
 
 <style lang="scss" scoped>
 .board {
-  background-color: $bg-surface;
-  border-radius: $square-border-radius;
+  background-color: $bg-secondary;
+  border-radius: $border-radius;
   display: grid;
   width: 100%;
 }

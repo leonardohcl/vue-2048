@@ -234,8 +234,8 @@ export default {
 
 <style lang="scss" scoped>
 .game {
-  border-radius: $square-border-radius;
-  border: solid 3px $bg-surface;
+  border-radius: $border-radius;
+  border: solid 3px $bg-secondary;
   padding: 1rem;
   position: relative;
   width: 100%;
@@ -265,7 +265,7 @@ export default {
     left: 0;
     display: flex;
     flex-direction: column;
-    border-radius: $square-border-radius/2;
+    border-radius: $border-radius/2;
     justify-content: center;
     align-items: center;
     z-index: 2;
