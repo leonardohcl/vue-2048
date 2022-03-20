@@ -17,6 +17,7 @@ export default class RobotFactory {
   #generationCount = 0;
   #populationSize = 0;
   #restBetweenGenerations = 10;
+  #game = null;
 
   constructor(
     id,
@@ -38,9 +39,10 @@ export default class RobotFactory {
     this.#useElitism = useElitism;
     this.#useBias = useBias;
     this.#restBetweenGenerations = restBetweenGenerations;
+    this.#game = new Game(boardSize);
     this.#population = new Array(this.#populationSize).fill(0).map(
       () =>
-        new Robot(brainStructure, new Game(boardSize), {
+        new Robot(brainStructure, this.#game, {
           useBias: this.#useBias,
         })
     );
