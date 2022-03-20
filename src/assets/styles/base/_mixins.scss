@@ -7,12 +7,23 @@
     }
 }
 
-@mixin fade-animation($duration, $easing) {
-    &.fade-enter-active {
-        animation: fade $duration $easing;
-    }
-
-    &.fade-leave-active {
-        animation: fade $duration $easing reverse;
+@mixin transition-animation-enter($name, $duration, $easing) {
+    &.#{$name}-enter-active {
+        animation: #{$name} $duration $easing;
+        @content;
     }
 }
+
+@mixin transition-animation-leave($name, $duration, $easing) {
+    &.#{$name}-leave-active {
+        animation: #{$name} $duration $easing reverse;
+        @content;
+    }
+}
+
+@mixin transition-animation($name, $duration, $easing) {
+    @include transition-animation-enter($name, $duration, $easing);
+
+    @include transition-animation-leave($name, $duration, $easing);    
+}
+

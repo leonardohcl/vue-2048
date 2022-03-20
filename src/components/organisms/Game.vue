@@ -286,7 +286,7 @@ export default {
       }
     }
 
-    @include fade-animation(0.1s, ease);
+    @include transition-animation(fade, 0.1s, ease);
   }
 
   &__hud {
