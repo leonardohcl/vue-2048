@@ -1,27 +1,7 @@
 import Game from "../2048/GameControllerLite";
 import NeuralNetwork from "./NeuralNetwork";
-
-const moves = {
-  NONE: -1,
-  LEFT: 0,
-  UP: 1,
-  DOWN: 2,
-  RIGHT: 3,
-};
-
-const intToMove = val => {
-  switch (val) {
-    case moves.LEFT:
-      return moves.LEFT;
-    case moves.UP:
-      return moves.UP;
-    case moves.DOWN:
-      return moves.DOWN;
-    case moves.RIGHT:
-      return moves.RIGHT;
-  }
-  return moves.RIGHT;
-};
+import { moves, moveToString, intToMove } from "../../utils/robot";
+import { rest } from "../../utils/async";
 
 export default class Robot {
   #game = null;
@@ -63,25 +43,15 @@ export default class Robot {
     return this.#brain.weights;
   }
 
+  setGame(game) {
+    this.#game = game;
+  }
+
   play(highestBlock = 2048) {
-    this.#game.start();
+    if (this.#game.isGameOver) this.#game.start();
     let move;
     do {
-      move = this.#getNextMove();
-      switch (move) {
-        case moves.UP:
-          this.#game.move("up");
-          break;
-        case moves.LEFT:
-          this.#game.move("left");
-          break;
-        case moves.RIGHT:
-          this.#game.move("right");
-          break;
-        case moves.DOWN:
-          this.#game.move("down");
-          break;
-      }
+      move = this.#move();
     } while (
       !this.#game.isGameOver &&
       move != moves.NONE &&
@@ -89,6 +59,29 @@ export default class Robot {
     );
 
     return this.#game.score;
+  }
+
+  async asyncPlay(waitingTime, shouldStop = () => false, highestBlock = 2048) {
+    if (this.#game.isGameOver) this.#game.start();
+    let move;
+    do {      
+        move = this.#move();
+        if(shouldStop()) return this.#game.score;
+        await rest(waitingTime)
+    } while (
+      !this.#game.isGameOver &&
+      move != moves.NONE &&
+      this.#game.board.highestValue < highestBlock
+    );
+    return this.#game.score;
+  }
+
+  #move() {
+    let move, direction;
+    move = this.#getNextMove();
+    direction = moveToString(move);
+    this.#game.move(direction);
+    return move;
   }
 
   #getNextMove() {

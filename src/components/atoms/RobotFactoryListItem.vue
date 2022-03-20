@@ -2,7 +2,15 @@
   <li class="robot-factory-item" @click="handleSelect">
     <div class="d-flex justify-content-between">
       <b> {{ factory.id }} </b>
-      <Dropdown :actions="actions" outlined size="sm" class="float-end" theme="plain" align="right">
+      <Dropdown
+        :actions="actions"
+        outlined
+        size="sm"
+        class="float-end"
+        theme="plain"
+        align="right"
+        v-if="!disableActions"
+      >
         <FontAwesomeIcon icon="fa-ellipsis-vertical" />
       </Dropdown>
     </div>
@@ -32,6 +40,7 @@
     props: {
       factory: { type: RobotFactory, required: true },
       eventTarget: { type: String, default: "" },
+      disableActions: Boolean,
     },
     data() {
       return {

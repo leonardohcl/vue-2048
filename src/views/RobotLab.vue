@@ -1,6 +1,11 @@
 <template>
   <div class="container robot-lab">
-    <h1>Robot Lab</h1>
+    <h1>
+      <router-link to="/" class="text--plain">
+        <FontAwesomeIcon icon="fa-chevron-left" />
+      </router-link>
+      Robot Lab
+    </h1>
     <div class="text-end mb-3">
       <Btn @click="openRobotList" size="sm" title="Load" />
       <Btn
@@ -28,6 +33,7 @@
           title="Play"
           @click="handleRobotPlay"
           class="float-end"
+          :disabled="training"
         />
       </template>
       <div class="row">
@@ -85,15 +91,18 @@
       },
       selectFactory(factory) {
         this.factory = factory;
-        this.robot = this.factory.robot
+        this.robot = this.factory.robot;
       },
       handleTrainingUpdate(update) {
         if (update.status === "finished" || update.status == "stopped") {
-          this.robot = this.factory.robot
+          this.robot = this.factory.robot;
           this.getPlayedBoards();
+          this.training = false;
+        } else if (update.status === "started") {
+          this.training = true;
         }
       },
-      handleRobotPlay(){
+      handleRobotPlay() {
         this.getPlayedBoards();
       },
       getPlayedBoards(boardCount = 12) {
@@ -109,9 +118,6 @@
       openRobotList() {
         this.$modal.open("factory-modal");
       },
-    },
-    mounted() {
-      this.openRobotList();
     },
   };
 </script>

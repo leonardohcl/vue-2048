@@ -1,9 +1,16 @@
 <template>
-  <button class="btn" :class="classes" :type="type" @click.stop="handleClick">
+  <component
+    :is="tag"
+    class="btn"
+    :class="classes"
+    :type="type"
+    :to="to"
+    @click.stop="handleClick"
+  >
     <slot>
       {{ title }}
     </slot>
-  </button>
+  </component>
 </template>
 
 <script>
@@ -27,6 +34,9 @@
       title: {
         type: String,
       },
+      fab: Boolean,
+      tag: { default: "button" },
+      to: { type: [String, Object] },
     },
     methods: {
       handleClick(evt) {
@@ -39,6 +49,7 @@
           `btn--${this.theme}`,
           this.size && `btn--${this.size}`,
           this.outlined && `btn--outlined`,
+          this.fab && `btn--fab`,
         ];
       },
     },
@@ -52,6 +63,7 @@
     height: 40px;
     padding: 0 1em;
     border-radius: $border-radius;
+    text-align: center;
     font-size: 1.2rem;
     font-family: inherit;
     font-weight: bold;
@@ -63,6 +75,13 @@
       height: 20px;
       font-size: 0.8rem;
       padding: 0 0.5em;
+    }
+
+    &--fab {
+      border-radius: 50%;
+      padding: 0 !important;
+      width: 3em;
+      height: 3em !important;
     }
 
     @each $key, $value in $themes {

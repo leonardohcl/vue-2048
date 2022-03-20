@@ -5,6 +5,7 @@
       :key="factory.id"
       :factory="factory"
       :event-target="eventTarget || $option.name"
+      :disable-actions="disableActions"
     />
   </ul>
   <ul class="robot-factory-list" v-else>
@@ -22,6 +23,7 @@
     props: {
       list: { type: Array, required: true },
       eventTarget: { type: String },
+      disableActions: Boolean
     },
   };
 </script>

@@ -1,13 +1,7 @@
 import Robot from "./Robot";
 import WeighedRoulette from "./WeighedRoulette";
 import Game from "../2048/GameControllerLite";
-
-const rest = async restTime =>
-  new Promise(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, restTime);
-  });
+import { rest } from "../../utils/async";
 
 export default class RobotFactory {
   #id = "";

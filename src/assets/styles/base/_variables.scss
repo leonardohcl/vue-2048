@@ -6,7 +6,7 @@ $bg-secondary: #373f51;
 
 $primary: #00a7da;
 $secondary: #4361ee;
-
+$danger: #f72553;
 
 $default-spacing: 2rem;
 $border-radius: 0.5rem;
@@ -16,6 +16,7 @@ $themes: (
   "primary": $primary,
   "secondary": $secondary,
   "plain": $text-color,
+  "danger": $danger,
 );
 
 $block-colors: (
@@ -42,6 +43,5 @@ $grid-breakpoints: (
   "xl": 1200px,
   "xxl": 1400px,
 );
-
 
 $grid-gutter-width: $default-spacing;

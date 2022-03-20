@@ -51,7 +51,9 @@ export default {
   },
   mutations: {
     saveFactory: (state, factory) => {
-      state.factories.push(factory);
+      const existingIdx = state.factories.findIndex(x => x.id === factory.id)
+      if(existingIdx) state.factories[existingIdx] = factory
+      else state.factories.push(factory);
       saveFactory(factory);
     },
     removeFactory: (state, id) => {

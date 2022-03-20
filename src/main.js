@@ -7,8 +7,25 @@ import store from "./store";
 import { library } from "@fortawesome/fontawesome-svg-core";
 // import { } from '@fortawesome/free-regular-svg-icons'
 
-import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
-library.add(faEllipsisVertical);
+import {
+  faEllipsisVertical,
+  faRobot,
+  faPlay,
+  faPause,
+  faXmark,
+  faUserSecret,
+  faChevronLeft,
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add([
+  faEllipsisVertical,
+  faRobot,
+  faPlay,
+  faPause,
+  faXmark,
+  faUserSecret,
+  faChevronLeft,
+]);
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 Vue.component("FontAwesomeIcon", FontAwesomeIcon);

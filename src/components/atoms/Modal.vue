@@ -18,7 +18,7 @@
               type="button"
               @click="toggle(false)"
             >
-              x
+              <FontAwesomeIcon icon="fa-xmark" />
             </button>
           </slot>
         </div>
