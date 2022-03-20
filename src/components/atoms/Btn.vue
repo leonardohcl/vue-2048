@@ -1,5 +1,5 @@
 <template>
-  <button class="btn" :class="classes" :type="type" @click="handleClick">
+  <button class="btn" :class="classes" :type="type" @click.stop="handleClick">
     <slot>
       {{title}}
     </slot>
@@ -29,8 +29,8 @@
       }
     },
     methods: {
-      handleClick() {
-        this.$emit("click");
+      handleClick(evt) {
+        this.$emit("click", evt);
       },
     },
     computed: {
@@ -57,6 +57,7 @@
     font-weight: bold;
     transition: background-color 0.1s;
     color: black;
+    cursor: pointer;
 
     &--sm {
       height: 20px;
