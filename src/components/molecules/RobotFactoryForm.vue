@@ -1,5 +1,8 @@
 <template>
-  <form class="robot-factory__form d-flex flex-wrap" @submit.prevent="createRobot">
+  <form
+    class="robot-factory__form d-flex flex-wrap"
+    @submit.prevent="createRobot"
+  >
     <div class="row mb-3 w-100">
       <Input
         id="name"
@@ -60,11 +63,7 @@
         required
         class="col-12 col-md-6 col-lg-3 col-xl-2"
       />
-      <Checkbox
-        label="Use Elitism"
-        v-model="useElitism"
-        class="col-12"
-      />
+      <Checkbox label="Use Elitism" v-model="useElitism" class="col-12" />
     </div>
     <div class="text-end w-100">
       <Btn type="submit">Create</Btn>

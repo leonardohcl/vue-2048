@@ -6,7 +6,7 @@
       :disable-actions="disableActions"
     />
     <template v-slot:footer>
-      <div class="text-center">
+      <div class="text-center" v-if="grantAccessToLab">
         <Btn size="sm" outlined theme="plain" tag="router-link" to="robot-lab">
           <FontAwesomeIcon icon="fa-user-secret" />
         </Btn>

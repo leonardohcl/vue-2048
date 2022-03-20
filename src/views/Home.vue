@@ -35,7 +35,11 @@
         <FontAwesomeIcon icon="fa-robot" />
       </Btn>
     </FabContainer>
-    <RobotFactoryModal @select="handleRobotSelection" disable-actions />
+    <RobotFactoryModal
+      @select="handleRobotSelection"
+      disable-actions
+      grant-access-to-lab
+    />
   </div>
 </template>
 
@@ -61,7 +65,7 @@
         this.$modal.open("factory-modal");
       },
       handleRobotSelection(factory) {
-        this.stopAutoPlay()
+        this.stopAutoPlay();
         this.robot = factory.robot;
         this.robot.setGame(this.game);
         this.$modal.close("factory-modal");

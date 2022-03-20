@@ -74,6 +74,10 @@ export default class RobotFactory {
     return this.#populationSize;
   }
 
+  get restBetweenGenerations() {
+    return this.#restBetweenGenerations;
+  }
+
   get useBias() {
     return this.#useBias;
   }
