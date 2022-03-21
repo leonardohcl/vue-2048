@@ -2,13 +2,15 @@ import Robot from "./Robot";
 import WeighedRoulette from "./WeighedRoulette";
 import Game from "../2048/GameControllerLite";
 import { rest } from "../../utils/async";
+import { mean } from "../../utils/array";
 
 export default class RobotFactory {
   #id = "";
   #population = [];
   #goatRobot = null;
-  #goatScore = -Infinity;
+  #goatScore = 0;
   #currentGeneration = 0;
+  #bestGeneration = 0;
   #boardSize = 4;
   #brainStructure = [];
   #useBias = true;
@@ -18,6 +20,9 @@ export default class RobotFactory {
   #populationSize = 0;
   #restBetweenGenerations = 10;
   #game = null;
+  #generationsGoats = [];
+  #generationsAverages = [];
+  #generationsBests = [];
 
   constructor(
     id,
@@ -72,6 +77,10 @@ export default class RobotFactory {
     return this.#generationCount;
   }
 
+  get bestGeneration() {
+    return this.#bestGeneration;
+  }
+
   get populationSize() {
     return this.#populationSize;
   }
@@ -96,6 +105,18 @@ export default class RobotFactory {
     return this.#currentGeneration;
   }
 
+  get generationsBests() {
+    return [...this.#generationsBests];
+  }
+
+  get generationsAverages() {
+    return [...this.#generationsAverages];
+  }
+
+  get generationsGoats() {
+    return [...this.#generationsGoats];
+  }
+
   get records() {
     const records = {
       id: this.#id,
@@ -104,12 +125,16 @@ export default class RobotFactory {
       populationSize: this.#populationSize,
       generationCount: this.#generationCount,
       currentGeneration: this.#currentGeneration,
+      bestGeneration: this.#bestGeneration,
       mutationProbability: this.#mutationProbability,
       useElitism: this.#useElitism,
       restBetweenGenerations: this.#restBetweenGenerations,
       population: this.#population.map(robot => robot.synapses),
       goatRobot: this.#goatRobot.synapses,
       goatScore: this.#goatScore,
+      lastAverages: this.#generationsAverages,
+      lastBest: this.#generationsBests,
+      lastGoats: this.#generationsGoats,
     };
 
     return records;
@@ -131,12 +156,23 @@ export default class RobotFactory {
           bestScore = score;
 
           if (score > this.#goatScore) {
+            this.#bestGeneration = this.#currentGeneration;
             this.#goatRobot = robot.clone();
             this.#goatScore = score;
           }
         }
         return score;
       });
+
+      this.#generationsBests.push(bestScore);
+      this.#generationsAverages.push(mean(scores));
+      this.#generationsGoats.push(this.#goatScore);
+
+      if (this.#generationsBests.length > 100) {
+        this.#generationsBests = this.#generationsBests.slice(-30);
+        this.#generationsAverages = this.#generationsAverages.slice(-30);
+        this.#generationsGoats = this.#generationsGoats.slice(-30);
+      }
 
       const roulette = new WeighedRoulette(scores);
 
@@ -156,6 +192,8 @@ export default class RobotFactory {
         scores,
         generation: this.#currentGeneration + 1,
         generationCount: this.#generationCount,
+        lastBest: this.#generationsBests,
+        lastAverages: this.#generationsAverages,
       });
 
       this.#currentGeneration++;
@@ -182,9 +220,13 @@ export default class RobotFactory {
 
   loadRecords(records) {
     this.#currentGeneration = records.currentGeneration;
+    this.#bestGeneration = records.bestGeneration || 0;
     this.#population.forEach((robot, idx) =>
       robot.loadBrain(records.population[idx])
     );
+    this.#generationsAverages = records.lastAverages || [];
+    this.#generationsBests = records.lastBest || [];
+    this.#generationsGoats = records.lastGoats || [];
     this.#goatRobot = new Robot(this.#brainStructure, new Game(this.boardSize));
     this.#goatRobot.loadBrain(records.goatRobot);
     this.#goatScore = records.goatScore;
