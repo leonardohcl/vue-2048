@@ -49,7 +49,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['desc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'right'
@@ -67,7 +67,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['asc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'left'
@@ -85,7 +85,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['asc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'up'
@@ -103,7 +103,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['desc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'down'

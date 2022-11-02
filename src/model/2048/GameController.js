@@ -69,7 +69,7 @@ export default class GameController {
       })
   }
 
-  #spawnBlock(board) {
+  spawnBlock(board) {
     const options = board.emptySquares
 
     if (options.length === 0) return
@@ -90,7 +90,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['desc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'right'
@@ -109,7 +109,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['asc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'left'
@@ -128,7 +128,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['asc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'up'
@@ -147,7 +147,7 @@ export default class GameController {
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['desc']).forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getValidMovement(
+      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
         'down'
@@ -161,7 +161,7 @@ export default class GameController {
     return [nextBoard, score]
   }
 
-  #updateGameState() {
+  updateGameState() {
     if(!this.#win && this.board.highestValue >= 2048){
       this.#win = true;
     }
@@ -181,15 +181,16 @@ export default class GameController {
     }
   }
 
-  #updateBoard(nextBoard, nextScore) {
+  #updateBoard(nextBoard, nextScore, spawnBlock) {
     this.score += nextScore
     this.#updateTimeout = null
-    this.#spawnBlock(nextBoard)
+    if(spawnBlock)
+      this.spawnBlock(nextBoard)
     this.board = nextBoard
-    this.#updateGameState()
+    this.updateGameState()
   }
 
-  move(dir) {
+  move(dir, shouldSpawnAfter = true) {
     if (this.#updateTimeout) return ResolvedPromise()
     let nextBoard, nextScore
     switch (dir) {
@@ -221,7 +222,7 @@ export default class GameController {
 
     return new Promise((resolve) => {
       this.#updateTimeout = setTimeout(() => {
-        this.#updateBoard(nextBoard, nextScore)
+        this.#updateBoard(nextBoard, nextScore, shouldSpawnAfter)
         resolve()
       }, this.updateDelay)
     })
@@ -232,8 +233,8 @@ export default class GameController {
     this.#isOver = false
     this.#win = false
     this.#clearBoard()
-    this.#spawnBlock(this.board)
-    this.#spawnBlock(this.board)
-    this.#updateGameState()
+    this.spawnBlock(this.board)
+    this.spawnBlock(this.board)
+    this.updateGameState()
   }
 }
