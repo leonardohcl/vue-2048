@@ -71,7 +71,7 @@
         <small> *You can also use the arrow keys or swipe the board </small>
       </div>
     </div>
-    <div class="game__command-listener" v-if="!game.isGameOver">
+    <!-- <div class="game__command-listener" v-if="!game.isGameOver">
       <Keypress
         :key="37"
         key-event="keydown"
@@ -92,15 +92,16 @@
         key-event="keydown"
         @success="keyboardCommand"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
-import Game from "@/model/2048/GameController";
+import GameController from "@/model/2048/GameController";
 import Board from "@/components/molecules/Board.vue";
 import Btn from "@/components/atoms/Btn.vue";
-import Keypress from "vue-keypress";
+import { useKeypress } from "vue3-keypress";
+import { ref } from 'vue'
 
 const TOUCH_INFO = {
   start: null,
@@ -120,51 +121,20 @@ const COMMAND_KEYS = {
   bottom: "down",
 };
 
-const COOLDOWN = {
-  active: false,
-  timeout: null,
-};
-
 export default {
-  components: { Board, Keypress, Btn },
+  components: { Board, Btn },
   name: "Game",
   props: {
     game: {
-      type: Game,
-      required: true,
+      type: GameController,
+      required: true
     },
-  },
-  data() {
-    return {
-      ignoreWin: false,
-    };
   },
   methods: {
-    keyboardCommand(cmd) {
-      if (COMMAND_KEYS[cmd.event.key]) {
-        cmd.event.preventDefault()
-        if (!this.canMove()) return;
-        this.startCooldown();
-        this.game.move(COMMAND_KEYS[cmd.event.key]);
-      }
-    },
     swipeCommand(cmd) {
       if (!this.canMove()) return;
       this.startCooldown();
       this.game.move(COMMAND_KEYS[cmd]);
-    },
-    startCooldown() {
-      COOLDOWN.active = true;
-      if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout);
-      COOLDOWN.timeout = setTimeout(() => {
-        COOLDOWN.active = false;
-      }, this.game.updateDelay);
-    },
-    canMove() {
-      if (COOLDOWN.active) return false;
-      if (this.game.isGameOver) return false;
-      if (this.game.winner && !this.ignoreWin) return false;
-      return true;
     },
     handleTouchStart(evt) {
       evt.preventDefault();
@@ -222,13 +192,59 @@ export default {
     this.$refs.touchArea.addEventListener("touchstart", this.handleTouchStart);
     this.$refs.touchArea.addEventListener("touchend", this.handleTouchEnd);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.$refs.touchArea.removeEventListener(
       "touchstart",
       this.handleTouchStart
     );
     this.$refs.touchArea.removeEventListener("touchend", this.handleTouchEnd);
   },
+  setup(props){
+    const COOLDOWN = {
+      active: false,
+      timeout: null,
+    };
+    const ignoreWin = ref(false)
+
+    const canMove = () => {
+      if (COOLDOWN.active) return false;
+      if (props.game.isGameOver) return false;
+      if (props.game.winner && !ignoreWin.value) return false;
+      return true;
+    }
+
+    const startCooldown = () => {
+      COOLDOWN.active = true;
+      if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout);
+      COOLDOWN.timeout = setTimeout(() => {
+        COOLDOWN.active = false;
+      }, props.game.updateDelay);
+    }
+
+    const keyboardCommand = (cmd) => {
+      if (COMMAND_KEYS[cmd.event.key]) {
+        console.log(cmd)
+        if (!canMove()) return;
+        startCooldown();
+        props.game.move(COMMAND_KEYS[cmd.event.key]);
+      }
+    }
+
+    useKeypress({
+      keyEvent: "keydown",
+      keyBinds: ["up", "down", "right", "left"].map(key => ({
+        keyCode: key,
+        preventDefault: true,
+        success: keyboardCommand
+      }))
+    })
+
+    return {
+      ignoreWin,
+      canMove,
+      startCooldown
+    }
+  }
 };
 </script>
 

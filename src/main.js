@@ -1,7 +1,8 @@
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
-import store from "./store";
+
+const app = createApp(App)
+
 
 /** Fontawesome setup */
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -28,19 +29,22 @@ library.add([
 ]);
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-Vue.component("FontAwesomeIcon", FontAwesomeIcon);
+app.component("FontAwesomeIcon", FontAwesomeIcon)
+
 /** End Fontawesome setup */
 
-import modalPlugin from "@/plugins/modal";
-Vue.use(modalPlugin);
+// import modalPlugin from "@/plugins/modal";
+// app.use(modalPlugin);
 
 import "@/assets/styles/bootstrap.scss";
 import "@/assets/styles/main.scss";
 
-Vue.config.productionTip = false;
 
-new Vue({
-  router,
-  store,
-  render: h => h(App),
-}).$mount("#app");
+import router from "./router";
+import store from "./store";
+
+
+app.use(router)
+app.use(store)
+
+app.mount("#app")

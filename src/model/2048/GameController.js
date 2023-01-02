@@ -5,10 +5,10 @@ const ResolvedPromise = () => new Promise(resolve => resolve())
 
 export default class GameController {
   score = 0
-  #win = false
-  #isOver = true
+  winner = false
+  isGameOver = true
   board = null
-  #updateTimeout = null
+  isWaintingUpdate = null
 
   canMoveRight = false
   canMoveLeft = false
@@ -18,19 +18,11 @@ export default class GameController {
   constructor(size = 4, updateDelay = 0) {
     this.size = size
     this.updateDelay = updateDelay
-    this.#clearBoard()
+    this.clearBoard()
   }
 
-  get isGameOver(){
-    return this.#isOver
-  }
-
-  get winner(){
-    return this.#win
-  }
-
-  #checkMoveRight() {
-    const nextBoard = this.#moveRight()[0]
+  checkMoveRight() {
+    const nextBoard = this.moveRight()[0]
     this.canMoveRight =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
       nextBoard.filledSquares.some((sqr) => {
@@ -39,8 +31,8 @@ export default class GameController {
       })
   }
 
-  #checkMoveLeft() {
-    const nextBoard = this.#moveLeft()[0]
+  checkMoveLeft() {
+    const nextBoard = this.moveLeft()[0]
     this.canMoveLeft =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
       nextBoard.filledSquares.some((sqr) => {
@@ -49,8 +41,8 @@ export default class GameController {
       })
   }
 
-  #checkMoveUp() {
-    const nextBoard = this.#moveUp()[0]
+  checkMoveUp() {
+    const nextBoard = this.moveUp()[0]
     this.canMoveUp =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
       nextBoard.filledSquares.some((sqr) => {
@@ -59,8 +51,8 @@ export default class GameController {
       })
   }
 
-  #checkMoveDown() {
-    const nextBoard = this.#moveDown()[0]
+  checkMoveDown() {
+    const nextBoard = this.moveDown()[0]
     this.canMoveDown =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
       nextBoard.filledSquares.some((sqr) => {
@@ -81,11 +73,11 @@ export default class GameController {
     else options[selectedIndex].setValue(4)
   }
 
-  #clearBoard() {
+  clearBoard() {
     this.board = new Board(this.size)
   }
 
-  #moveRight(storeMovement = false) {
+  moveRight(storeMovement = false) {
     const nextBoard = new Board(this.size)
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['desc']).forEach((sqr) => {
@@ -104,7 +96,7 @@ export default class GameController {
     return [nextBoard, score]
   }
 
-  #moveLeft(storeMovement = false) {
+  moveLeft(storeMovement = false) {
     const nextBoard = new Board(this.size)
     let score = 0
     orderBy(this.board.filledSquares, ['col'], ['asc']).forEach((sqr) => {
@@ -123,7 +115,7 @@ export default class GameController {
     return [nextBoard, score]
   }
 
-  #moveUp(storeMovement = false) {
+  moveUp(storeMovement = false) {
     const nextBoard = new Board(this.size)
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['asc']).forEach((sqr) => {
@@ -142,7 +134,7 @@ export default class GameController {
     return [nextBoard, score]
   }
 
-  #moveDown(storeMovement = false) {
+  moveDown(storeMovement = false) {
     const nextBoard = new Board(this.size)
     let score = 0
     orderBy(this.board.filledSquares, ['row'], ['desc']).forEach((sqr) => {
@@ -162,14 +154,14 @@ export default class GameController {
   }
 
   updateGameState() {
-    if(!this.#win && this.board.highestValue >= 2048){
-      this.#win = true;
+    if(!this.winner && this.board.highestValue >= 2048){
+      this.winner = true;
     }
 
-    this.#checkMoveRight()
-    this.#checkMoveLeft()
-    this.#checkMoveUp()
-    this.#checkMoveDown()
+    this.checkMoveRight()
+    this.checkMoveLeft()
+    this.checkMoveUp()
+    this.checkMoveDown()
 
     if (
       !this.canMoveUp &&
@@ -177,13 +169,13 @@ export default class GameController {
       !this.canMoveRight &&
       !this.canMoveLeft
     ) {
-      this.#isOver = true
+      this.isGameOver = true
     }
   }
 
-  #updateBoard(nextBoard, nextScore, spawnBlock) {
+  updateBoard(nextBoard, nextScore, spawnBlock) {
     this.score += nextScore
-    this.#updateTimeout = null
+    this.isWaintingUpdate = null
     if(spawnBlock)
       this.spawnBlock(nextBoard)
     this.board = nextBoard
@@ -191,38 +183,38 @@ export default class GameController {
   }
 
   move(dir, shouldSpawnAfter = true) {
-    if (this.#updateTimeout) return ResolvedPromise()
+    if (this.isWaintingUpdate) return ResolvedPromise()
     let nextBoard, nextScore
     switch (dir) {
       case 'right':
         if(this.canMoveRight) {
-          [nextBoard, nextScore] = this.#moveRight(true)
+          [nextBoard, nextScore] = this.moveRight(true)
           break
         }
         else return ResolvedPromise()
       case 'left':
         if(this.canMoveLeft) {
-          [nextBoard, nextScore] = this.#moveLeft(true)
+          [nextBoard, nextScore] = this.moveLeft(true)
           break
         }
         else return ResolvedPromise()
       case 'up':
         if(this.canMoveUp){
-          [nextBoard, nextScore] = this.#moveUp(true)
+          [nextBoard, nextScore] = this.moveUp(true)
           break
         }
         else return ResolvedPromise()
       case 'down':
         if(this.canMoveDown){
-          [nextBoard, nextScore] = this.#moveDown(true)
+          [nextBoard, nextScore] = this.moveDown(true)
           break
         }
         else return ResolvedPromise()
     }
 
     return new Promise((resolve) => {
-      this.#updateTimeout = setTimeout(() => {
-        this.#updateBoard(nextBoard, nextScore, shouldSpawnAfter)
+      this.isWaintingUpdate = setTimeout(() => {
+        this.updateBoard(nextBoard, nextScore, shouldSpawnAfter)
         resolve()
       }, this.updateDelay)
     })
@@ -230,9 +222,9 @@ export default class GameController {
 
   start() {
     this.score = 0
-    this.#isOver = false
-    this.#win = false
-    this.#clearBoard()
+    this.isGameOver = false
+    this.winner = false
+    this.clearBoard()
     this.spawnBlock(this.board)
     this.spawnBlock(this.board)
     this.updateGameState()
