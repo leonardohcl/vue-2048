@@ -127,7 +127,6 @@
 
       const keyboardCommand = (cmd) => {
         if (COMMAND_KEYS[cmd.event.key]) {
-          console.log(cmd)
           if (!canMove()) return
           startCooldown()
           props.game.move(COMMAND_KEYS[cmd.event.key])
@@ -136,7 +135,16 @@
 
       useKeypress({
         keyEvent: 'keydown',
-        keyBinds: ['up', 'down', 'right', 'left'].map((key) => ({
+        keyBinds: [
+          'up',
+          'down',
+          'right',
+          'left',
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowRight',
+          'ArrowLeft',
+        ].map((key) => ({
           keyCode: key,
           preventDefault: true,
           success: keyboardCommand,
@@ -149,15 +157,14 @@
         props.game.move(COMMAND_KEYS[cmd])
       }
 
-
-     useSwipe('#touchArea', swipeCommand)
+      useSwipe('#touchArea', swipeCommand)
 
       return {
         ignoreWin,
         canMove,
-        startCooldown,        
+        startCooldown,
       }
-    }
+    },
   }
 </script>
 

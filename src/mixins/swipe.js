@@ -1,57 +1,59 @@
-import {onMounted, onBeforeUnmount } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 
 export function useSwipe(
   target,
   callbackFn,
-  options = { minimumSwipeSize: 30, releaseTouchTime: 1500 }
+  options = {
+    minimumSwipeSize: 30, //px
+    releaseTouchTime: 1500, //ms
+    allowMouse: true,
+  }
 ) {
-
-  const TOUCH_INFO = {
+  const SWIPE_TRACKER = {
     start: null,
-    minimumSwipeSize: options.minimumSwipeSize, //px,
-    releaseTouchTime: options.releaseTouchTime, //ms
     releaseTimeOut: null,
+  }
+
+  const { minimumSwipeSize, releaseTouchTime, allowMouse } = options
+
+  function handleSwipeStart(coords) {
+    if (SWIPE_TRACKER.start) return
+    SWIPE_TRACKER.start = coords
+    SWIPE_TRACKER.releaseTimeOut = setTimeout(() => {
+      SWIPE_TRACKER.start = null
+    }, releaseTouchTime)
   }
 
   function handleTouchStart(evt) {
     evt.preventDefault()
-    if (TOUCH_INFO.start) return
-    TOUCH_INFO.start = {
+    handleSwipeStart({
       id: evt.touches[0].identifier,
       x: evt.touches[0].clientX,
       y: evt.touches[0].clientY,
-    }
-    TOUCH_INFO.releaseTimeOut = setTimeout(() => {
-      TOUCH_INFO.start = null
-    }, TOUCH_INFO.releaseTouchTime)
+    })
   }
 
-  function handleTouchEnd(evt) {
+  function handleClickStart(evt) {
     evt.preventDefault()
-    if (!TOUCH_INFO.start) return
-    let touch
-    for (let i = 0; i < evt.changedTouches.length; i++) {
-      if (evt.changedTouches[i].identifier === TOUCH_INFO.start.id) {
-        touch = evt.changedTouches[i]
-        break
-      }
-    }
-    if (!touch) return
+    handleSwipeStart({
+      id: 'mouse',
+      x: evt.clientX,
+      y: evt.clientY,
+    })
+  }
 
-    const end = {
-        id: touch.identifier,
-        x: touch.clientX,
-        y: touch.clientY,
-      },
-      deltaX = Math.abs(TOUCH_INFO.start.x - end.x),
-      deltaY = Math.abs(TOUCH_INFO.start.y - end.y)
+  function handleSwipeEnd(endCoords) {
+    if (!SWIPE_TRACKER.start) return
+
+    const deltaX = Math.abs(SWIPE_TRACKER.start.x - endCoords.x)
+    const deltaY = Math.abs(SWIPE_TRACKER.start.y - endCoords.y)
 
     let command
-    if (deltaX > deltaY && deltaX > TOUCH_INFO.minimumSwipeSize) {
-      if (TOUCH_INFO.start.x > end.x) command = 'left'
+    if (deltaX > deltaY && deltaX > minimumSwipeSize) {
+      if (SWIPE_TRACKER.start.x > endCoords.x) command = 'left'
       else command = 'right'
-    } else if (deltaY > TOUCH_INFO.minimumSwipeSize) {
-      if (TOUCH_INFO.start.y > end.y) command = 'top'
+    } else if (deltaY > minimumSwipeSize) {
+      if (SWIPE_TRACKER.start.y > endCoords.y) command = 'top'
       else command = 'bottom'
     }
 
@@ -59,23 +61,59 @@ export function useSwipe(
       callbackFn(command)
     }
 
-    if (TOUCH_INFO.releaseTimeOut) {
-      clearTimeout(TOUCH_INFO.releaseTimeOut)
-      TOUCH_INFO.releaseTimeOut = null
+    if (SWIPE_TRACKER.releaseTimeOut) {
+      clearTimeout(SWIPE_TRACKER.releaseTimeOut)
+      SWIPE_TRACKER.releaseTimeOut = null
     }
-    TOUCH_INFO.start = null
+    SWIPE_TRACKER.start = null
+  }
+
+  function handleTouchEnd(evt) {
+    evt.preventDefault()
+    let touch
+    for (let i = 0; i < evt.changedTouches.length; i++) {
+      if (evt.changedTouches[i].identifier === SWIPE_TRACKER.start.id) {
+        touch = evt.changedTouches[i]
+        break
+      }
+    }
+    if (!touch) return
+
+    handleSwipeEnd({
+      id: touch.identifier,
+      x: touch.clientX,
+      y: touch.clientY,
+    })
+  }
+
+  function handleClickEnd(evt) {
+    evt.preventDefault()
+    handleSwipeEnd({
+      id: 'mouse',
+      x: evt.clientX,
+      y: evt.clientY,
+    })
   }
 
   onMounted(() => {
     const el = document.querySelector(target)
+    if (!el) return
+    if (allowMouse) {
+      el.addEventListener('mousedown', handleClickStart)
+      el.addEventListener('mouseup', handleClickEnd)
+    }
     el.addEventListener('touchstart', handleTouchStart)
     el.addEventListener('touchend', handleTouchEnd)
   })
-  
+
   onBeforeUnmount(() => {
     const el = document.querySelector(target)
+    if (!el) return
+    if (allowMouse) {
+      el.removeEventListener('mousedown', handleClickStart)
+      el.removeEventListener('mouseup', handleClickEnd)
+    }
     el.removeEventListener('touchstart', handleTouchStart)
     el.removeEventListener('touchend', handleTouchEnd)
   })
-
 }
