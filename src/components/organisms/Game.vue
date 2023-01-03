@@ -26,7 +26,7 @@
       </div>
     </div>
     <div class="game__board">
-      <div class="game__board--touch-area" ref="touchArea"></div>
+      <div class="game__board--touch-area" id="touchArea"></div>
       <Board
         :board="game.board"
         :size="game.size"
@@ -71,295 +71,208 @@
         <small> *You can also use the arrow keys or swipe the board </small>
       </div>
     </div>
-    <!-- <div class="game__command-listener" v-if="!game.isGameOver">
-      <Keypress
-        :key="37"
-        key-event="keydown"
-        @success="keyboardCommand"
-      />
-      <Keypress
-        :key="38"
-        key-event="keydown"
-        @success="keyboardCommand"
-      />
-      <Keypress
-        :key="39"
-        key-event="keydown"
-        @success="keyboardCommand"
-      />
-      <Keypress
-        :key="40"
-        key-event="keydown"
-        @success="keyboardCommand"
-      />
-    </div> -->
   </div>
 </template>
 
 <script>
-import GameController from "@/model/2048/GameController";
-import Board from "@/components/molecules/Board.vue";
-import Btn from "@/components/atoms/Btn.vue";
-import { useKeypress } from "vue3-keypress";
-import { ref } from 'vue'
+  import GameController from '@/model/2048/GameController'
+  import Board from '@/components/molecules/Board.vue'
+  import Btn from '@/components/atoms/Btn.vue'
+  import { useKeypress } from 'vue3-keypress'
+  import { useSwipe } from '@/mixins/swipe'
+  import { ref } from 'vue'
 
-const TOUCH_INFO = {
-  start: null,
-  minimumSwipeSize: 30, //px,
-  releaseTouchTime: 1500, //ms
-  releaseTimeOut: null
-};
+  const COMMAND_KEYS = {
+    ArrowUp: 'up',
+    ArrowRight: 'right',
+    ArrowDown: 'down',
+    ArrowLeft: 'left',
+    right: 'right',
+    left: 'left',
+    top: 'up',
+    bottom: 'down',
+  }
 
-const COMMAND_KEYS = {
-  ArrowUp: "up",
-  ArrowRight: "right",
-  ArrowDown: "down",
-  ArrowLeft: "left",
-  right: "right",
-  left: "left",
-  top: "up",
-  bottom: "down",
-};
+  export default {
+    components: { Board, Btn },
+    name: 'Game',
+    props: {
+      game: {
+        type: GameController,
+        required: true,
+      },
+    },
+    setup(props) {
+      const COOLDOWN = {
+        active: false,
+        timeout: null,
+      }
 
-export default {
-  components: { Board, Btn },
-  name: "Game",
-  props: {
-    game: {
-      type: GameController,
-      required: true
-    },
-  },
-  methods: {
-    swipeCommand(cmd) {
-      if (!this.canMove()) return;
-      this.startCooldown();
-      this.game.move(COMMAND_KEYS[cmd]);
-    },
-    handleTouchStart(evt) {
-      evt.preventDefault();
-      if (TOUCH_INFO.start) return;
-      TOUCH_INFO.start = {
-        id: evt.touches[0].identifier,
-        x: evt.touches[0].clientX,
-        y: evt.touches[0].clientY,
-      };
-      TOUCH_INFO.releaseTimeOut = setTimeout(() =>{
-        TOUCH_INFO.start = null;
-      }, TOUCH_INFO.releaseTouchTime)
-    },
-    handleTouchEnd(evt) {
-      evt.preventDefault();
-      if (!TOUCH_INFO.start) return;
-      let touch;
-      for (let i = 0; i < evt.changedTouches.length; i++) {
-        if (evt.changedTouches[i].identifier === TOUCH_INFO.start.id) {
-          touch = evt.changedTouches[i];
-          break;
+      const ignoreWin = ref(false)
+
+      const canMove = () => {
+        if (COOLDOWN.active) return false
+        if (props.game.isGameOver) return false
+        if (props.game.winner && !ignoreWin.value) return false
+        return true
+      }
+
+      const startCooldown = () => {
+        COOLDOWN.active = true
+        if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout)
+        COOLDOWN.timeout = setTimeout(() => {
+          COOLDOWN.active = false
+        }, props.game.updateDelay)
+      }
+
+      const keyboardCommand = (cmd) => {
+        if (COMMAND_KEYS[cmd.event.key]) {
+          console.log(cmd)
+          if (!canMove()) return
+          startCooldown()
+          props.game.move(COMMAND_KEYS[cmd.event.key])
         }
       }
-      if (!touch) return;
 
-      const end = {
-          id: touch.identifier,
-          x: touch.clientX,
-          y: touch.clientY,
-        },
-        deltaX = Math.abs(TOUCH_INFO.start.x - end.x),
-        deltaY = Math.abs(TOUCH_INFO.start.y - end.y);
+      useKeypress({
+        keyEvent: 'keydown',
+        keyBinds: ['up', 'down', 'right', 'left'].map((key) => ({
+          keyCode: key,
+          preventDefault: true,
+          success: keyboardCommand,
+        })),
+      })
 
-      let command;
-      if (deltaX > deltaY && deltaX > TOUCH_INFO.minimumSwipeSize) {
-        if (TOUCH_INFO.start.x > end.x) command = "left";
-        else command = "right";
-      } else if (deltaY > TOUCH_INFO.minimumSwipeSize) {
-        if (TOUCH_INFO.start.y > end.y) command = "top";
-        else command = "bottom";
+      const swipeCommand = (cmd) => {
+        if (!canMove()) return
+        startCooldown()
+        props.game.move(COMMAND_KEYS[cmd])
       }
 
-      if (command) {
-        this.swipeCommand(command);
+
+     useSwipe('#touchArea', swipeCommand)
+
+      return {
+        ignoreWin,
+        canMove,
+        startCooldown,        
       }
-
-      if(TOUCH_INFO.releaseTimeOut){
-        clearTimeout(TOUCH_INFO.releaseTimeOut);
-        TOUCH_INFO.releaseTimeOut = null
-      }
-      TOUCH_INFO.start = null;
-    },
-  },
-  mounted() {
-    this.$refs.touchArea.addEventListener("touchstart", this.handleTouchStart);
-    this.$refs.touchArea.addEventListener("touchend", this.handleTouchEnd);
-  },
-  beforeUnmount() {
-    this.$refs.touchArea.removeEventListener(
-      "touchstart",
-      this.handleTouchStart
-    );
-    this.$refs.touchArea.removeEventListener("touchend", this.handleTouchEnd);
-  },
-  setup(props){
-    const COOLDOWN = {
-      active: false,
-      timeout: null,
-    };
-    const ignoreWin = ref(false)
-
-    const canMove = () => {
-      if (COOLDOWN.active) return false;
-      if (props.game.isGameOver) return false;
-      if (props.game.winner && !ignoreWin.value) return false;
-      return true;
-    }
-
-    const startCooldown = () => {
-      COOLDOWN.active = true;
-      if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout);
-      COOLDOWN.timeout = setTimeout(() => {
-        COOLDOWN.active = false;
-      }, props.game.updateDelay);
-    }
-
-    const keyboardCommand = (cmd) => {
-      if (COMMAND_KEYS[cmd.event.key]) {
-        console.log(cmd)
-        if (!canMove()) return;
-        startCooldown();
-        props.game.move(COMMAND_KEYS[cmd.event.key]);
-      }
-    }
-
-    useKeypress({
-      keyEvent: "keydown",
-      keyBinds: ["up", "down", "right", "left"].map(key => ({
-        keyCode: key,
-        preventDefault: true,
-        success: keyboardCommand
-      }))
-    })
-
-    return {
-      ignoreWin,
-      canMove,
-      startCooldown
     }
   }
-};
 </script>
 
 <style lang="scss" scoped>
-.game {
-  border-radius: $border-radius;
-  border: solid 3px $bg-secondary;
-  padding: 1rem;
-  position: relative;
-  width: 100%;
-  min-width: 200px;
-  max-width: 400px;
+  .game {
+    border-radius: $border-radius;
+    border: solid 3px $bg-secondary;
+    padding: 1rem;
+    position: relative;
+    width: 100%;
+    min-width: 200px;
+    max-width: 400px;
 
-  &--over {
-    .game {
-      &__hud {
-        opacity: 0;
-      }
+    &--over {
+      .game {
+        &__hud {
+          opacity: 0;
+        }
 
-      &__board{
-        &--touch-area{
-          display: none;
+        &__board {
+          &--touch-area {
+            display: none;
+          }
         }
       }
     }
-  }
 
-  &__overlay {
-    background-color: fade-out($square-color, 0.75);
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    border-radius: $border-radius/2;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
+    &__overlay {
+      background-color: fade-out($square-color, 0.75);
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: $border-radius/2;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
 
-    &--score {
-      color: black;
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+      &--score {
+        color: black;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      &--buttons {
+        display: flex;
+        justify-content: center;
+
+        & > *:not(:last-child) {
+          margin-right: 0.5rem;
+        }
+      }
+
+      @include transition-animation(fade, 0.1s, ease);
     }
 
-    &--buttons {
+    &__hud {
+      margin-bottom: 0.5rem;
       display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      &--score {
+        font-size: 1rem;
+        font-weight: 300;
+        .points {
+          font-size: 1.3em;
+          font-weight: bold;
+        }
+      }
+    }
+
+    &__board {
+      position: relative;
+      &--touch-area {
+        position: absolute;
+        top: 0;
+        left: -1rem;
+        width: calc(100% + 2rem);
+        height: 100%;
+        z-index: 1;
+      }
+    }
+
+    &__controls {
+      display: flex;
+      flex-wrap: wrap;
       justify-content: center;
 
-      & > *:not(:last-child) {
+      &--callout {
+        font-weight: 300;
+        width: 100%;
+        margin: 0.5rem 0;
+      }
+
+      .game__control:not(:last-child) {
         margin-right: 0.5rem;
       }
     }
 
-    @include transition-animation(fade, 0.1s, ease);
+    &__command-listener {
+      display: none;
+    }
   }
 
-  &__hud {
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    &--score {
-      font-size: 1rem;
-      font-weight: 300;
-      .points {
-        font-size: 1.3em;
-        font-weight: bold;
+  @include screen-above(md) {
+    .game {
+      &__hud {
+        &--score {
+          font-size: 1.2rem;
+        }
       }
     }
   }
-
-  &__board{
-    position: relative;
-    &--touch-area{
-      position: absolute;
-      top: 0;
-      left: -1rem;
-      width: calc(100% + 2rem);
-      height : 100%;
-      z-index: 1;
-    }
-  }
-
-  &__controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    &--callout {
-      font-weight: 300;
-      width: 100%;
-      margin: 0.5rem 0;
-    }
-
-    .game__control:not(:last-child) {
-      margin-right: 0.5rem;
-    }
-  }
-
-  &__command-listener {
-    display: none;
-  }
-}
-
-@include screen-above(md) {
-  .game {
-    &__hud {
-      &--score {
-        font-size: 1.2rem;
-      }
-    }
-  }
-}
 </style>

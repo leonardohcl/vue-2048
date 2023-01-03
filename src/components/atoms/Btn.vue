@@ -14,14 +14,17 @@
 </template>
 
 <script>
+  import { computed } from 'vue'
+
   export default {
+    emits: ['click'],
     props: {
       size: {
         type: String,
       },
       theme: {
         type: String,
-        default: "primary",
+        default: 'primary',
       },
       outlined: {
         type: Boolean,
@@ -29,31 +32,33 @@
       },
       type: {
         type: String,
-        default: "button",
+        default: 'button',
       },
       title: {
         type: String,
       },
       fab: Boolean,
-      tag: { default: "button" },
+      tag: { default: 'button' },
       to: { type: [String, Object] },
     },
-    methods: {
-      handleClick(evt) {
-        this.$emit("click", evt);
-      },
+    setup(props, context) {
+      const classes = computed(() => [
+        `btn--${props.theme}`,
+        props.size && `btn--${props.size}`,
+        props.outlined && `btn--outlined`,
+        props.fab && `btn--fab`,
+      ])
+
+      const handleClick = (evt) => {
+        context.emit('click', evt)
+      }
+
+      return {
+        classes,
+        handleClick,
+      }
     },
-    computed: {
-      classes() {
-        return [
-          `btn--${this.theme}`,
-          this.size && `btn--${this.size}`,
-          this.outlined && `btn--outlined`,
-          this.fab && `btn--fab`,
-        ];
-      },
-    },
-  };
+  }
 </script>
 
 <style lang="scss" scoped>

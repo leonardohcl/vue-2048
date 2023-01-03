@@ -33,9 +33,6 @@ app.component("FontAwesomeIcon", FontAwesomeIcon)
 
 /** End Fontawesome setup */
 
-// import modalPlugin from "@/plugins/modal";
-// app.use(modalPlugin);
-
 import "@/assets/styles/bootstrap.scss";
 import "@/assets/styles/main.scss";
 
