@@ -1,9 +1,6 @@
-import {createStore} from 'vuex'
-import robots from './robots'
-
+import { createStore } from 'vuex'
 
 export default createStore({
   modules: {
-    robots,
   },
 })
