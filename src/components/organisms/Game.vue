@@ -1,9 +1,9 @@
 <template>
-  <div :class="`game ${game.isGameOver ? 'game--over' : 'game--running'}`">
+  <div :class="`game ${game.gameOver ? 'game--over' : 'game--running'}`">
     <Transition name="fade">
       <div
         class="game__overlay"
-        v-if="game.isGameOver || (game.winner && !ignoreWin)"
+        v-if="game.gameOver || (game.winner && !ignoreWin)"
       >
         <div class="game__overlay--score">Score: {{ game.score }}</div>
         <div class="game__overlay--buttons">
@@ -39,7 +39,7 @@
         class="game__control"
         size="sm"
         @click="game.move('left')"
-        :disabled="game.isGameOver || !game.canMoveLeft"
+        :disabled="game.gameOver || !game.canMove.left"
       >
         LEFT
       </Btn>
@@ -47,7 +47,7 @@
         class="game__control"
         size="sm"
         @click="game.move('up')"
-        :disabled="game.isGameOver || !game.canMoveUp"
+        :disabled="game.gameOver || !game.canMove.up"
       >
         UP
       </Btn>
@@ -55,7 +55,7 @@
         class="game__control"
         size="sm"
         @click="game.move('down')"
-        :disabled="game.isGameOver || !game.canMoveDown"
+        :disabled="game.gameOver || !game.canMove.down"
       >
         DOWN
       </Btn>
@@ -63,7 +63,7 @@
         class="game__control"
         size="sm"
         @click="game.move('right')"
-        :disabled="game.isGameOver || !game.canMoveRight"
+        :disabled="game.gameOver || !game.canMove.right"
       >
         RIGHT
       </Btn>
@@ -112,7 +112,7 @@
 
       const canMove = () => {
         if (COOLDOWN.active) return false
-        if (props.game.isGameOver) return false
+        if (props.game.gameOver) return false
         if (props.game.winner && !ignoreWin.value) return false
         return true
       }

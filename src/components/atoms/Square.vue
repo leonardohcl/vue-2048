@@ -57,7 +57,7 @@
 
           const transform = `calc(${stepSize.value * -100}% + ${
             stepSize.value * -props.gap
-          }em)`
+          }rem)`
 
           if (props.data.nextMove.horizontal) {
             styles.transform = `translateX(${transform})`

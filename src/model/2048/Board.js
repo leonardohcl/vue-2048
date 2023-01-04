@@ -1,7 +1,5 @@
 import Square from './Square'
-import {
-  orderBy
-} from 'lodash'
+import { orderBy } from 'lodash'
 
 export default class Board {
   constructor(size, preset = null) {
@@ -23,26 +21,26 @@ export default class Board {
   }
 
   get highestValue() {
-    const orderedList = orderBy(this.filledSquares, "value", "desc")
+    const orderedList = orderBy(this.filledSquares, 'value', 'desc')
 
     return orderedList.length ? orderedList[0].value : 0
   }
 
   get flat() {
-    return this.squares.map(sqr => sqr.value)
+    return this.squares.map((sqr) => sqr.value)
   }
 
   loadPreset(preset) {
     if (preset && preset.length === this.squares.length)
       preset.forEach((val, idx) => {
         this.squares[idx].setValue(val)
-      });
+      })
   }
 
   clone() {
-    const copy = new Board(this.size);
-    copy.squares = this.squares.map(square => square.clone())
-    return copy;
+    const copy = new Board(this.size)
+    copy.squares = this.squares.map((square) => square.clone())
+    return copy
   }
 
   getSquare(row, col) {
@@ -79,17 +77,16 @@ export default class Board {
       }
       neighbor = this.getSquareNeighbor(neighbor.row, neighbor.col, dir)
     }
-
-    return selectedNeighbor ?
-      [selectedNeighbor.row, selectedNeighbor.col] :
-      [null, null]
+    return selectedNeighbor
+      ? [selectedNeighbor.row, selectedNeighbor.col]
+      : [null, null]
   }
 
   updateSquare(row, col, val) {
     const sqr = this.getSquare(row, col)
     if (sqr) {
       if (sqr.value == val) {
-        sqr.willMerge = false;
+        sqr.willMerge = false
         sqr.setValue(sqr.value + val)
         return sqr.value
       } else {
@@ -98,6 +95,4 @@ export default class Board {
     }
     return 0
   }
-
-
 }

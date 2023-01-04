@@ -1,19 +1,28 @@
 import Board from './Board'
 import { orderBy } from 'lodash'
 
-const ResolvedPromise = () => new Promise(resolve => resolve())
+const MOVEMENT_ARRAY = ['up', 'down', 'left', 'right']
+
+const MOVEMENT_CONFIG = {
+  up: { sortingField: 'row', sortingOrder: 'asc' },
+  down: { sortingField: 'row', sortingOrder: 'desc' },
+  left: { sortingField: 'col', sortingOrder: 'asc' },
+  right: { sortingField: 'col', sortingOrder: 'desc' },
+}
 
 export default class GameController {
   score = 0
   winner = false
-  isGameOver = true
+  gameOver = true
   board = null
   isWaintingUpdate = null
 
-  canMoveRight = false
-  canMoveLeft = false
-  canMoveUp = false
-  canMoveDown = false
+  canMove = {
+    up: true,
+    down: true,
+    left: true,
+    right: true,
+  }
 
   constructor(size = 4, updateDelay = 0) {
     this.size = size
@@ -21,9 +30,9 @@ export default class GameController {
     this.clearBoard()
   }
 
-  checkMoveRight() {
-    const nextBoard = this.moveRight()[0]
-    this.canMoveRight =
+  updateMoveValidation(dir) {
+    const { nextBoard } = this.getBoardAfterMovement(dir, true)
+    this.canMove[dir] =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
       nextBoard.filledSquares.some((sqr) => {
         const matching = this.board.getSquare(sqr.row, sqr.col)
@@ -31,34 +40,21 @@ export default class GameController {
       })
   }
 
-  checkMoveLeft() {
-    const nextBoard = this.moveLeft()[0]
-    this.canMoveLeft =
-      nextBoard.filledSquares.length != this.board.filledSquares.length ||
-      nextBoard.filledSquares.some((sqr) => {
-        const matching = this.board.getSquare(sqr.row, sqr.col)
-        return matching ? matching.value != sqr.value : true
-      })
+  updateValidMoves() {
+    MOVEMENT_ARRAY.forEach((move) => this.updateMoveValidation(move))
   }
 
-  checkMoveUp() {
-    const nextBoard = this.moveUp()[0]
-    this.canMoveUp =
-      nextBoard.filledSquares.length != this.board.filledSquares.length ||
-      nextBoard.filledSquares.some((sqr) => {
-        const matching = this.board.getSquare(sqr.row, sqr.col)
-        return matching ? matching.value != sqr.value : true
-      })
+  isWinner() {
+    return !this.winner && this.board.highestValue >= 2048
   }
 
-  checkMoveDown() {
-    const nextBoard = this.moveDown()[0]
-    this.canMoveDown =
-      nextBoard.filledSquares.length != this.board.filledSquares.length ||
-      nextBoard.filledSquares.some((sqr) => {
-        const matching = this.board.getSquare(sqr.row, sqr.col)
-        return matching ? matching.value != sqr.value : true
-      })
+  isGameOver() {
+    return (
+      !this.canMove.up &&
+      !this.canMove.down &&
+      !this.canMove.right &&
+      !this.canMove.left
+    )
   }
 
   spawnBlock(board) {
@@ -77,152 +73,61 @@ export default class GameController {
     this.board = new Board(this.size)
   }
 
-  moveRight(storeMovement = false) {
+  getBoardAfterMovement(dir, forgetMoves = false) {
     const nextBoard = new Board(this.size)
-    let score = 0
-    orderBy(this.board.filledSquares, ['col'], ['desc']).forEach((sqr) => {
+    let pointsGained = 0
+    const squares = orderBy(
+      this.board.filledSquares,
+      [MOVEMENT_CONFIG[dir].sortingField],
+      [MOVEMENT_CONFIG[dir].sortingOrder]
+    )
+    squares.forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
       const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
-        'right'
-      )
-      if (nextRow != null || nextCol != null) {
-        nextBoard.updateSquare(sqr.row, sqr.col, 0)
-        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
-        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
-      }
-    })
-    return [nextBoard, score]
-  }
-
-  moveLeft(storeMovement = false) {
-    const nextBoard = new Board(this.size)
-    let score = 0
-    orderBy(this.board.filledSquares, ['col'], ['asc']).forEach((sqr) => {
-      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
-        sqr.row,
-        sqr.col,
-        'left'
+        dir
       )
       if (nextRow !== null || nextCol !== null) {
         nextBoard.updateSquare(sqr.row, sqr.col, 0)
-        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
-        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
+        pointsGained += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
+        if (!forgetMoves) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
       }
     })
-    return [nextBoard, score]
-  }
 
-  moveUp(storeMovement = false) {
-    const nextBoard = new Board(this.size)
-    let score = 0
-    orderBy(this.board.filledSquares, ['row'], ['asc']).forEach((sqr) => {
-      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
-        sqr.row,
-        sqr.col,
-        'up'
-      )
-      if (nextRow !== null || nextCol !== null) {
-        nextBoard.updateSquare(sqr.row, sqr.col, 0)
-        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
-        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
-      }
-    })
-    return [nextBoard, score]
-  }
-
-  moveDown(storeMovement = false) {
-    const nextBoard = new Board(this.size)
-    let score = 0
-    orderBy(this.board.filledSquares, ['row'], ['desc']).forEach((sqr) => {
-      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
-        sqr.row,
-        sqr.col,
-        'down'
-      )
-      if (nextRow !== null || nextCol !== null) {
-        nextBoard.updateSquare(sqr.row, sqr.col, 0)
-        score += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
-        if (storeMovement) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
-      }
-    })
-    return [nextBoard, score]
+    return { nextBoard, pointsGained }
   }
 
   updateGameState() {
-    if(!this.winner && this.board.highestValue >= 2048){
-      this.winner = true;
-    }
+    if (this.isWinner()) this.winner = true
 
-    this.checkMoveRight()
-    this.checkMoveLeft()
-    this.checkMoveUp()
-    this.checkMoveDown()
+    this.updateValidMoves()
 
-    if (
-      !this.canMoveUp &&
-      !this.canMoveDown &&
-      !this.canMoveRight &&
-      !this.canMoveLeft
-    ) {
-      this.isGameOver = true
-    }
+    if (this.isGameOver()) this.gameOver = true
   }
 
-  updateBoard(nextBoard, nextScore, spawnBlock) {
-    this.score += nextScore
-    this.isWaintingUpdate = null
-    if(spawnBlock)
-      this.spawnBlock(nextBoard)
-    this.board = nextBoard
-    this.updateGameState()
+  async updateBoard(nextBoard, pointsGained, spawnBlock) {
+    return setTimeout(() => {
+      this.score += pointsGained
+      this.isWaintingUpdate = false
+      if (spawnBlock) this.spawnBlock(nextBoard)
+      this.board = nextBoard
+      this.updateGameState()
+    }, this.updateDelay)
   }
 
-  move(dir, shouldSpawnAfter = true) {
-    if (this.isWaintingUpdate) return ResolvedPromise()
-    let nextBoard, nextScore
-    switch (dir) {
-      case 'right':
-        if(this.canMoveRight) {
-          [nextBoard, nextScore] = this.moveRight(true)
-          break
-        }
-        else return ResolvedPromise()
-      case 'left':
-        if(this.canMoveLeft) {
-          [nextBoard, nextScore] = this.moveLeft(true)
-          break
-        }
-        else return ResolvedPromise()
-      case 'up':
-        if(this.canMoveUp){
-          [nextBoard, nextScore] = this.moveUp(true)
-          break
-        }
-        else return ResolvedPromise()
-      case 'down':
-        if(this.canMoveDown){
-          [nextBoard, nextScore] = this.moveDown(true)
-          break
-        }
-        else return ResolvedPromise()
-    }
+  async move(dir, shouldSpawnAfter = true) {
+    if (this.isWaintingUpdate || !this.canMove[dir]) return
 
-    return new Promise((resolve) => {
-      this.isWaintingUpdate = setTimeout(() => {
-        this.updateBoard(nextBoard, nextScore, shouldSpawnAfter)
-        resolve()
-      }, this.updateDelay)
-    })
+    const { nextBoard, pointsGained } = this.getBoardAfterMovement(dir)
+
+    this.isWaintingUpdate = true
+    await this.updateBoard(nextBoard, pointsGained, shouldSpawnAfter)
   }
 
   start() {
     this.score = 0
-    this.isGameOver = false
+    this.gameOver = false
     this.winner = false
     this.clearBoard()
     this.spawnBlock(this.board)
