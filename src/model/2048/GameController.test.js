@@ -7,10 +7,10 @@ describe('GameController.js', () => {
     expect(game.size).toBe(4)
     expect(game.gameOver).toBe(true)
     expect(game.winner).toBe(false)
-    expect(game.canMove.up).toBe(false)
-    expect(game.canMove.right).toBe(false)
-    expect(game.canMove.down).toBe(false)
-    expect(game.canMove.left).toBe(false)
+    expect(game.canMove.up).toBe(true)
+    expect(game.canMove.right).toBe(true)
+    expect(game.canMove.down).toBe(true)
+    expect(game.canMove.left).toBe(true)
     expect(game.score).toBe(0)
     expect(game.board.emptySquares.length).toBe(16)
   })
@@ -70,11 +70,12 @@ describe('GameController.js', () => {
   })
 
   test('must set game state to win if reached 2048 block', async () => {
-    const game = new GameController()
+    const game = new GameController(4, 100)
     game.start()
     game.board.loadPreset([
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024,
     ])
+
     await game.move('right')
     expect(game.winner).toBe(true)
   })

@@ -106,14 +106,17 @@ export default class GameController {
     if (this.isGameOver()) this.gameOver = true
   }
 
-  async updateBoard(nextBoard, pointsGained, spawnBlock) {
-    return setTimeout(() => {
-      this.score += pointsGained
-      this.isWaintingUpdate = false
-      if (spawnBlock) this.spawnBlock(nextBoard)
-      this.board = nextBoard
-      this.updateGameState()
-    }, this.updateDelay)
+  updateBoard(nextBoard, pointsGained, spawnBlock) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.score += pointsGained
+        this.isWaintingUpdate = false
+        if (spawnBlock) this.spawnBlock(nextBoard)
+        this.board = nextBoard
+        this.updateGameState()
+        resolve()
+      }, this.updateDelay)
+    })
   }
 
   async move(dir, shouldSpawnAfter = true) {
