@@ -31,18 +31,21 @@ describe('Square.js', () => {
         const sqr = new Square(0, 0)
         expect(sqr.nextMove).toEqual({
             spawn: false,
+            reverse:false,
             vertical: 0,
             horizontal: 0,
         })
-        sqr.setMove(3, 1)
+        sqr.setMove({vertical: 3, horizontal: 1})
         expect(sqr.nextMove).toEqual({
             spawn: false,
+            reverse:false,
             vertical: 3,
             horizontal: 1,
         })
         sqr.setSpawn()
         expect(sqr.nextMove).toEqual({
             spawn: true,
+            reverse:false,
             vertical: 3,
             horizontal: 1,
         })

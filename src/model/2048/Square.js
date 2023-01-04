@@ -3,6 +3,7 @@ export default class Square {
 
   nextMove = {
     spawn: false,
+    reverse: false,
     vertical: 0,
     horizontal: 0,
   }
@@ -35,8 +36,7 @@ export default class Square {
     this.nextMove.spawn = true;
   }
 
-  setMove(vertical, horizontal) {
-    this.nextMove.vertical = vertical
-    this.nextMove.horizontal = horizontal
+  setMove(move) {
+    this.nextMove = {...this.nextMove, ...move}
   }
 }

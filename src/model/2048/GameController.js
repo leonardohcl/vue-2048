@@ -16,6 +16,7 @@ export default class GameController {
   gameOver = true
   board = null
   isWaintingUpdate = null
+  history = []
 
   canMove = {
     up: true,
@@ -24,8 +25,9 @@ export default class GameController {
     right: true,
   }
 
-  constructor(size = 4, updateDelay = 0) {
+  constructor(size = 4, historySize = 2, updateDelay = 0) {
     this.size = size
+    this.historySize = historySize
     this.updateDelay = updateDelay
     this.clearBoard()
   }
@@ -73,6 +75,13 @@ export default class GameController {
     this.board = new Board(this.size)
   }
 
+  addToHistory(board, pointsGained) {
+    this.history.push({ board, pointsGained })
+    if (this.history.length > this.historySize) {
+      this.history = this.history.splice(1)
+    }
+  }
+
   getBoardAfterMovement(dir, forgetMoves = false) {
     const nextBoard = new Board(this.size)
     let pointsGained = 0
@@ -91,7 +100,13 @@ export default class GameController {
       if (nextRow !== null || nextCol !== null) {
         nextBoard.updateSquare(sqr.row, sqr.col, 0)
         pointsGained += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
-        if (!forgetMoves) sqr.setMove(sqr.row - nextRow, sqr.col - nextCol)
+        if (!forgetMoves)
+          sqr.setMove({
+            vertical: sqr.row - nextRow,
+            horizontal: sqr.col - nextCol,
+            reverse: false,
+            spawn: false,
+          })
       }
     })
 
@@ -110,10 +125,30 @@ export default class GameController {
     return new Promise((resolve) => {
       setTimeout(() => {
         this.score += pointsGained
-        this.isWaintingUpdate = false
         if (spawnBlock) this.spawnBlock(nextBoard)
+        this.addToHistory(this.board, pointsGained)
         this.board = nextBoard
         this.updateGameState()
+        this.isWaintingUpdate = false
+        resolve()
+      }, this.updateDelay)
+    })
+  }
+
+  revertBoard(previousBoard, pointsGained) {
+    this.isWaintingUpdate = true
+
+    previousBoard.filledSquares.forEach((sqr) =>
+      sqr.setMove({ spawn: false, reverse: true })
+    )
+
+    this.score -= pointsGained
+    this.board = previousBoard
+    this.updateValidMoves()
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.isWaintingUpdate = false
         resolve()
       }, this.updateDelay)
     })
@@ -128,8 +163,16 @@ export default class GameController {
     await this.updateBoard(nextBoard, pointsGained, shouldSpawnAfter)
   }
 
+  async undo() {
+    if (this.isWaintingUpdate || !this.history.length) return
+    const previousState = this.history.pop()
+    this.isWaintingUpdate = true
+    await this.revertBoard(previousState.board, previousState.pointsGained)
+  }
+
   start() {
     this.score = 0
+    this.history = []
     this.gameOver = false
     this.winner = false
     this.clearBoard()

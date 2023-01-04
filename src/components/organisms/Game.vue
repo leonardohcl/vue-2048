@@ -22,6 +22,15 @@
         </span>
       </div>
       <div class="game__hud--buttons">
+        <Btn
+          @click="game.undo()"
+          size="sm"
+          outlined
+          :disabled="game.history.length === 0"
+        >
+          <span v-if="game.history.length">({{ game.history.length }})</span>
+          Undo
+        </Btn>
         <Btn @click="game.start()" size="sm" outlined>Restart</Btn>
       </div>
     </div>

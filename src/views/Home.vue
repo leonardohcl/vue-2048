@@ -15,7 +15,7 @@
     data() {
       return {
         robot: null,
-        game: new GameController(4, 100),
+        game: new GameController(4, 3, 100),
       };
     },
   };
