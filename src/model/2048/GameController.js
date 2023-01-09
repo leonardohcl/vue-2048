@@ -13,6 +13,7 @@ const MOVEMENT_CONFIG = {
 export default class GameController {
   score = 0
   winner = false
+  paused = false
   gameOver = true
   board = null
   isWaintingUpdate = null
@@ -30,6 +31,29 @@ export default class GameController {
     this.height = height
     this.historySize = historySize
     this.updateDelay = updateDelay
+    this.clearBoard()
+  }
+
+  get settings() {
+    return {
+      width: this.width,
+      height: this.height,
+      historySize: this.historySize,
+      updateDelay: this.updateDelay,
+    }
+  }
+
+  updateSettings(newSettings) {
+    this.score = 0
+    this.history = []
+    this.winner = false
+    this.gameOver = true
+    this.isWaintingUpdate = null
+    const settings = { ...this.settings, ...newSettings }
+    this.width = settings.width
+    this.height = settings.height
+    this.historySize = settings.historySize
+    this.updateDelay = settings.updateDelay
     this.clearBoard()
   }
 
@@ -77,6 +101,7 @@ export default class GameController {
   }
 
   addToHistory(board, pointsGained) {
+    if (this.historySize < 1) return
     this.history.push({ board, pointsGained })
     if (this.history.length > this.historySize) {
       this.history = this.history.splice(1)
@@ -158,7 +183,7 @@ export default class GameController {
 
   async move(dir, shouldSpawnAfter = true) {
     if (this.isWaintingUpdate || !this.canMove[dir]) return
-    
+
     this.isWaintingUpdate = true
 
     const { nextBoard, pointsGained } = this.getBoardAfterMovement(dir)

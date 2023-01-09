@@ -13,33 +13,39 @@
           >
         </div>
       </div>
+      <div class="game__overlay" v-else-if="paused">
+        <span class="game__overlay--pause"> Game Paused </span>
+      </div>
     </Transition>
     <div class="game__hud">
+      <div class="game__hud--settings">
+        <Btn outlined theme="plain" is-icon v-b-modal="`${id}-settings`">
+          <FontAwesomeIcon icon="gears" />
+        </Btn>
+      </div>
+      <div class="game__hud--buttons">
+        <Btn @click="game.start()" size="sm" outlined>Restart</Btn>
+        <Btn
+          v-if="game.historySize"
+          size="sm"
+          outlined
+          :disabled="game.history.length === 0"
+          @click="game.undo()"
+        >
+          <span v-if="game.history.length">({{ game.history.length }})</span>
+          Undo
+        </Btn>
+      </div>
       <div class="game__hud--score">
         Score:
         <span class="points">
           {{ game.score }}
         </span>
       </div>
-      <div class="game__hud--buttons">
-        <Btn
-          @click="game.undo()"
-          size="sm"
-          outlined
-          :disabled="game.history.length === 0"
-        >
-          <span v-if="game.history.length">({{ game.history.length }})</span>
-          Undo
-        </Btn>
-        <Btn @click="game.start()" size="sm" outlined>Restart</Btn>
-      </div>
     </div>
     <div class="game__board">
       <div class="game__board--touch-area" id="touchArea"></div>
-      <Board
-        :board="game.board"
-        :transition-duration="game.updateDelay"
-      />
+      <Board :board="game.board" :transition-duration="game.updateDelay" />
     </div>
     <div class="game__controls">
       <div class="game__controls--callout">Select your next movement:</div>
@@ -79,11 +85,20 @@
         <small> *You can also use the arrow keys or swipe the board </small>
       </div>
     </div>
+
+    <SettingsModal
+      :id="`${id}-settings`"
+      :game="game"
+      @open="handleSettingsOpen"
+      @close="handleSettingsClose"
+      @update="handleSettingsUpdate"
+    />
   </div>
 </template>
 
 <script>
   import GameController from '@/model/2048/GameController'
+  import SettingsModal from '@/components/molecules/SettingsModal.vue'
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
   import { useKeypress } from 'vue3-keypress'
@@ -102,12 +117,16 @@
   }
 
   export default {
-    components: { Board, Btn },
+    components: { Board, SettingsModal, Btn },
     name: 'Game',
     props: {
       game: {
         type: GameController,
         required: true,
+      },
+      id: {
+        type: String,
+        default: 'main-game',
       },
     },
     setup(props) {
@@ -117,6 +136,7 @@
       }
 
       const ignoreWin = ref(false)
+      const paused = ref(false)
 
       const canMove = () => {
         if (COOLDOWN.active) return false
@@ -134,6 +154,7 @@
       }
 
       const keyboardCommand = (cmd) => {
+        if (paused.value) return
         if (COMMAND_KEYS[cmd.event.key]) {
           if (!canMove()) return
           startCooldown()
@@ -160,27 +181,45 @@
       })
 
       const swipeCommand = (cmd) => {
-        if (!canMove()) return
+        if (paused.value || !canMove()) return
         startCooldown()
         props.game.move(COMMAND_KEYS[cmd])
       }
 
       useSwipe('#touchArea', swipeCommand)
 
+      const handleSettingsOpen = () => {
+        paused.value = true
+      }
+
+      const handleSettingsClose = () => {
+        paused.value = false
+      }
+
+      const handleSettingsUpdate = (newSettings) => {
+        props.game.updateSettings(newSettings)
+      }
+
       return {
+        paused,
         ignoreWin,
         canMove,
         startCooldown,
+        handleSettingsOpen,
+        handleSettingsClose,
+        handleSettingsUpdate,
       }
     },
   }
 </script>
 
 <style lang="scss" scoped>
+  $container-border-size: 3px;
+  $container-padding: 1rem;
   .game {
     border-radius: $border-radius;
-    border: solid 3px $bg-secondary;
-    padding: 1rem;
+    border: solid $container-border-size $bg-secondary;
+    padding: $container-padding;
     position: relative;
     width: 100%;
     min-width: 200px;
@@ -189,7 +228,9 @@
     &--over {
       .game {
         &__hud {
-          opacity: 0;
+          & > * {
+            opacity: 0;
+          }
         }
 
         &__board {
@@ -214,7 +255,8 @@
       align-items: center;
       z-index: 2;
 
-      &--score {
+      &--score,
+      &--pause {
         color: black;
         font-size: 2rem;
         font-weight: bold;
@@ -238,6 +280,17 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      flex-wrap: wrap;
+
+      &--settings {
+        opacity: 1 !important;
+        position: absolute;
+        width: 100%;
+        text-align: right;
+        left: 0;
+        top: calc(-2rem - ($container-padding/2) - $container-border-size);
+      }
+
       &--score {
         font-size: 1rem;
         font-weight: 300;

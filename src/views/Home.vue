@@ -6,19 +6,19 @@
 </template>
 
 <script>
-  import Game from "@/components/organisms/Game.vue";
-  import GameController from "@/model/2048/GameController";
+  import Game from '@/components/organisms/Game.vue'
+  import GameController from '@/model/2048/GameController'
 
   export default {
     components: { Game },
-    name: "Home",
+    name: 'Home',
     data() {
       return {
         robot: null,
-        game: new GameController(4, 3, 100),
-      };
+        game: new GameController(4, 4, 2, 100),
+      }
     },
-  };
+  }
 </script>
 
 <style lang="scss" scoped>

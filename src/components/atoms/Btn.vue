@@ -4,11 +4,10 @@
     class="btn"
     :class="classes"
     :type="type"
-    :to="to"
-    @click.stop="handleClick"
+    @click="handleClick"
   >
     <slot>
-      {{ title }}
+      {{ text }}
     </slot>
   </component>
 </template>
@@ -34,16 +33,23 @@
         type: String,
         default: 'button',
       },
-      title: {
+      text: {
         type: String,
       },
-      fab: Boolean,
+      isIcon: {
+        type: Boolean,
+        default: false,
+      },
+      fab: {
+        type: Boolean,
+        default: false,
+      },
       tag: { default: 'button' },
-      to: { type: [String, Object] },
     },
     setup(props, context) {
       const classes = computed(() => [
         `btn--${props.theme}`,
+        props.isIcon && `btn--icon`,
         props.size && `btn--${props.size}`,
         props.outlined && `btn--outlined`,
         props.fab && `btn--fab`,
@@ -87,6 +93,12 @@
       padding: 0 !important;
       width: 3em;
       height: 3em !important;
+    }
+
+    &--icon {
+      height: 2em !important;
+      width: 2em !important;
+      padding: 0 !important;
     }
 
     @each $key, $value in $themes {
@@ -134,9 +146,6 @@
 
   @include screen-above(md) {
     .btn {
-      height: 50px;
-      padding: 0 1.3em;
-      font-size: 1.3rem;
 
       &--sm {
         height: 30px;
