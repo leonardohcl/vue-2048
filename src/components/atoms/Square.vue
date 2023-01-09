@@ -1,5 +1,5 @@
 <template>
-  <div class="square">
+  <div class="square" :class="squareClasses">
     <div
       class="square__block"
       :class="blockClasses"
@@ -19,19 +19,34 @@
     name: 'Square',
     props: {
       data: {
-        type: Square,
+        type: [Square, Object],
         required: true,
       },
       transitionDuration: {
         type: Number,
-        required: true,
+        default: 0,
       },
       gap: {
         type: Number,
-        required: true,
+        default: 0,
+      },
+      inline: {
+        type: Boolean,
+        default: false,
       },
     },
     setup(props) {
+      if (props.inline) {
+        const blockClasses = computed(() => {
+          return [`square__block--${props.data.value}`]
+        })
+        return {
+          squareClasses: ['square--inline'],
+          blockClasses,
+          blockStyles: {},
+        }
+      }
+
       const stepSize = computed(() => {
         const { horizontal, vertical } = props.data.nextMove
         return horizontal || vertical
@@ -90,6 +105,7 @@
       })
 
       return {
+        squareClasses: {},
         blockClasses,
         blockStyles,
       }
@@ -105,6 +121,13 @@
     border-radius: $border-radius;
     background-color: fade-out($square-color, 0.8);
     font-size: 1.3rem;
+
+    &--inline {
+      margin: 0 auto;
+      padding-top: 2rem;
+      width: 2rem;
+      font-size: 0.8em;
+    }
 
     &__block {
       top: 0;

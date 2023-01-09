@@ -9,11 +9,15 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 // import { } from '@fortawesome/free-regular-svg-icons'
 
 import {
-  faGears
+  faGears,
+  faRankingStar,
+  faTrophy
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add([
   faGears,
+  faRankingStar,
+  faTrophy
 ]);
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -35,11 +39,11 @@ app.use(store)
 /** End main style, router and store setup */
 
 /** Boostrap Setup */
-import { ModalPlugin, TooltipPlugin, BootstrapVueIcons } from 'bootstrap-vue'
+import { ModalPlugin, TooltipPlugin, TabsPlugin } from 'bootstrap-vue'
 
+app.use(TabsPlugin)
 app.use(ModalPlugin)
 app.use(TooltipPlugin)
-app.use(BootstrapVueIcons)
 
 /** End Bootstrap setup */
 

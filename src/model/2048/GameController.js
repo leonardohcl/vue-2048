@@ -12,6 +12,8 @@ const MOVEMENT_CONFIG = {
 
 export default class GameController {
   score = 0
+  undos = 0
+  moves = 0
   winner = false
   paused = false
   gameOver = true
@@ -189,17 +191,23 @@ export default class GameController {
     const { nextBoard, pointsGained } = this.getBoardAfterMovement(dir)
 
     await this.updateBoard(nextBoard, pointsGained, shouldSpawnAfter)
+    this.moves++
   }
 
   async undo() {
-    if (this.isWaintingUpdate || !this.history.length) return
+    if (this.isWaintingUpdate || !this.history.length) return false
+    this.moves--
+    this.undos++
     const previousState = this.history.pop()
     this.isWaintingUpdate = true
     await this.revertBoard(previousState.board, previousState.pointsGained)
+    return true
   }
 
   start() {
     this.score = 0
+    this.moves = 0
+    this.undos = 0
     this.history = []
     this.gameOver = false
     this.winner = false

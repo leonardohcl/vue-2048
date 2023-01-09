@@ -18,7 +18,10 @@
       </div>
     </Transition>
     <div class="game__hud">
-      <div class="game__hud--settings">
+      <div class="game__hud--global">
+        <Btn outlined theme="plain" is-icon v-b-modal="`${id}-ranking`">
+          <FontAwesomeIcon icon="ranking-star" />
+        </Btn>
         <Btn outlined theme="plain" is-icon v-b-modal="`${id}-settings`">
           <FontAwesomeIcon icon="gears" />
         </Btn>
@@ -37,6 +40,9 @@
         </Btn>
       </div>
       <div class="game__hud--score">
+        <p class="new-highscore" v-if="newHighscore">
+          <FontAwesomeIcon icon="trophy" /> New Best!
+        </p>
         Score:
         <span class="points">
           {{ game.score }}
@@ -93,17 +99,24 @@
       @close="handleSettingsClose"
       @update="handleSettingsUpdate"
     />
+
+    <RankingModal :id="`${id}-ranking`" />
+
+    <SaveScoreModal :game="game" :id="`${id}-new-highscore`" />
   </div>
 </template>
 
 <script>
   import GameController from '@/model/2048/GameController'
   import SettingsModal from '@/components/molecules/SettingsModal.vue'
+  import SaveScoreModal from '@/components/molecules/SaveScoreModal.vue'
+  import RankingModal from '@/components/molecules/RankingModal.vue'
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
   import { useKeypress } from 'vue3-keypress'
   import { useSwipe } from '@/mixins/swipe'
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
+  import { useStore } from 'vuex'
 
   const COMMAND_KEYS = {
     ArrowUp: 'up',
@@ -117,7 +130,7 @@
   }
 
   export default {
-    components: { Board, SettingsModal, Btn },
+    components: { Board, SettingsModal, RankingModal, SaveScoreModal, Btn },
     name: 'Game',
     props: {
       game: {
@@ -129,11 +142,28 @@
         default: 'main-game',
       },
     },
+    watch: {
+      shouldSaveScore(shouldSave) {
+        if (shouldSave) this.$bvModal.show(`${this.id}-new-highscore`)
+      },
+    },
+    computed: {
+      shouldSaveScore() {
+        const gameEnded =
+          (this.game.winner && !this.ignoreWin) || this.game.gameOver
+        const scoreIsQualified =
+          this.game.score > this.rankingBoundaries.last ||
+          this.rankingBoundaries.count < 10
+        return gameEnded && scoreIsQualified
+      },
+    },
     setup(props) {
       const COOLDOWN = {
         active: false,
         timeout: null,
       }
+
+      const store = useStore()
 
       const ignoreWin = ref(false)
       const paused = ref(false)
@@ -200,9 +230,37 @@
         props.game.updateSettings(newSettings)
       }
 
+      const availableRankings = computed(() => store.getters.availableRankings)
+
+      const rankingBoundaries = computed(() => {
+        const ranking = availableRankings.value.find(
+          (list) => list.name === `${props.game.width}x${props.game.height}`
+        )
+        if (ranking)
+          return {
+            first: ranking.scores[0].score,
+            last: ranking.scores[ranking.scores.length - 1].score,
+            count: ranking.scores.length,
+          }
+
+        return {
+          first: 0,
+          last: 0,
+          count: 0,
+        }
+      })
+
+      const newHighscore = computed(
+        () =>
+          rankingBoundaries.value.count > 0 &&
+          props.game.score > rankingBoundaries.value.first
+      )
+
       return {
         paused,
         ignoreWin,
+        rankingBoundaries,
+        newHighscore,
         canMove,
         startCooldown,
         handleSettingsOpen,
@@ -282,21 +340,37 @@
       align-items: flex-end;
       flex-wrap: wrap;
 
-      &--settings {
+      &--global {
         opacity: 1 !important;
         position: absolute;
         width: 100%;
-        text-align: right;
+        display: flex;
+        justify-content: space-between;
         left: 0;
         top: calc(-2rem - ($container-padding/2) - $container-border-size);
       }
 
       &--score {
+        position: relative;
         font-size: 1rem;
         font-weight: 300;
         .points {
           font-size: 1.3em;
           font-weight: bold;
+        }
+
+        .new-highscore {
+          background-color: $danger;
+          border-radius: $border-radius;
+          text-align: center;
+          font-size: 0.5em;
+          font-weight: bold;
+          position: absolute;
+          width: 100%;
+          top: -1em;
+          max-width: 80px;
+          margin: 0;
+          right: 0;
         }
       }
     }
