@@ -2,11 +2,12 @@ import Square from './Square'
 import { orderBy } from 'lodash'
 
 export default class Board {
-  constructor(size, preset = null) {
-    this.size = size
-    this.squares = new Array(this.size * this.size).fill().map((_, ind) => {
-      const row = Math.floor(ind / this.size),
-        col = ind % this.size
+  constructor(width, height, preset = null) {
+    this.width = width
+    this.height = height
+    this.squares = new Array(this.width * this.height).fill().map((_, ind) => {
+      const row = Math.floor(ind / this.width) % this.height,
+        col = ind % this.width
       return new Square(row, col)
     })
     this.loadPreset(preset)
@@ -38,7 +39,7 @@ export default class Board {
   }
 
   clone() {
-    const copy = new Board(this.size)
+    const copy = new Board(this.width, this.height)
     copy.squares = this.squares.map((square) => square.clone())
     return copy
   }

@@ -4,7 +4,8 @@ import LegalMovements from './legal-movements.json'
 describe('GameController.js', () => {
   test('must create game correctly', () => {
     const game = new GameController()
-    expect(game.size).toBe(4)
+    expect(game.width).toBe(4)
+    expect(game.height).toBe(4)
     expect(game.gameOver).toBe(true)
     expect(game.winner).toBe(false)
     expect(game.canMove.up).toBe(true)
@@ -70,7 +71,7 @@ describe('GameController.js', () => {
   })
 
   test('must set game state to win if reached 2048 block', async () => {
-    const game = new GameController(4, 100)
+    const game = new GameController(4, 4, 100)
     game.start()
     game.board.loadPreset([
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024,

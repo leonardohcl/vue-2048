@@ -25,8 +25,9 @@ export default class GameController {
     right: true,
   }
 
-  constructor(size = 4, historySize = 2, updateDelay = 0) {
-    this.size = size
+  constructor(width = 4, height = 4, historySize = 2, updateDelay = 0) {
+    this.width = width
+    this.height = height
     this.historySize = historySize
     this.updateDelay = updateDelay
     this.clearBoard()
@@ -72,7 +73,7 @@ export default class GameController {
   }
 
   clearBoard() {
-    this.board = new Board(this.size)
+    this.board = new Board(this.width, this.height)
   }
 
   addToHistory(board, pointsGained) {
@@ -83,13 +84,14 @@ export default class GameController {
   }
 
   getBoardAfterMovement(dir, forgetMoves = false) {
-    const nextBoard = new Board(this.size)
+    const nextBoard = new Board(this.width, this.height)
     let pointsGained = 0
     const squares = orderBy(
       this.board.filledSquares,
       [MOVEMENT_CONFIG[dir].sortingField],
       [MOVEMENT_CONFIG[dir].sortingOrder]
     )
+
     squares.forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
       const [nextRow, nextCol] = nextBoard.getSquareValidMovement(
@@ -156,10 +158,11 @@ export default class GameController {
 
   async move(dir, shouldSpawnAfter = true) {
     if (this.isWaintingUpdate || !this.canMove[dir]) return
+    
+    this.isWaintingUpdate = true
 
     const { nextBoard, pointsGained } = this.getBoardAfterMovement(dir)
 
-    this.isWaintingUpdate = true
     await this.updateBoard(nextBoard, pointsGained, shouldSpawnAfter)
   }
 

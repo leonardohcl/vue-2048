@@ -38,7 +38,6 @@
       <div class="game__board--touch-area" id="touchArea"></div>
       <Board
         :board="game.board"
-        :size="game.size"
         :transition-duration="game.updateDelay"
       />
     </div>
