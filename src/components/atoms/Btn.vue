@@ -7,6 +7,7 @@
     @click="handleClick"
   >
     <slot>
+      <FontAwesomeIcon :icon="icon" v-if="icon" />
       {{ text }}
     </slot>
   </component>
@@ -39,6 +40,10 @@
       isIcon: {
         type: Boolean,
         default: false,
+      },
+      icon: {
+        type: String,
+        default: '',
       },
       fab: {
         type: Boolean,
@@ -146,7 +151,6 @@
 
   @include screen-above(md) {
     .btn {
-
       &--sm {
         height: 30px;
         font-size: 0.9rem;

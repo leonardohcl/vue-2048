@@ -123,7 +123,6 @@
     font-size: 1.3rem;
 
     &--inline {
-      margin: 0 auto;
       padding-top: 2rem;
       width: 2rem;
       font-size: 0.8em;

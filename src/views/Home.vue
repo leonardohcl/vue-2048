@@ -4,6 +4,12 @@
     <div class="home__hud">
       <div class="home__hud--left"><Ranking /></div>
       <div class="home__hud--right">
+        <MemoryManager
+          :save-button-options="{ disabled: game.gameOver }"
+          :close-on-load="true"
+          @save="handleSaveGame"
+          @load="handleLoadGame"
+        />
         <Settings
           :game="game"
           @open="handleSettingsOpen"
@@ -12,7 +18,7 @@
         />
       </div>
     </div>
-    <Game :game="game" />
+    <Game :game="game" emit-moves @move="movementListener" />
   </div>
 </template>
 
@@ -20,15 +26,53 @@
   import Game from '@/components/organisms/Game.vue'
   import Ranking from '@/components/organisms/Ranking.vue'
   import Settings from '@/components/organisms/Settings.vue'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import GameController from '@/model/2048/GameController'
 
   import { ref } from 'vue'
+  import { useStore } from 'vuex'
+
+  import {
+    ADD_GAME_MUTATION,
+    SAVE_LAST_GAME_MUTATION,
+  } from '@/store/memory-card'
 
   export default {
-    components: { Game, Ranking, Settings },
+    components: { Game, Ranking, Settings, MemoryManager },
     name: 'Home',
     setup() {
-      const game = ref(new GameController(4, 4, 2, 100))
+      const store = useStore()
+      const autoMemory = {
+        moveUntilSave: 5,
+        moveCountdown: 5,
+        idleTimeUntilSave: 5000,
+        idleSaveTimeout: null,
+      }
+
+      const game = ref()
+
+      if (store.getters.lastGame) game.value = store.getters.lastGame.getGame()
+      else game.value = new GameController(4, 4, 2, 100)
+
+      const saveCurrentGame = () => {
+        const save = GameController.getSaveFile('last-game', game.value)
+        store.commit(SAVE_LAST_GAME_MUTATION, save)
+      }
+
+      const movementListener = () => {
+        
+        autoMemory.moveCountdown--
+        if (autoMemory.moveCountdown == 0) {
+          autoMemory.moveCountdown = autoMemory.moveUntilSave
+          saveCurrentGame(game.value)
+        }
+
+        if (autoMemory.idleSaveTimeout) clearTimeout(autoMemory.idleSaveTimeout)
+        autoMemory.idleSaveTimeout = setTimeout(() => {
+          autoMemory.moveCountdown = autoMemory.moveUntilSave
+          saveCurrentGame()
+        }, autoMemory.idleTimeUntilSave)
+      }
 
       const handleSettingsOpen = () => {
         game.value.paused = true
@@ -42,11 +86,23 @@
         game.value.updateSettings(newSettings)
       }
 
+      const handleSaveGame = (slot) => {
+        const save = GameController.getSaveFile(slot.filename, game.value)
+        store.commit(ADD_GAME_MUTATION, save)
+      }
+
+      const handleLoadGame = (save) => {
+        game.value = save.getGame()
+      }
+
       return {
         game,
         handleSettingsOpen,
         handleSettingsClose,
         handleSettingsUpdate,
+        handleSaveGame,
+        handleLoadGame,
+        movementListener,
       }
     },
   }

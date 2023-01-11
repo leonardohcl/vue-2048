@@ -121,7 +121,12 @@
         type: String,
         default: 'main-game',
       },
+      emitMoves: {
+        type: Boolean,
+        default: false,
+      },
     },
+    emits: ['move'],
     watch: {
       shouldSaveScore(shouldSave) {
         if (shouldSave) this.$bvModal.show(`${this.id}-new-highscore`)
@@ -137,7 +142,7 @@
         return gameEnded && scoreIsQualified
       },
     },
-    setup(props) {
+    setup(props, context) {
       const COOLDOWN = {
         active: false,
         timeout: null,
@@ -162,13 +167,15 @@
         }, props.game.updateDelay)
       }
 
+      const move = (cmd) => {
+        if (props.game.paused || !canMove()) return
+        startCooldown()
+        props.game.move(cmd)
+        if (props.emitMoves) context.emit('move', cmd)
+      }
+
       const keyboardCommand = (cmd) => {
-        if (props.game.paused) return
-        if (COMMAND_KEYS[cmd.event.key]) {
-          if (!canMove()) return
-          startCooldown()
-          props.game.move(COMMAND_KEYS[cmd.event.key])
-        }
+        move(COMMAND_KEYS[cmd.event.key])
       }
 
       useKeypress({
@@ -190,12 +197,10 @@
       })
 
       const swipeCommand = (cmd) => {
-        if (props.game.paused || !canMove()) return
-        startCooldown()
-        props.game.move(COMMAND_KEYS[cmd])
+        move(COMMAND_KEYS[cmd])
       }
 
-      useSwipe('#touchArea', swipeCommand)      
+      useSwipe('#touchArea', swipeCommand)
 
       const availableRankings = computed(() => store.getters.availableRankings)
 

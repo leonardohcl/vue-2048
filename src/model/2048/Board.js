@@ -38,6 +38,12 @@ export default class Board {
       })
   }
 
+  static fromObject(obj) {
+    const board = new Board(obj.width, obj.height)
+    board.squares = obj.squares.map((sqr) => Square.fromObject(sqr))
+    return board
+  }
+
   clone() {
     const copy = new Board(this.width, this.height)
     copy.squares = this.squares.map((square) => square.clone())

@@ -1,7 +1,5 @@
 <template>
-  <Btn v-bind="buttonAttrs" v-b-modal="`${id}-ranking`">
-    <FontAwesomeIcon :icon="buttonAttrs.icon" v-if="buttonAttrs.isIcon" />
-  </Btn>
+  <Btn v-bind="buttonAttrs" v-b-modal="`${id}-ranking`"/>
   <RankingModal :id="`${id}-ranking`" />
 </template>
 

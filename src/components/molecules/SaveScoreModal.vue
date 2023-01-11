@@ -33,7 +33,7 @@
             <td>{{ game.undos }}</td>
             <td>
               <Square
-                class="save-score-modal--square"
+                class="save-score-modal--square mx-auto"
                 :data="{ value: game.board.highestValue }"
                 inline
               />

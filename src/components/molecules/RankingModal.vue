@@ -67,7 +67,7 @@
       const store = useStore()
 
       const availableRankings = computed(() => store.getters.availableRankings)
-      
+
       const activeTab = ref(null)
       return { availableRankings, activeTab }
     },
@@ -89,6 +89,10 @@
         white-space: nowrap;
         max-width: 90px;
       }
+    }
+
+    &--square{
+      margin: 0 auto;
     }
   }
 </style>
