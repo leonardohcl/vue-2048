@@ -103,8 +103,8 @@
         isOpen.value = false
       }
 
-      const handleOpenModal = () => {
-        context.emit('open')
+      const handleOpenModal = (evt) => {
+        context.emit('open', evt)
 
         width.value = props.game.width
         height.value = props.game.height

@@ -13,19 +13,11 @@
           >
         </div>
       </div>
-      <div class="game__overlay" v-else-if="paused">
+      <div class="game__overlay" v-else-if="game.paused">
         <span class="game__overlay--pause"> Game Paused </span>
       </div>
     </Transition>
     <div class="game__hud">
-      <div class="game__hud--global">
-        <Btn outlined theme="plain" is-icon v-b-modal="`${id}-ranking`">
-          <FontAwesomeIcon icon="ranking-star" />
-        </Btn>
-        <Btn outlined theme="plain" is-icon v-b-modal="`${id}-settings`">
-          <FontAwesomeIcon icon="gears" />
-        </Btn>
-      </div>
       <div class="game__hud--buttons">
         <Btn @click="game.start()" size="sm" outlined>Restart</Btn>
         <Btn
@@ -92,25 +84,13 @@
       </div>
     </div>
 
-    <SettingsModal
-      :id="`${id}-settings`"
-      :game="game"
-      @open="handleSettingsOpen"
-      @close="handleSettingsClose"
-      @update="handleSettingsUpdate"
-    />
-
-    <RankingModal :id="`${id}-ranking`" />
-
     <SaveScoreModal :game="game" :id="`${id}-new-highscore`" />
   </div>
 </template>
 
 <script>
   import GameController from '@/model/2048/GameController'
-  import SettingsModal from '@/components/molecules/SettingsModal.vue'
   import SaveScoreModal from '@/components/molecules/SaveScoreModal.vue'
-  import RankingModal from '@/components/molecules/RankingModal.vue'
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
   import { useKeypress } from 'vue3-keypress'
@@ -130,7 +110,7 @@
   }
 
   export default {
-    components: { Board, SettingsModal, RankingModal, SaveScoreModal, Btn },
+    components: { Board, SaveScoreModal, Btn },
     name: 'Game',
     props: {
       game: {
@@ -166,7 +146,6 @@
       const store = useStore()
 
       const ignoreWin = ref(false)
-      const paused = ref(false)
 
       const canMove = () => {
         if (COOLDOWN.active) return false
@@ -184,7 +163,7 @@
       }
 
       const keyboardCommand = (cmd) => {
-        if (paused.value) return
+        if (props.game.paused) return
         if (COMMAND_KEYS[cmd.event.key]) {
           if (!canMove()) return
           startCooldown()
@@ -211,24 +190,12 @@
       })
 
       const swipeCommand = (cmd) => {
-        if (paused.value || !canMove()) return
+        if (props.game.paused || !canMove()) return
         startCooldown()
         props.game.move(COMMAND_KEYS[cmd])
       }
 
-      useSwipe('#touchArea', swipeCommand)
-
-      const handleSettingsOpen = () => {
-        paused.value = true
-      }
-
-      const handleSettingsClose = () => {
-        paused.value = false
-      }
-
-      const handleSettingsUpdate = (newSettings) => {
-        props.game.updateSettings(newSettings)
-      }
+      useSwipe('#touchArea', swipeCommand)      
 
       const availableRankings = computed(() => store.getters.availableRankings)
 
@@ -257,15 +224,11 @@
       )
 
       return {
-        paused,
         ignoreWin,
         rankingBoundaries,
         newHighscore,
         canMove,
         startCooldown,
-        handleSettingsOpen,
-        handleSettingsClose,
-        handleSettingsUpdate,
       }
     },
   }
@@ -339,16 +302,6 @@
       justify-content: space-between;
       align-items: flex-end;
       flex-wrap: wrap;
-
-      &--global {
-        opacity: 1 !important;
-        position: absolute;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        left: 0;
-        top: calc(-2rem - ($container-padding/2) - $container-border-size);
-      }
 
       &--score {
         position: relative;

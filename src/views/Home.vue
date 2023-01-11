@@ -1,21 +1,52 @@
 <template>
   <div class="home">
     <h1>2048</h1>
+    <div class="home__hud">
+      <div class="home__hud--left"><Ranking /></div>
+      <div class="home__hud--right">
+        <Settings
+          :game="game"
+          @open="handleSettingsOpen"
+          @close="handleSettingsClose"
+          @update="handleSettingsUpdate"
+        />
+      </div>
+    </div>
     <Game :game="game" />
   </div>
 </template>
 
 <script>
   import Game from '@/components/organisms/Game.vue'
+  import Ranking from '@/components/organisms/Ranking.vue'
+  import Settings from '@/components/organisms/Settings.vue'
   import GameController from '@/model/2048/GameController'
 
+  import { ref } from 'vue'
+
   export default {
-    components: { Game },
+    components: { Game, Ranking, Settings },
     name: 'Home',
-    data() {
+    setup() {
+      const game = ref(new GameController(4, 4, 2, 100))
+
+      const handleSettingsOpen = () => {
+        game.value.paused = true
+      }
+
+      const handleSettingsClose = () => {
+        game.value.paused = false
+      }
+
+      const handleSettingsUpdate = (newSettings) => {
+        game.value.updateSettings(newSettings)
+      }
+
       return {
-        robot: null,
-        game: new GameController(4, 4, 2, 100),
+        game,
+        handleSettingsOpen,
+        handleSettingsClose,
+        handleSettingsUpdate,
       }
     },
   }
@@ -34,6 +65,14 @@
     h1 {
       font-size: 3rem;
       margin: 0 0 0.25em;
+    }
+
+    &__hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      min-width: 200px;
+      max-width: 400px;
     }
   }
 </style>
