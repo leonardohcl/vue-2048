@@ -49,10 +49,9 @@
         idleSaveTimeout: null,
       }
 
-      const game = ref()
+      const game = ref(new GameController(4, 4, 2, 100))
 
-      if (store.getters.lastGame) game.value = store.getters.lastGame.getGame()
-      else game.value = new GameController(4, 4, 2, 100)
+      if (store.getters.lastGame) game.value.loadSaveFile(store.getters.lastGame)
 
       const saveCurrentGame = () => {
         const save = GameController.getSaveFile('last-game', game.value)

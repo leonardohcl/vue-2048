@@ -72,13 +72,30 @@ export default class GameController {
     )
   }
 
+  loadSaveFile(save) {
+    this.updateSettings(save.settings)
+    this.score = save.progress.score
+    this.moves = save.progress.moves
+    this.undos = save.progress.undos
+
+    this.loadBoardObject(save.state.board)
+    this.history = save.state.history.map((entry) => {
+      entry.board = Board.fromObject(entry.board)
+      return entry
+    })
+
+    this.gameOver = false
+    this.winner = false
+    this.updateGameState()
+  }
+
   updateSettings(newSettings) {
     this.score = 0
     this.history = []
     this.winner = false
     this.gameOver = true
     this.isWaintingUpdate = false
-    const settings = { ...this.settings, ...newSettings }
+    const settings = { ...new GameSettings(this), ...newSettings }
     this.width = settings.width
     this.height = settings.height
     this.historySize = settings.historySize

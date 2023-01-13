@@ -5,6 +5,7 @@ import GameController, {
 } from './GameController'
 import LEGAL_MOVEMENTS from '../../mocks/legal-movements.json'
 import MOCK_GAME from '../../mocks/game.json'
+import { deepCopy } from '../../utils/copy'
 
 describe('GameController.js', () => {
   test('must create game correctly', () => {
@@ -48,7 +49,7 @@ describe('GameController.js', () => {
     const game = new GameController()
     const MOCK_BOARD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
     game.start()
-    game.loadBoardPreset(MOCK_BOARD)    
+    game.loadBoardPreset(MOCK_BOARD)
     expect(game.board.flat).toEqual(MOCK_BOARD)
     expect(game.canMove.right).toBe(false)
     expect(game.canMove.down).toBe(false)
@@ -57,7 +58,7 @@ describe('GameController.js', () => {
   test('must allow only valid movements', () => {
     const game = new GameController()
     game.start()
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2])    
+    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2])
     expect(game.canMove.right).toBe(false)
     expect(game.canMove.down).toBe(false)
     game.start()
@@ -86,9 +87,7 @@ describe('GameController.js', () => {
   test('must set game state to win if reached 2048 block', async () => {
     const game = new GameController(4, 4, 100)
     game.start()
-    game.loadBoardPreset([
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024,
-    ])
+    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
 
     await game.move('right')
     expect(game.winner).toBe(true)
@@ -98,7 +97,7 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([2, 8, 4, 2, 4, 2, 16, 8, 8, 16, 2, 4, 2, 4, 8, 2])
-    
+
     expect(game.canMove.up).toBe(false)
     expect(game.canMove.down).toBe(false)
     expect(game.canMove.left).toBe(false)
@@ -163,5 +162,23 @@ describe('GameController.js', () => {
     expect(save.progress).toEqual(new GameProgress(MOCK_GAME))
     expect(save.state).toEqual(new GameState(MOCK_GAME))
     expect(save.settings).toEqual(new GameSettings(MOCK_GAME))
+  })
+
+  test('must load game correctly', async () => {
+    const game = new GameController(3, 3, 2, 0)
+    game.start()
+
+    const originalGame = deepCopy(game)
+    const save = GameController.getSaveFile('test', game)
+
+    await game.move('up')
+    await game.move('right')
+    await game.move('down')
+    await game.move('left')
+    await game.undo()
+
+    game.loadSaveFile(save)
+
+    expect(deepCopy(game)).toEqual(deepCopy(originalGame))
   })
 })
