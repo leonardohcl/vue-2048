@@ -43,7 +43,7 @@ export default class Square {
   static fromObject(obj){
     const sqr = new Square(obj.row, obj.col, obj.value)
     sqr.willMerge = obj.willMerge
-    sqr.setMove(obj.move) 
+    sqr.setMove(obj.nextMove) 
     return sqr
   }
 }

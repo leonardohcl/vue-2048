@@ -1,11 +1,12 @@
 <template>
-  <div class="board" :style="boardStyle">
+  <div class="board" :style="boardStyle" :class="[inline && 'board--inline']">
     <Square
       v-for="(sqr, idx) in board.squares"
       :key="idx"
       :data="sqr"
       :transition-duration="transitionDuration"
       :gap="gap"
+      :inline="inline"
     />
   </div>
 </template>
@@ -30,6 +31,10 @@
       gap: {
         type: Number,
         default: 0.25,
+      },
+      inline: {
+        type: Boolean,
+        default: false,
       },
     },
     setup(props) {
@@ -59,5 +64,9 @@
     border-radius: $border-radius;
     display: grid;
     width: 100%;
+
+    &--inline {
+      width: auto;
+    }
   }
 </style>

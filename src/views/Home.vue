@@ -18,7 +18,9 @@
         />
       </div>
     </div>
-    <Game :game="game" emit-moves @move="movementListener" />
+    <div class="row">
+      <Game :game="game" emit-moves @move="movementListener" />
+    </div>
   </div>
 </template>
 
@@ -27,9 +29,9 @@
   import Ranking from '@/components/organisms/Ranking.vue'
   import Settings from '@/components/organisms/Settings.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import GameController from '@/model/2048/GameController'
+  import GameController, { GameState } from '@/model/2048/GameController'
 
-  import { ref } from 'vue'
+  import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
 
   import {
@@ -45,13 +47,14 @@
       const autoMemory = {
         moveUntilSave: 5,
         moveCountdown: 5,
-        idleTimeUntilSave: 5000,
+        idleTimeUntilSave: 3000,
         idleSaveTimeout: null,
       }
 
       const game = ref(new GameController(4, 4, 2, 100))
 
-      if (store.getters.lastGame) game.value.loadSaveFile(store.getters.lastGame)
+      if (store.getters.lastGame)
+        game.value.loadSaveFile(store.getters.lastGame)
 
       const saveCurrentGame = () => {
         const save = GameController.getSaveFile('last-game', game.value)
@@ -59,7 +62,6 @@
       }
 
       const movementListener = () => {
-        
         autoMemory.moveCountdown--
         if (autoMemory.moveCountdown == 0) {
           autoMemory.moveCountdown = autoMemory.moveUntilSave
@@ -91,11 +93,14 @@
       }
 
       const handleLoadGame = (save) => {
-        game.value = save.getGame()
+        game.value.loadSaveFile(save)
       }
+
+      const hist = computed(() => new GameState(game.value))
 
       return {
         game,
+        hist,
         handleSettingsOpen,
         handleSettingsClose,
         handleSettingsUpdate,

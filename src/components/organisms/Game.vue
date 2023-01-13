@@ -25,7 +25,7 @@
           size="sm"
           outlined
           :disabled="game.history.length === 0"
-          @click="game.undo()"
+          @click="undo()"
         >
           <span v-if="game.history.length">({{ game.history.length }})</span>
           Undo
@@ -50,32 +50,32 @@
       <Btn
         class="game__control"
         size="sm"
-        @click="game.move('left')"
-        :disabled="game.gameOver || !game.canMove.left"
+        @click="move('left')"
+        :disabled="!canMove('left')"
       >
         LEFT
       </Btn>
       <Btn
         class="game__control"
         size="sm"
-        @click="game.move('up')"
-        :disabled="game.gameOver || !game.canMove.up"
+        @click="move('up')"
+        :disabled="!canMove('up')"
       >
         UP
       </Btn>
       <Btn
         class="game__control"
         size="sm"
-        @click="game.move('down')"
-        :disabled="game.gameOver || !game.canMove.down"
+        @click="move('down')"
+        :disabled="!canMove('down')"
       >
         DOWN
       </Btn>
       <Btn
         class="game__control"
         size="sm"
-        @click="game.move('right')"
-        :disabled="game.gameOver || !game.canMove.right"
+        @click="move('right')"
+        :disabled="!canMove('right')"
       >
         RIGHT
       </Btn>
@@ -126,7 +126,7 @@
         default: false,
       },
     },
-    emits: ['move'],
+    emits: ['move.started', 'move.ended'],
     watch: {
       shouldSaveScore(shouldSave) {
         if (shouldSave) this.$bvModal.show(`${this.id}-new-highscore`)
@@ -152,11 +152,12 @@
 
       const ignoreWin = ref(false)
 
-      const canMove = () => {
+      const canMove = (dir) => {
         if (COOLDOWN.active) return false
+        if (props.game.paused) return false
         if (props.game.gameOver) return false
         if (props.game.winner && !ignoreWin.value) return false
-        return true
+        return dir ? props.game.canMove[dir] : true
       }
 
       const startCooldown = () => {
@@ -167,11 +168,18 @@
         }, props.game.updateDelay)
       }
 
-      const move = (cmd) => {
-        if (props.game.paused || !canMove()) return
+      const move = async (dir) => {
+        if (!canMove(dir)) return
         startCooldown()
-        props.game.move(cmd)
-        if (props.emitMoves) context.emit('move', cmd)
+        await props.game.move(dir)
+        if (props.emitMoves) context.emit('move', dir)
+      }
+
+      const undo = async () => {
+        if (!canMove()) return
+        startCooldown()
+        await props.game.undo()
+        if (props.emitMoves) context.emit('move', 'undo')
       }
 
       const keyboardCommand = (cmd) => {
@@ -232,6 +240,8 @@
         ignoreWin,
         rankingBoundaries,
         newHighscore,
+        move,
+        undo,
         canMove,
         startCooldown,
       }

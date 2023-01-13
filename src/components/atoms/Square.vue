@@ -57,18 +57,19 @@
       })
 
       const blockClasses = computed(() => {
-        return [
-          `square__block--${props.data.value}`,
-          props.data.nextMove.spawn && 'square__block--spawn',
-          props.data.nextMove.reverse && 'square__block--reverse',
-        ]
+        return {
+          [`square__block--${props.data.value}`]: true,
+          'square__block--spawn':
+            props.data.nextMove.spawn && !props.data.nextMove.reverse,
+          'square__block--reverse': props.data.nextMove.reverse,
+        }
       })
 
       const blockStyles = computed(() => {
         if (!props.data.value) return {}
 
         const styles = {
-          trasition: '',
+          transition: '',
           transform: '',
           top: '',
           left: '',
@@ -83,21 +84,12 @@
             stepSize.value * -props.gap
           }rem)`
 
-          if (isReverse.value) {
-            if (props.data.nextMove.horizontal) {
-              styles.left = `${transform}`
-            } else {
-              styles.top = `${transform}`
-            }
-            styles.animationDuration = `${props.transitionDuration}ms`
-          } else {
-            styles.transition = `transform ${props.transitionDuration}ms ease-out`
+          const dir = props.data.nextMove.horizontal ? 'left' : 'top'
+          styles[dir] = transform
+          styles.transition = `${dir} ${props.transitionDuration}ms ease`
 
-            if (props.data.nextMove.horizontal) {
-              styles.transform = `translateX(${transform})`
-            } else {
-              styles.transform = `translateY(${transform})`
-            }
+          if (isReverse.value) {
+            styles.animationDuration = `${props.transitionDuration}ms`
           }
         }
 
@@ -139,23 +131,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transform: translate(0, 0);
       position: absolute;
+      animation-fill-mode: forwards;
 
       &--spawn {
-        width: 10%;
-        height: 10%;
-        left: 45%;
-        top: 45%;
+        transform: scale(0.1);
         opacity: 0.3;
-        animation: spawn;
-        animation-fill-mode: forwards;
+        animation-name: spawn;
         animation-duration: 200ms;
       }
 
       &--reverse {
         animation-name: slide-back;
-        animation-fill-mode: forwards;
       }
 
       @each $key, $value in $block-colors {
@@ -168,10 +155,7 @@
 
   @keyframes spawn {
     100% {
-      width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
+      transform: scale(1);
       opacity: 1;
     }
   }
