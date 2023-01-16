@@ -19,9 +19,17 @@
       </div>
     </div>
     <div class="row">
-      <Game :game="game" emit-moves @move="movementListener" />
+      <Game
+        :game="game"
+        emit-moves
+        @move="movementListener"
+        @new-high-score="handleNewHighScore"
+        @new-game="game.start()"
+        @set-endless="game.activateEndless()"
+      />
     </div>
   </div>
+  <HighScoreManager ref="highScoreManager" :game="game" />
 </template>
 
 <script>
@@ -29,9 +37,10 @@
   import Ranking from '@/components/organisms/Ranking.vue'
   import Settings from '@/components/organisms/Settings.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import GameController, { GameState } from '@/model/2048/GameController'
+  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
+  import GameController from '@/model/2048/GameController'
 
-  import { computed, ref } from 'vue'
+  import { ref } from 'vue'
   import { useStore } from 'vuex'
 
   import {
@@ -40,7 +49,7 @@
   } from '@/store/memory-card'
 
   export default {
-    components: { Game, Ranking, Settings, MemoryManager },
+    components: { Game, Ranking, Settings, MemoryManager, HighScoreManager },
     name: 'Home',
     setup() {
       const store = useStore()
@@ -50,8 +59,9 @@
         idleTimeUntilSave: 3000,
         idleSaveTimeout: null,
       }
+      const highScoreManager = ref(null)
 
-      const game = ref(new GameController(4, 4, 2, 100))
+      const game = ref(new GameController({ historySize: 2, updateDelay: 100 }))
 
       if (store.getters.lastGame)
         game.value.loadSaveFile(store.getters.lastGame)
@@ -96,14 +106,17 @@
         game.value.loadSaveFile(save)
       }
 
-      const hist = computed(() => new GameState(game.value))
+      const handleNewHighScore = () => {
+        if (highScoreManager.value) highScoreManager.value.saveScore()
+      }
 
       return {
         game,
-        hist,
+        highScoreManager,
         handleSettingsOpen,
         handleSettingsClose,
         handleSettingsUpdate,
+        handleNewHighScore,
         handleSaveGame,
         handleLoadGame,
         movementListener,

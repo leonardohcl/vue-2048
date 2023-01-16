@@ -55,8 +55,8 @@
 
 <script>
   import Square from '@/components/atoms/Square.vue'
-  import { ref, computed } from 'vue'
-  import { useStore } from 'vuex'
+  import { useRanking } from '@/mixins/ranking'
+  import { ref } from 'vue'
 
   export default {
     components: { Square },
@@ -64,9 +64,7 @@
       id: { type: String, required: true },
     },
     setup() {
-      const store = useStore()
-
-      const availableRankings = computed(() => store.getters.availableRankings)
+      const availableRankings = useRanking()
 
       const activeTab = ref(null)
       return { availableRankings, activeTab }
@@ -77,13 +75,13 @@
 <style lang="scss" scoped>
   .ranking-modal {
     &--table {
-        max-width: 100%;
+      max-width: 100%;
       text-align: center;
       thead {
         font-weight: bold;
       }
 
-      .truncated-field{
+      .truncated-field {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -91,7 +89,7 @@
       }
     }
 
-    &--square{
+    &--square {
       margin: 0 auto;
     }
   }

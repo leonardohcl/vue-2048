@@ -14,7 +14,14 @@ export function useSwipe(
     releaseTimeOut: null,
   }
 
-  const { minimumSwipeSize, releaseTouchTime, allowMouse } = options
+  const CONFIG = {
+    minimumSwipeSize: 30, //px
+    releaseTouchTime: 1500, //ms
+    allowMouse: true,
+    ...options,
+  }
+
+  const { minimumSwipeSize, releaseTouchTime, allowMouse } = CONFIG
 
   function handleSwipeStart(coords) {
     if (SWIPE_TRACKER.start) return

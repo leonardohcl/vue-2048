@@ -1,16 +1,11 @@
 <template>
   <div :class="`game ${game.gameOver ? 'game--over' : 'game--running'}`">
     <Transition name="fade">
-      <div
-        class="game__overlay"
-        v-if="game.gameOver || (game.winner && !ignoreWin)"
-      >
+      <div class="game__overlay" v-if="game.gameOver || game.winner">
         <div class="game__overlay--score">Score: {{ game.score }}</div>
         <div class="game__overlay--buttons">
-          <Btn @click="game.start()">New Game</Btn>
-          <Btn @click="ignoreWin = true" v-if="game.winner && !ignoreWin"
-            >Continue</Btn
-          >
+          <Btn @click="$emit('newGame')">New Game</Btn>
+          <Btn @click="$emit('setEndless')" v-if="allowEndless && game.winner">Continue</Btn>
         </div>
       </div>
       <div class="game__overlay" v-else-if="game.paused">
@@ -19,13 +14,13 @@
     </Transition>
     <div class="game__hud">
       <div class="game__hud--buttons">
-        <Btn @click="game.start()" size="sm" outlined>Restart</Btn>
+        <Btn @click="$emit('newGame')" size="sm" outlined>Restart</Btn>
         <Btn
           v-if="game.historySize"
           size="sm"
           outlined
           :disabled="game.history.length === 0"
-          @click="undo()"
+          @click="undo"
         >
           <span v-if="game.history.length">({{ game.history.length }})</span>
           Undo
@@ -45,72 +40,21 @@
       <div class="game__board--touch-area" id="touchArea"></div>
       <Board :board="game.board" :transition-duration="game.updateDelay" />
     </div>
-    <div class="game__controls">
-      <div class="game__controls--callout">Select your next movement:</div>
-      <Btn
-        class="game__control"
-        size="sm"
-        @click="move('left')"
-        :disabled="!canMove('left')"
-      >
-        LEFT
-      </Btn>
-      <Btn
-        class="game__control"
-        size="sm"
-        @click="move('up')"
-        :disabled="!canMove('up')"
-      >
-        UP
-      </Btn>
-      <Btn
-        class="game__control"
-        size="sm"
-        @click="move('down')"
-        :disabled="!canMove('down')"
-      >
-        DOWN
-      </Btn>
-      <Btn
-        class="game__control"
-        size="sm"
-        @click="move('right')"
-        :disabled="!canMove('right')"
-      >
-        RIGHT
-      </Btn>
-      <div class="game__controls--callout">
-        <small> *You can also use the arrow keys or swipe the board </small>
-      </div>
-    </div>
-
-    <SaveScoreModal :game="game" :id="`${id}-new-highscore`" />
+    <GameControls class="game__controls" :game="game" @command="move" />
   </div>
 </template>
 
 <script>
   import GameController from '@/model/2048/GameController'
-  import SaveScoreModal from '@/components/molecules/SaveScoreModal.vue'
+  import GameControls from '@/components/molecules/GameControls.vue'
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
-  import { useKeypress } from 'vue3-keypress'
-  import { useSwipe } from '@/mixins/swipe'
-  import { ref, computed } from 'vue'
-  import { useStore } from 'vuex'
-
-  const COMMAND_KEYS = {
-    ArrowUp: 'up',
-    ArrowRight: 'right',
-    ArrowDown: 'down',
-    ArrowLeft: 'left',
-    right: 'right',
-    left: 'left',
-    top: 'up',
-    bottom: 'down',
-  }
+  import { computed, watch } from 'vue'
+  import { useHighScore } from '@/mixins/ranking'
+  import { useGameCommands } from '@/mixins/gameCommands'
 
   export default {
-    components: { Board, SaveScoreModal, Btn },
+    components: { Board, Btn, GameControls },
     name: 'Game',
     props: {
       game: {
@@ -125,125 +69,44 @@
         type: Boolean,
         default: false,
       },
+      allowEndless: {
+        type:Boolean,
+        default: true
+      }
     },
-    emits: ['move.started', 'move.ended'],
-    watch: {
-      shouldSaveScore(shouldSave) {
-        if (shouldSave) this.$bvModal.show(`${this.id}-new-highscore`)
-      },
-    },
-    computed: {
-      shouldSaveScore() {
-        const gameEnded =
-          (this.game.winner && !this.ignoreWin) || this.game.gameOver
-        const scoreIsQualified =
-          this.game.score > this.rankingBoundaries.last ||
-          this.rankingBoundaries.count < 10
-        return gameEnded && scoreIsQualified
-      },
-    },
+    emits: ['move', 'win', 'gameOver', 'newHighScore', 'newGame', 'setEndless'],
     setup(props, context) {
-      const COOLDOWN = {
-        active: false,
-        timeout: null,
-      }
-
-      const store = useStore()
-
-      const ignoreWin = ref(false)
-
-      const canMove = (dir) => {
-        if (COOLDOWN.active) return false
-        if (props.game.paused) return false
-        if (props.game.gameOver) return false
-        if (props.game.winner && !ignoreWin.value) return false
-        return dir ? props.game.canMove[dir] : true
-      }
-
-      const startCooldown = () => {
-        COOLDOWN.active = true
-        if (COOLDOWN.timeout) clearTimeout(COOLDOWN.timeout)
-        COOLDOWN.timeout = setTimeout(() => {
-          COOLDOWN.active = false
-        }, props.game.updateDelay)
-      }
-
-      const move = async (dir) => {
-        if (!canMove(dir)) return
-        startCooldown()
-        await props.game.move(dir)
-        if (props.emitMoves) context.emit('move', dir)
-      }
-
-      const undo = async () => {
-        if (!canMove()) return
-        startCooldown()
-        await props.game.undo()
-        if (props.emitMoves) context.emit('move', 'undo')
-      }
-
-      const keyboardCommand = (cmd) => {
-        move(COMMAND_KEYS[cmd.event.key])
-      }
-
-      useKeypress({
-        keyEvent: 'keydown',
-        keyBinds: [
-          'up',
-          'down',
-          'right',
-          'left',
-          'ArrowUp',
-          'ArrowDown',
-          'ArrowRight',
-          'ArrowLeft',
-        ].map((key) => ({
-          keyCode: key,
-          preventDefault: true,
-          success: keyboardCommand,
-        })),
-      })
-
-      const swipeCommand = (cmd) => {
-        move(COMMAND_KEYS[cmd])
-      }
-
-      useSwipe('#touchArea', swipeCommand)
-
-      const availableRankings = computed(() => store.getters.availableRankings)
-
-      const rankingBoundaries = computed(() => {
-        const ranking = availableRankings.value.find(
-          (list) => list.name === `${props.game.width}x${props.game.height}`
-        )
-        if (ranking)
-          return {
-            first: ranking.scores[0].score,
-            last: ranking.scores[ranking.scores.length - 1].score,
-            count: ranking.scores.length,
-          }
-
-        return {
-          first: 0,
-          last: 0,
-          count: 0,
-        }
-      })
+      const highScores = useHighScore(props.game)
 
       const newHighscore = computed(
         () =>
-          rankingBoundaries.value.count > 0 &&
-          props.game.score > rankingBoundaries.value.first
+          highScores.value.count > 0 &&
+          props.game.score > highScores.value.first
       )
 
+      const { move, undo } = useGameCommands(props.game, '#touchArea', (dir) =>
+        context.emit('move', dir)
+      )
+
+      const gameEnded = computed(() => props.game.winner || props.game.gameOver)
+
+      watch(gameEnded, () => {
+        if (gameEnded.value) {
+          context.emit(props.game.winner ? 'win' : 'gameOver')
+
+          const shouldSaveScore =
+            highScores.value.count < 10 ||
+            props.game.score > highScores.value.last
+            
+          if (shouldSaveScore) context.emit('newHighScore')
+        }
+      })
+
       return {
-        ignoreWin,
-        rankingBoundaries,
-        newHighscore,
         move,
         undo,
-        canMove,
-        startCooldown,
+        highScores,
+        newHighscore,
       }
     },
   }
@@ -352,22 +215,6 @@
         width: calc(100% + 2rem);
         height: 100%;
         z-index: 1;
-      }
-    }
-
-    &__controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-
-      &--callout {
-        font-weight: 300;
-        width: 100%;
-        margin: 0.5rem 0;
-      }
-
-      .game__control:not(:last-child) {
-        margin-right: 0.5rem;
       }
     }
 

@@ -12,6 +12,7 @@ describe('GameController.js', () => {
     const game = new GameController()
     expect(game.width).toBe(4)
     expect(game.height).toBe(4)
+    expect(game.winningBlock).toBe(2048)
     expect(game.gameOver).toBe(true)
     expect(game.winner).toBe(false)
     expect(game.canMove.up).toBe(true)
@@ -27,6 +28,9 @@ describe('GameController.js', () => {
     game.start()
     expect(game.gameOver).toBe(false)
     expect(game.score).toBe(0)
+    expect(game.history.length).toBe(0)
+    expect(game.paused).toBe(false)
+    expect(game.endless).toBe(false)
     expect(game.board.filledSquares.length).toBe(2)
   })
 
@@ -84,13 +88,31 @@ describe('GameController.js', () => {
     expect(game.score).toBe(4)
   })
 
-  test('must set game state to win if reached 2048 block', async () => {
-    const game = new GameController(4, 4, 100)
+  test('must set game state to win if reached specified winning block', async () => {
+    const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
-
+    
     await game.move('right')
     expect(game.winner).toBe(true)
+
+    game.start()
+    game.winningBlock = 512
+    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 256])
+    await game.move('right')
+    expect(game.winner).toBe(true)
+  })
+
+  test('must set game ignore win if set to endless mode', async () => {
+    const game = new GameController()
+    game.start()
+    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
+    
+    await game.move('right')
+    expect(game.winner).toBe(true)
+    game.activateEndless()
+    expect(game.winner).toBe(false)
+    expect(game.endless).toBe(true)
   })
 
   test("must set game state to game over if can't make any movement", () => {

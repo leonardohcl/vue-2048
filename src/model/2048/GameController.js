@@ -17,6 +17,7 @@ export class GameSettings {
     this.width = game.width
     this.height = game.height
     this.historySize = game.historySize
+    this.winningBlock = game.winningBlock
   }
 }
 
@@ -40,6 +41,8 @@ export default class GameController {
   score = 0
   undos = 0
   moves = 0
+  winningBlock = 2048
+  endless = false
   winner = false
   paused = false
   gameOver = true
@@ -54,9 +57,25 @@ export default class GameController {
     right: true,
   }
 
-  constructor(width = 4, height = 4, historySize = 2, updateDelay = 0) {
+  constructor(
+    options = {
+      width: 4,
+      height: 4,
+      winningBlock: 2048,
+      historySize: 2,
+      updateDelay: 0,
+    }
+  ) {
+    const {
+      width = 4,
+      height = 4,
+      winningBlock = 2048,
+      historySize = 2,
+      updateDelay = 0,
+    } = options
     this.width = width
     this.height = height
+    this.winningBlock = winningBlock
     this.historySize = historySize
     this.updateDelay = updateDelay
     this.clearBoard()
@@ -98,6 +117,7 @@ export default class GameController {
     this.width = settings.width
     this.height = settings.height
     this.historySize = settings.historySize
+    this.winningBlock = settings.winningBlock
     this.clearBoard()
   }
 
@@ -115,8 +135,14 @@ export default class GameController {
     MOVEMENT_ARRAY.forEach((move) => this.updateMoveValidation(move))
   }
 
+  activateEndless() {
+    this.winner = false
+    this.endless = true
+  }
+
   isWinner() {
-    return !this.winner && this.board.highestValue >= 2048
+    if (this.endless) return false
+    return !this.winner && this.board.highestValue >= this.winningBlock
   }
 
   isGameOver() {
@@ -220,14 +246,16 @@ export default class GameController {
 
     const board = Board.fromObject(previousBoard)
     board.filledSquares.forEach((sqr) => sqr.setMove({ reverse: true }))
-    
+
     this.score -= pointsGained
     this.board = board
     this.updateValidMoves()
-    
+
     return new Promise((resolve) => {
       setTimeout(() => {
-        this.board.filledSquares.forEach((sqr) => sqr.setMove({ reverse: false, horizontal: 0, vertical:0 }))
+        this.board.filledSquares.forEach((sqr) =>
+          sqr.setMove({ reverse: false, horizontal: 0, vertical: 0 })
+        )
         this.isWaintingUpdate = false
         resolve()
       }, this.updateDelay)
@@ -257,6 +285,7 @@ export default class GameController {
   }
 
   start() {
+    this.endless = false
     this.score = 0
     this.moves = 0
     this.undos = 0
