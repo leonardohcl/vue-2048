@@ -18,16 +18,15 @@
         />
       </div>
     </div>
-    <div class="row">
-      <Game
-        :game="game"
-        emit-moves
-        @move="movementListener"
-        @new-high-score="handleNewHighScore"
-        @new-game="game.start()"
-        @set-endless="game.activateEndless()"
-      />
-    </div>
+    <Game
+      :game="game"
+      emit-moves
+      @move="movementListener"
+      @new-high-score="handleNewHighScore"
+      @new-game="game.start()"
+      @restart="game.start()"
+      @set-endless="game.activateEndless()"
+    />
   </div>
   <HighScoreManager ref="highScoreManager" :game="game" />
 </template>

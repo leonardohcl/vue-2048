@@ -4,8 +4,12 @@
       <div class="game__overlay" v-if="game.gameOver || game.winner">
         <div class="game__overlay--score">Score: {{ game.score }}</div>
         <div class="game__overlay--buttons">
-          <Btn @click="$emit('newGame')">New Game</Btn>
-          <Btn @click="$emit('setEndless')" v-if="allowEndless && game.winner">Continue</Btn>
+          <Btn @click="$emit('newGame')">{{ newGameText }}</Btn>
+          <Btn
+            @click="$emit('setEndless')"
+            v-if="allowEndless && game.winner"
+            >{{ continueText }}</Btn
+          >
         </div>
       </div>
       <div class="game__overlay" v-else-if="game.paused">
@@ -14,16 +18,18 @@
     </Transition>
     <div class="game__hud">
       <div class="game__hud--buttons">
-        <Btn @click="$emit('newGame')" size="sm" outlined>Restart</Btn>
+        <Btn @click="$emit('restart')" size="sm" outlined v-if="allowRestart">{{
+          restartText
+        }}</Btn>
         <Btn
-          v-if="game.historySize"
+          v-if="allowUndo && game.historySize"
           size="sm"
           outlined
           :disabled="game.history.length === 0"
           @click="undo"
         >
           <span v-if="game.history.length">({{ game.history.length }})</span>
-          Undo
+          {{ undoText }}
         </Btn>
       </div>
       <div class="game__hud--score">
@@ -70,11 +76,31 @@
         default: false,
       },
       allowEndless: {
-        type:Boolean,
-        default: true
-      }
+        type: Boolean,
+        default: true,
+      },
+      allowRestart: {
+        type: Boolean,
+        default: true,
+      },
+      allowUndo: {
+        type: Boolean,
+        default: true,
+      },
+      undoText: { type: String, default: 'Undo' },
+      restartText: { type: String, default: 'Restart' },
+      newGameText: { type: String, default: 'New Game' },
+      continueText: { type: String, default: 'Continue' },
     },
-    emits: ['move', 'win', 'gameOver', 'newHighScore', 'newGame', 'setEndless'],
+    emits: [
+      'move',
+      'win',
+      'gameOver',
+      'newHighScore',
+      'newGame',
+      'restart',
+      'setEndless',
+    ],
     setup(props, context) {
       const highScores = useHighScore(props.game)
 
@@ -97,7 +123,7 @@
           const shouldSaveScore =
             highScores.value.count < 10 ||
             props.game.score > highScores.value.last
-            
+
           if (shouldSaveScore) context.emit('newHighScore')
         }
       })

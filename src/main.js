@@ -12,12 +12,35 @@ import {
   faTrophy,
   faFloppyDisk,
   faFolderOpen,
+  faArrowsLeftRight,  
+  faArrowsUpDown,
+  faBrain,
+  faAnglesUp,
 } from '@fortawesome/free-solid-svg-icons'
 
-library.add([faGears, faRankingStar, faTrophy, faFloppyDisk, faFolderOpen])
+import { faMinusSquare, faPlusSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add([
+  faGears,
+  faRankingStar,
+  faTrophy,
+  faFloppyDisk,
+  faFolderOpen,
+  faArrowsLeftRight,
+  faArrowsUpDown,
+  faBrain,
+  faSquare,
+  faAnglesUp,
+  faPlusSquare,
+  faMinusSquare
+])
+
+import {
+  FontAwesomeIcon,
+  FontAwesomeLayers,
+} from '@fortawesome/vue-fontawesome'
 app.component('FontAwesomeIcon', FontAwesomeIcon)
+app.component('FontAwesomeLayers', FontAwesomeLayers)
 
 /** End Fontawesome setup */
 

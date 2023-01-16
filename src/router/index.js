@@ -1,15 +1,20 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
+import Roguelike from '@/views/Roguelike.vue'
 
 
 const routes = [{
   path: '/',
   name: 'Home',
   component: Home
+}, {
+  path: '/roguelike',
+  name: 'Roguelike',
+  component: Roguelike
 }]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 
