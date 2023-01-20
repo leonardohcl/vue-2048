@@ -1,3 +1,4 @@
+import LooseObject from '@/utils/LooseObject'
 import ISquare from './interfaces/Square'
 
 export default class Square implements ISquare {
@@ -13,6 +14,8 @@ export default class Square implements ISquare {
     vertical: 0,
     horizontal: 0,
   }
+
+  customStates: LooseObject = {}
 
   constructor(row: number, col: number, value: number = 0) {
     this.value = value

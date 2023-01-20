@@ -57,12 +57,17 @@
         return props.data.nextMove.reverse
       })
 
+      const squareClasses = computed(() => ({
+        'square--selectable': props.data.customStates.selectable,
+        'square--selected': props.data.customStates.selected,
+      }))
+
       const blockClasses = computed(() => {
+        const { nextMove } = props.data
         return {
           [`square__block--${props.data.value}`]: true,
-          'square__block--spawn':
-            props.data.nextMove.spawn && !props.data.nextMove.reverse,
-          'square__block--reverse': props.data.nextMove.reverse,
+          'square__block--spawn': nextMove.spawn && !nextMove.reverse,
+          'square__block--reverse': nextMove.reverse,
         }
       })
 
@@ -98,7 +103,7 @@
       })
 
       return {
-        squareClasses: {},
+        squareClasses,
         blockClasses,
         blockStyles,
       }
@@ -107,6 +112,8 @@
 </script>
 
 <style lang="scss" scoped>
+  $pulse-color: white;
+
   .square {
     position: relative;
     width: 100%;
@@ -119,6 +126,16 @@
       padding-top: 2rem;
       width: 2rem;
       font-size: 0.8em;
+    }
+
+    &--selectable {
+      animation: pulse 1.5s infinite;
+    }
+
+    &--selected {
+      animation: none;
+      transform: scale(0.9);
+      box-shadow: 0 0 12px 3px $pulse-color;
     }
 
     &__block {
@@ -165,6 +182,23 @@
     100% {
       left: 0;
       top: 0;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 fade-out($pulse-color, 0.1);
+    }
+
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 10px fade-out($pulse-color, 1);
+    }
+
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 fade-out($pulse-color, 1);
     }
   }
 </style>

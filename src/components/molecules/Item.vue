@@ -4,14 +4,15 @@
     :class="{
       'item--empty': item.current <= 0,
       'item--active': active,
+      'item--disabled': disabled && !active,
     }"
   >
-    <div class="item__icon" @click="$emit('click')">
+    <div class="item__icon" @click="handleClick">
       <FontAwesomeIcon class="fa-2x" :icon="item.icon" fixed-width />
       <span class="badge badge-dark"> {{ item.current }}/{{ item.max }} </span>
     </div>
     <Btn
-      v-if="!disabled && item.current < item.max"
+      v-if="!disabled && allowShopping && item.current < item.max"
       class="item__btn item__btn--purchase"
       icon="fa-plus-square"
       is-icon
@@ -19,7 +20,7 @@
       @click="$emit('purchase', item.id)"
     />
     <Btn
-      v-if="active"
+      v-if="!disabled && active"
       class="item__btn item__btn--cancel"
       icon="fa-circle-xmark"
       is-icon
@@ -51,12 +52,23 @@
         type: Boolean,
         default: false,
       },
+      allowShopping: {
+        type: Boolean,
+        default: false,
+      },
       disabled: {
         type: Boolean,
         default: false,
       },
     },
     emits: ['purchase'],
+    setup(props, context) {
+      const handleClick = (evt) => {
+        if (!props.disabled) context.emit('click', evt)
+      }
+
+      return { handleClick }
+    },
   }
 </script>
 
@@ -110,7 +122,8 @@
       line-break: none;
     }
 
-    &--empty {
+    &--empty,
+    &--disabled {
       cursor: initial;
       #{$container}__icon {
         opacity: 0.5;

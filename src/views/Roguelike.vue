@@ -9,7 +9,7 @@
         <h3 class="text-center text-secondary font-weight-bold">Items</h3>
         <Inventory
           :inventory="inventory"
-          :active-item="activeItem"
+          :active-item="activeItem.id"
           :allow-shopping="allowShopping"
           @purchase="handlePurchase"
           @cancel="setUsingItemState(false)"
@@ -59,6 +59,7 @@
 
 <script>
   import GameController from '@/model/2048/GameController'
+  import Item from '@/model/items/Item'
   import Game from '@/components/organisms/Game.vue'
   import Square from '@/components/atoms/Square.vue'
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
@@ -90,7 +91,11 @@
 
       const allowSquareSelection = ref(false)
 
-      const activeItem = ref({})
+      const activeItem = reactive({
+        id: '',
+        blocksRequired: 0,
+        selectedSquares: [],
+      })
 
       const handleNewGame = () => {
         allowShopping.value = false
@@ -103,10 +108,12 @@
           game.value.paused = true
           allowSquareSelection.value = true
         } else {
-          activeItem.value.id = ''
-          ;(activeItem.value.selectedBlock = null),
-            (allowSquareSelection.value = false)
+          activeItem.id = ''
+          allowSquareSelection.value = false
           game.value.paused = false
+          game.value.cleanCustomStates()
+          activeItem.selectedSquares = []
+          activeItem.blocksRequired = 0
         }
       }
 
@@ -134,41 +141,31 @@
           : (inventory.value[itemId] = 1)
       }
 
-      const handleUseItem = (itemId) => {
-        if (!inventory.value[itemId]) return
-        activeItem.value.id = itemId
+      const handleUseItem = (item) => {
+        if (!inventory.value[item.id]) return
+        activeItem.id = item.id
+        activeItem.blocksRequired = item.blocksRequired
+        Item.prepare(Item[item.id], game.value)
         setUsingItemState(true)
       }
 
       const handleSquareSelected = (sqr) => {
-        if (!activeItem.value.id) return
-        const item = activeItem.value.id
-        if (item === 'breakBlock') {
-          if (sqr.value) {
-            sqr.value = 0
-          } else return
-        } else if (item === 'upgradeBlock') {
-          if (sqr.value) {
-            sqr.value *= 2
-          } else return
-        } else if (item === 'shrinkBlock') {
-          if (sqr.value > 2) {
-            sqr.value *= 0.5
-          } else return
-        } else if (item === 'moveBlock') {
-          if (activeItem.value.selectedBlock) {
-            const aux = activeItem.value.selectedBlock.value
-            activeItem.value.selectedBlock.value = sqr.value
-            sqr.value = aux
-          } else {
-            activeItem.value.selectedBlock = sqr
-            return
-          }
-        }
+        if (!activeItem.id) return
+        if (sqr.customStates.selected || !sqr.customStates.selectable) return
+        activeItem.selectedSquares.push(sqr)
+        sqr.customStates.selected = true
 
-        inventory.value[item]--
-        game.value.updateGameState()
-        setUsingItemState(false)
+        if (activeItem.selectedSquares.length >= activeItem.blocksRequired) {
+          const itemId = activeItem.id
+          const success = Item.apply(
+            Item[itemId],
+            game.value,
+            activeItem.selectedSquares
+          )
+          if (!success) return (activeItem.selectedSquares = [])
+          inventory.value[itemId]--
+          setUsingItemState(false)
+        }
       }
 
       return {

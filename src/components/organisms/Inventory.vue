@@ -4,8 +4,9 @@
       v-for="item in items"
       :key="item.id"
       :item="item"
-      :disabled="!allowShopping"
-      :active="activeItem.id === item.id"
+      :disabled="activeItem !== '' && item.id !== activeItem"
+      :allow-shopping="allowShopping"
+      :active="item.id === activeItem"
       @purchase="handlePurchase"
       @cancel="handleCancel"
       @click="handleUseItem(item)"
@@ -20,28 +21,43 @@
     components: { Item },
     props: {
       inventory: { type: Object, required: true },
-      activeItem: { type: Object, default: () => ({}) },
+      activeItem: { type: String, default: '' },
       allowShopping: {
         type: Boolean,
         default: true,
       },
     },
+    emits: ['purchase', 'cancel', 'use'],
     setup(props, context) {
       const availableItems = [
-        { id: 'breakBlock', name: 'Break Block', icon: 'hammer', max: 3 },
+        {
+          id: 'breakBlock',
+          name: 'Break Block',
+          icon: 'hammer',
+          max: 3,
+          blocksRequired: 1,
+        },
         {
           id: 'upgradeBlock',
           name: 'Upgrade Block',
           icon: 'square-plus',
           max: 2,
+          blocksRequired: 1,
         },
         {
           id: 'shrinkBlock',
           name: 'Shrink Block',
           icon: 'square-minus',
           max: 5,
+          blocksRequired: 1,
         },
-        { id: 'moveBlock', name: 'Move Block', icon: 'hand', max: 3 },
+        {
+          id: 'moveBlock',
+          name: 'Move Block',
+          icon: 'hand',
+          max: 3,
+          blocksRequired: 2,
+        },
       ]
 
       const items = computed(() =>
@@ -57,9 +73,10 @@
       const handleCancel = (itemId) => {
         context.emit('cancel', itemId)
       }
-
       const handleUseItem = (item) => {
-        if (!props.allowShopping) context.emit('use', item.id)
+        if (!props.allowShopping) {
+          context.emit('use', item)
+        }
       }
 
       return {

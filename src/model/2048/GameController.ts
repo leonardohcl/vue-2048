@@ -205,6 +205,12 @@ export default class GameController {
     return { nextBoard, pointsGained }
   }
 
+  cleanCustomStates() {
+    this.board.squares.forEach((sqr) => {
+      sqr.customStates = []
+    })
+  }
+
   updateGameState() {
     if (this.isWinner()) this.winner = true
 
