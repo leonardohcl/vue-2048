@@ -12,13 +12,22 @@ import {
   faTrophy,
   faFloppyDisk,
   faFolderOpen,
-  faArrowsLeftRight,  
+  faArrowsLeftRight,
   faArrowsUpDown,
   faBrain,
   faAnglesUp,
+  faPlusSquare,
+  faMinusSquare,
+  faHammer,
+  faHand,
+  faCircleXmark
 } from '@fortawesome/free-solid-svg-icons'
 
-import { faMinusSquare, faPlusSquare, faSquare } from '@fortawesome/free-regular-svg-icons'
+import {
+  faMinusSquare as farMinusSquare,
+  faPlusSquare as farPlusSquare,
+  faSquare as farSquare,
+} from '@fortawesome/free-regular-svg-icons'
 
 library.add([
   faGears,
@@ -29,10 +38,15 @@ library.add([
   faArrowsLeftRight,
   faArrowsUpDown,
   faBrain,
-  faSquare,
   faAnglesUp,
   faPlusSquare,
-  faMinusSquare
+  farSquare,
+  farPlusSquare,
+  farMinusSquare,
+  faHammer,
+  faMinusSquare,
+  faHand,
+  faCircleXmark
 ])
 
 import {

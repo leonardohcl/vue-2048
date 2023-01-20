@@ -1,31 +1,30 @@
 <template>
-  <ul class="shop">
-    <ShopItem
+  <ul class="upgrade-shop">
+    <Upgrade
       v-for="item in items"
       :key="item.id"
       :item="item"
-      :disabled="disabled"
+      :disabled="!allowShopping"
       @update="handlePurchase"
     />
-
   </ul>
 </template>
 
 <script>
   import GameController from '@/model/2048/GameController'
-  import ShopItem from '@/components/molecules/ShopItem.vue'
+  import Upgrade from '@/components/molecules/Upgrade.vue'
   import { computed } from 'vue'
 
   export default {
-    components: { ShopItem },
+    components: { Upgrade },
     props: {
       game: {
         type: GameController,
         required: true,
       },
-      disabled: {
+      allowShopping: {
         type: Boolean,
-        default: false,
+        default: true,
       },
     },
     setup(props, context) {
@@ -58,7 +57,7 @@
         attrs.map((attr) => ({ ...attr, current: props.game[attr.id] }))
       )
 
-      const handlePurchase = (item) => context.emit('purchase', item)
+      const handlePurchase = (item) => context.emit('upgrade', item)
 
       return { items, handlePurchase }
     },
@@ -66,12 +65,12 @@
 </script>
 
 <style lang="scss" scoped>
-  .shop {
+  .upgrade-shop {
     list-style: none;
-    padding: calc($default-spacing/2);
+    padding: 0;
     margin: 0;
 
-    &-item {
+    .upgrade {
       margin-bottom: calc($default-spacing/2);
     }
   }

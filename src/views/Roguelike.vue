@@ -5,7 +5,17 @@
       <small class="badge badge-secondary">Roguelike</small>
     </div>
     <div class="roguelike__game">
-      <div class="roguelike__left">Lorem ipsum dolor sit amet.</div>
+      <div class="roguelike__left roguelike__sidebar">
+        <h3 class="text-center text-secondary font-weight-bold">Items</h3>
+        <Inventory
+          :inventory="inventory"
+          :active-item="activeItem"
+          :allow-shopping="allowShopping"
+          @purchase="handlePurchase"
+          @cancel="setUsingItemState(false)"
+          @use="handleUseItem"
+        />
+      </div>
       <div class="roguelike__center">
         <div class="roguelike__status">
           <div class="roguelike__status--entry">Run: {{ history.run }}</div>
@@ -24,21 +34,23 @@
         <Game
           :game="game"
           :allow-endless="false"
-          :allow-undo="false"
+          :allow-square-selection="allowSquareSelection"
+          disable-pause-screen
           restart-text="Give Up"
           @new-game="handleNewGame"
-          @restart="game.gameOver = true"
+          @restart="handleRestart"
           @win="handleRoundOver"
           @game-over="handleRoundOver"
+          @square-selected="handleSquareSelected"
         />
       </div>
-      <div class="roguelike__right border border-secondary rounded">
-        <h3 class="text-center text-secondary font-weight-bold m-0">Shop</h3>
+      <div class="roguelike__right roguelike__sidebar">
+        <h3 class="text-center text-secondary font-weight-bold">Upgrades</h3>
 
-        <Shop
+        <UpgradeShop
           :game="game"
-          :disabled="!allowShopping"
-          @purchase="handlePurchase"
+          :allow-shopping="allowShopping"
+          @upgrade="handleUpgrade"
         />
       </div>
     </div>
@@ -49,11 +61,12 @@
   import GameController from '@/model/2048/GameController'
   import Game from '@/components/organisms/Game.vue'
   import Square from '@/components/atoms/Square.vue'
-  import Shop from '@/components/organisms/Shop.vue'
+  import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
+  import Inventory from '@/components/organisms/Inventory.vue'
   import { reactive, ref } from 'vue'
 
   export default {
-    components: { Game, Square, Shop },
+    components: { Game, Square, UpgradeShop, Inventory },
     setup() {
       const game = ref(
         new GameController({
@@ -73,10 +86,33 @@
         highestBlock: 0,
       })
 
+      const inventory = ref({})
+
+      const allowSquareSelection = ref(false)
+
+      const activeItem = ref({})
+
       const handleNewGame = () => {
         allowShopping.value = false
         history.run++
         game.value.start()
+      }
+
+      const setUsingItemState = (isUsing) => {
+        if (isUsing) {
+          game.value.paused = true
+          allowSquareSelection.value = true
+        } else {
+          activeItem.value.id = ''
+          ;(activeItem.value.selectedBlock = null),
+            (allowSquareSelection.value = false)
+          game.value.paused = false
+        }
+      }
+
+      const handleRestart = () => {
+        game.value.gameOver = true
+        setUsingItemState(false)
       }
 
       const handleRoundOver = () => {
@@ -88,17 +124,68 @@
           history.highestBlock = game.value.board.highestValue
       }
 
-      const handlePurchase = purchase => {
+      const handleUpgrade = (purchase) => {
         game.value.updateSettings(purchase)
+      }
+
+      const handlePurchase = (itemId) => {
+        inventory.value[itemId]
+          ? inventory.value[itemId]++
+          : (inventory.value[itemId] = 1)
+      }
+
+      const handleUseItem = (itemId) => {
+        if (!inventory.value[itemId]) return
+        activeItem.value.id = itemId
+        setUsingItemState(true)
+      }
+
+      const handleSquareSelected = (sqr) => {
+        if (!activeItem.value.id) return
+        const item = activeItem.value.id
+        if (item === 'breakBlock') {
+          if (sqr.value) {
+            sqr.value = 0
+          } else return
+        } else if (item === 'upgradeBlock') {
+          if (sqr.value) {
+            sqr.value *= 2
+          } else return
+        } else if (item === 'shrinkBlock') {
+          if (sqr.value > 2) {
+            sqr.value *= 0.5
+          } else return
+        } else if (item === 'moveBlock') {
+          if (activeItem.value.selectedBlock) {
+            const aux = activeItem.value.selectedBlock.value
+            activeItem.value.selectedBlock.value = sqr.value
+            sqr.value = aux
+          } else {
+            activeItem.value.selectedBlock = sqr
+            return
+          }
+        }
+
+        inventory.value[item]--
+        game.value.updateGameState()
+        setUsingItemState(false)
       }
 
       return {
         game,
         allowShopping,
         history,
+        inventory,
+        activeItem,
+        allowSquareSelection,
         handleNewGame,
+        handleRestart,
         handleRoundOver,
+        handleUpgrade,
         handlePurchase,
+        handleSquareSelected,
+        handleUseItem,
+        setUsingItemState,
       }
     },
   }
@@ -143,6 +230,12 @@
       justify-content: center;
       gap: $default-spacing;
       grid-template-columns: min(33%, 250px) auto min(33%, 250px);
+    }
+
+    &__sidebar {
+      padding: calc($default-spacing/2);
+      border: solid 3px $bg-secondary;
+      border-radius: $border-radius;
     }
   }
 </style>

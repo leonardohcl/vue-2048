@@ -12,7 +12,7 @@
           >
         </div>
       </div>
-      <div class="game__overlay" v-else-if="game.paused">
+      <div class="game__overlay" v-else-if="game.paused && !disablePauseScreen">
         <span class="game__overlay--pause"> Game Paused </span>
       </div>
     </Transition>
@@ -43,8 +43,16 @@
       </div>
     </div>
     <div class="game__board">
-      <div class="game__board--touch-area" id="touchArea"></div>
-      <Board :board="game.board" :transition-duration="game.updateDelay" />
+      <div
+        class="game__board--touch-area"
+        id="touchArea"
+        v-show="!allowSquareSelection"
+      />
+      <Board
+        :board="game.board"
+        :transition-duration="game.updateDelay"
+        @square-selected="handleSquareSelected"
+      />
     </div>
     <GameControls class="game__controls" :game="game" @command="move" />
   </div>
@@ -87,6 +95,11 @@
         type: Boolean,
         default: true,
       },
+      allowSquareSelection: {
+        type: Boolean,
+        default: false,
+      },
+      disablePauseScreen: { type: Boolean, default: false },
       undoText: { type: String, default: 'Undo' },
       restartText: { type: String, default: 'Restart' },
       newGameText: { type: String, default: 'New Game' },
@@ -128,11 +141,16 @@
         }
       })
 
+      const handleSquareSelected = (sqr) => {
+        if (props.allowSquareSelection) context.emit('square-selected', sqr)
+      }
+
       return {
         move,
         undo,
         highScores,
         newHighscore,
+        handleSquareSelected,
       }
     },
   }

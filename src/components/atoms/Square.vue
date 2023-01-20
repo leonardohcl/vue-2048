@@ -1,5 +1,5 @@
 <template>
-  <div class="square" :class="squareClasses">
+  <div class="square" :class="squareClasses" @click="$emit('click', data)">
     <div
       class="square__block"
       :class="blockClasses"
@@ -35,6 +35,7 @@
         default: false,
       },
     },
+    emits: ['click'],
     setup(props) {
       if (props.inline) {
         const blockClasses = computed(() => {

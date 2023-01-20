@@ -7,6 +7,7 @@
       :transition-duration="transitionDuration"
       :gap="gap"
       :inline="inline"
+      @click="handleSquareClick"
     />
   </div>
 </template>
@@ -37,7 +38,7 @@
         default: false,
       },
     },
-    setup(props) {
+    setup(props, context) {
       const boardStyle = computed(() => {
         const { width, height } = props.board
 
@@ -51,8 +52,13 @@
         return styles
       })
 
+      const handleSquareClick = sqr => {
+        context.emit('square-selected', sqr)
+      }
+
       return {
         boardStyle,
+        handleSquareClick
       }
     },
   }

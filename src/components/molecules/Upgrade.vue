@@ -1,6 +1,6 @@
 <template>
-  <li class="shop-item rounded border border-secondary">
-    <div class="shop-item__icon rounded text-secondary">
+  <li class="upgrade rounded border border-secondary">
+    <div class="upgrade__icon rounded text-secondary">
       <FontAwesomeLayers v-if="Array.isArray(item.icon)" class="fa-2x w-100">
         <FontAwesomeIcon
           v-for="icon in item.icon"
@@ -13,12 +13,13 @@
       </FontAwesomeLayers>
       <FontAwesomeIcon v-else class="fa-2x" :icon="item.icon" fixed-width />
     </div>
-    <div class="shop-item__details">
-      <span class="shop-item__name">{{ item.name }}</span>
+    <div class="upgrade__details">
+      <span class="upgrade__name">{{ item.name }}</span>
       <BlockEqualizer
         v-if="item.type === 'block'"
         :allow-decrease="false"
         :current="item.current"
+        :disabled="disabled"
         @increase="$emit('update', { [item.id]: item.current * 2 })"
 
       />
@@ -58,7 +59,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .shop-item {
+  .upgrade {
     $container: &;
 
     display: flex;
