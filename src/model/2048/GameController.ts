@@ -2,63 +2,55 @@ import Board from './Board'
 import { orderBy } from 'lodash'
 import SaveFile from './SaveFile'
 import { deepCopy } from '../../utils/copy'
+import GameSettings from './interfaces/GameSettings'
+import GameState from './interfaces/GameState'
+import GameProgress from './interfaces/GameProgress'
+import Direction from './Direction'
+import IBoard from './interfaces/Board'
 
-const MOVEMENT_ARRAY = ['up', 'down', 'left', 'right']
+const MOVEMENT_ARRAY = [
+  Direction.Up,
+  Direction.Down,
+  Direction.Right,
+  Direction.Left,
+]
 
 const MOVEMENT_CONFIG = {
-  up: { sortingField: 'row', sortingOrder: 'asc' },
-  down: { sortingField: 'row', sortingOrder: 'desc' },
-  left: { sortingField: 'col', sortingOrder: 'asc' },
-  right: { sortingField: 'col', sortingOrder: 'desc' },
-}
-
-export class GameSettings {
-  constructor(game) {
-    this.width = game.width
-    this.height = game.height
-    this.historySize = game.historySize
-    this.winningBlock = game.winningBlock
-  }
-}
-
-export class GameState {
-  constructor(game) {
-    this.board = deepCopy(game.board)
-    this.history = deepCopy(game.history)
-  }
-}
-
-export class GameProgress {
-  constructor(game) {
-    this.score = game.score
-    this.undos = game.undos
-    this.moves = game.moves
-    this.highestValue = game.board.highestValue
-  }
+  [Direction.Up]: { sortingField: 'row', sortingOrder: 'asc' },
+  [Direction.Down]: { sortingField: 'row', sortingOrder: 'desc' },
+  [Direction.Left]: { sortingField: 'col', sortingOrder: 'asc' },
+  [Direction.Right]: { sortingField: 'col', sortingOrder: 'desc' },
 }
 
 export default class GameController {
   score = 0
   undos = 0
   moves = 0
+  width = 4
+  height = 4
+  updateDelay = 0
+  historySize = 0
   winningBlock = 2048
   endless = false
   winner = false
   paused = false
   gameOver = true
-  board = null
+  board: Board = new Board(1, 1)
   isWaintingUpdate = false
-  history = []
+  history: {
+    pointsGained: number
+    board: IBoard
+  }[] = []
 
   canMove = {
-    up: true,
-    down: true,
-    left: true,
-    right: true,
+    [Direction.Up]: true,
+    [Direction.Down]: true,
+    [Direction.Left]: true,
+    [Direction.Right]: true,
   }
 
   constructor(
-    options = {
+    { width, height, winningBlock, historySize, updateDelay } = {
       width: 4,
       height: 4,
       winningBlock: 2048,
@@ -66,13 +58,6 @@ export default class GameController {
       updateDelay: 0,
     }
   ) {
-    const {
-      width = 4,
-      height = 4,
-      winningBlock = 2048,
-      historySize = 2,
-      updateDelay = 0,
-    } = options
     this.width = width
     this.height = height
     this.winningBlock = winningBlock
@@ -81,7 +66,7 @@ export default class GameController {
     this.clearBoard()
   }
 
-  static getSaveFile(filename, game = this) {
+  static getSaveFile(filename: string, game: GameController) {
     return new SaveFile(
       filename,
       new GameSettings(game),
@@ -90,7 +75,7 @@ export default class GameController {
     )
   }
 
-  loadSaveFile(save) {
+  loadSaveFile(save: SaveFile) {
     this.updateSettings(save.settings)
     this.score = save.progress.score
     this.moves = save.progress.moves
@@ -107,7 +92,7 @@ export default class GameController {
     this.updateGameState()
   }
 
-  updateSettings(newSettings) {
+  updateSettings(newSettings: GameSettings) {
     this.score = 0
     this.history = []
     this.winner = false
@@ -121,7 +106,7 @@ export default class GameController {
     this.clearBoard()
   }
 
-  updateMoveValidation(dir) {
+  updateMoveValidation(dir: Direction) {
     const { nextBoard } = this.getBoardAfterMovement(dir, false)
     this.canMove[dir] =
       nextBoard.filledSquares.length != this.board.filledSquares.length ||
@@ -147,14 +132,14 @@ export default class GameController {
 
   isGameOver() {
     return (
-      !this.canMove.up &&
-      !this.canMove.down &&
-      !this.canMove.right &&
-      !this.canMove.left
+      !this.canMove[Direction.Up] &&
+      !this.canMove[Direction.Down] &&
+      !this.canMove[Direction.Right] &&
+      !this.canMove[Direction.Left]
     )
   }
 
-  spawnBlock(board) {
+  spawnBlock(board: Board) {
     const options = board.emptySquares
 
     if (options.length === 0) return
@@ -166,12 +151,12 @@ export default class GameController {
     else options[selectedIndex].setValue(4)
   }
 
-  loadBoardPreset(flatBoard) {
+  loadBoardPreset(flatBoard: number[]) {
     this.board.loadPreset(flatBoard)
     this.updateGameState()
   }
 
-  loadBoardObject(board) {
+  loadBoardObject(board: IBoard) {
     this.board = Board.fromObject(board)
     this.updateGameState()
   }
@@ -180,7 +165,7 @@ export default class GameController {
     this.board = new Board(this.width, this.height)
   }
 
-  addToHistory(board, pointsGained) {
+  addToHistory(board: Board, pointsGained: number) {
     if (this.historySize < 1) return
     this.history.push({ board: deepCopy(board), pointsGained })
     if (this.history.length > this.historySize) {
@@ -188,13 +173,13 @@ export default class GameController {
     }
   }
 
-  getBoardAfterMovement(dir, rememberMoves = true) {
+  getBoardAfterMovement(dir: Direction, rememberMoves = true) {
     const nextBoard = new Board(this.width, this.height)
     let pointsGained = 0
     const squares = orderBy(
       this.board.filledSquares,
-      [MOVEMENT_CONFIG[dir].sortingField],
-      [MOVEMENT_CONFIG[dir].sortingOrder]
+      MOVEMENT_CONFIG[dir].sortingField,
+      MOVEMENT_CONFIG[dir].sortingOrder as 'asc' | 'desc'
     )
 
     squares.forEach((sqr) => {
@@ -204,7 +189,7 @@ export default class GameController {
         sqr.col,
         dir
       )
-      if (nextRow !== null || nextCol !== null) {
+      if (nextRow !== null && nextCol !== null) {
         nextBoard.updateSquare(sqr.row, sqr.col, 0)
         pointsGained += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
         if (rememberMoves)
@@ -228,8 +213,8 @@ export default class GameController {
     if (this.isGameOver()) this.gameOver = true
   }
 
-  updateBoard(nextBoard, pointsGained, spawnBlock) {
-    return new Promise((resolve) => {
+  updateBoard(nextBoard: Board, pointsGained: number, spawnBlock: boolean) {
+    return new Promise<void>((resolve) => {
       setTimeout(() => {
         this.score += pointsGained
         if (spawnBlock) this.spawnBlock(nextBoard)
@@ -241,7 +226,7 @@ export default class GameController {
     })
   }
 
-  revertBoard(previousBoard, pointsGained) {
+  revertBoard(previousBoard: IBoard, pointsGained: number) {
     this.isWaintingUpdate = true
 
     const board = Board.fromObject(previousBoard)
@@ -251,7 +236,7 @@ export default class GameController {
     this.board = board
     this.updateValidMoves()
 
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       setTimeout(() => {
         this.board.filledSquares.forEach((sqr) =>
           sqr.setMove({ reverse: false, horizontal: 0, vertical: 0 })
@@ -262,7 +247,7 @@ export default class GameController {
     })
   }
 
-  async move(dir, shouldSpawnAfter = true) {
+  async move(dir: Direction, shouldSpawnAfter = true) {
     if (this.isWaintingUpdate || !this.canMove[dir]) return
 
     this.isWaintingUpdate = true
@@ -275,10 +260,11 @@ export default class GameController {
   }
 
   async undo() {
-    if (this.isWaintingUpdate || !this.history.length) return false
+    if (this.isWaintingUpdate) return false
+    const previousState = this.history.pop()
+    if (!previousState) return
     this.moves--
     this.undos++
-    const previousState = this.history.pop()
     this.isWaintingUpdate = true
     await this.revertBoard(previousState.board, previousState.pointsGained)
     return true

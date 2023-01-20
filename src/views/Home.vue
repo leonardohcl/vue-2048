@@ -38,6 +38,7 @@
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
   import GameController from '@/model/2048/GameController'
+  import { defineComponent } from 'vue'
 
   import { ref } from 'vue'
   import { useStore } from 'vuex'
@@ -47,7 +48,7 @@
     SAVE_LAST_GAME_MUTATION,
   } from '@/store/memory-card'
 
-  export default {
+  export default defineComponent({
     components: { Game, Ranking, Settings, MemoryManager, HighScoreManager },
     name: 'Home',
     setup() {
@@ -60,7 +61,15 @@
       }
       const highScoreManager = ref(null)
 
-      const game = ref(new GameController({ historySize: 2, updateDelay: 100 }))
+      const game = ref(
+        new GameController({
+          width: 4,
+          height: 4,
+          winningBlock: 2048,
+          historySize: 2,
+          updateDelay: 100,
+        })
+      )
 
       if (store.getters.lastGame)
         game.value.loadSaveFile(store.getters.lastGame)
@@ -121,7 +130,7 @@
         movementListener,
       }
     },
-  }
+  })
 </script>
 
 <style lang="scss" scoped>

@@ -1,8 +1,21 @@
 import GameController from './GameController'
 import Board from './Board'
+import { IGameSettings } from './interfaces/GameSettings'
+import { IGameState } from './interfaces/GameState'
+import { IGameProgress } from './interfaces/GameProgress'
 
 export default class SaveFile {
-  constructor(filename, settings, state, progress) {
+  filename: string
+  settings: IGameSettings
+  state: IGameState
+  progress: IGameProgress
+
+  constructor(
+    filename: string,
+    settings: IGameSettings,
+    state: IGameState,
+    progress: IGameProgress
+  ) {
     this.filename = filename
     this.settings = settings
     this.state = state
@@ -13,8 +26,8 @@ export default class SaveFile {
     return btoa(JSON.stringify(this))
   }
 
-  static fromString(str) {
-    if(!str) return null
+  static fromString(str:string) {
+    if (!str) return null
     const obj = JSON.parse(atob(str))
     return new SaveFile(obj.filename, obj.settings, obj.state, obj.progress)
   }

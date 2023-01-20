@@ -1,11 +1,11 @@
-import GameController, {
-  GameProgress,
-  GameSettings,
-  GameState,
-} from './GameController'
+import GameController from './GameController'
 import LEGAL_MOVEMENTS from '../../mocks/legal-movements.json'
 import MOCK_GAME from '../../mocks/game.json'
-import { deepCopy } from '../../utils/copy'
+import { deepCopy } from '../../utils/copy.ts'
+import Direction from './Direction'
+import GameProgress from './interfaces/GameProgress'
+import GameState from './interfaces/GameState'
+import GameSettings from './interfaces/GameSettings'
 
 describe('GameController.js', () => {
   test('must create game correctly', () => {
@@ -36,7 +36,12 @@ describe('GameController.js', () => {
 
   test('must make the right movements', async () => {
     const game = new GameController()
-    const directions = ['up', 'down', 'right', 'left']
+    const directions = [
+      Direction.Up,
+      Direction.Down,
+      Direction.Right,
+      Direction.Left,
+    ]
 
     for (let idx = 0; idx < directions.length; idx++) {
       for (let scenario = 0; scenario < 1; scenario++) {
@@ -76,7 +81,7 @@ describe('GameController.js', () => {
     game.spawnBlock = jest.fn()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move('right')
+    await game.move(Direction.right)
     expect(game.spawnBlock).toHaveBeenCalled()
   })
 
@@ -84,7 +89,7 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move('right')
+    await game.move(Direction.Right)
     expect(game.score).toBe(4)
   })
 
@@ -92,14 +97,14 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
-    
-    await game.move('right')
+
+    await game.move(Direction.Right)
     expect(game.winner).toBe(true)
 
     game.start()
     game.winningBlock = 512
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 256])
-    await game.move('right')
+    await game.move(Direction.Right)
     expect(game.winner).toBe(true)
   })
 
@@ -107,8 +112,8 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
-    
-    await game.move('right')
+
+    await game.move(Direction.Right)
     expect(game.winner).toBe(true)
     game.activateEndless()
     expect(game.winner).toBe(false)
@@ -131,11 +136,11 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move('right', false)
+    await game.move(Direction.Right, false)
     expect(game.history.length).toBe(1)
-    await game.move('up', false)
+    await game.move(Direction.Up, false)
     expect(game.history.length).toBe(2)
-    await game.move('left', false)
+    await game.move(Direction.Left, false)
     expect(game.history.length).toBe(2)
   })
 
@@ -143,8 +148,8 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move('right', false)
-    await game.move('up', false)
+    await game.move(Direction.Right, false)
+    await game.move(Direction.Up, false)
     await game.undo()
     expect(game.board.flat).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
@@ -161,9 +166,9 @@ describe('GameController.js', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move('down')
+    await game.move(Direction.Down)
     expect(game.moves).toBe(0)
-    await game.move('right')
+    await game.move(Direction.Right)
     expect(game.moves).toBe(1)
   })
 
@@ -173,7 +178,7 @@ describe('GameController.js', () => {
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
     await game.undo()
     expect(game.undos).toBe(0)
-    await game.move('right')
+    await game.move(Direction.Right)
     await game.undo()
     expect(game.undos).toBe(1)
   })
@@ -193,10 +198,10 @@ describe('GameController.js', () => {
     const originalGame = deepCopy(game)
     const save = GameController.getSaveFile('test', game)
 
-    await game.move('up')
-    await game.move('right')
-    await game.move('down')
-    await game.move('left')
+    await game.move(Direction.Up)
+    await game.move(Direction.Right)
+    await game.move(Direction.Down)
+    await game.move(Direction.Left)
     await game.undo()
 
     game.loadSaveFile(save)

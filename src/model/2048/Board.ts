@@ -1,16 +1,22 @@
 import Square from './Square'
 import { orderBy } from 'lodash'
+import Direction from './Direction'
+import IBoard from './interfaces/Board'
 
-export default class Board {
-  constructor(width, height, preset = null) {
+export default class Board implements IBoard {
+  width = 0
+  height = 0
+  squares = [] as Square[]
+
+  constructor(width: number, height: number, preset?: number[]) {
     this.width = width
     this.height = height
-    this.squares = new Array(this.width * this.height).fill().map((_, ind) => {
+    this.squares = new Array(this.width * this.height).fill(0).map((_, ind) => {
       const row = Math.floor(ind / this.width) % this.height,
         col = ind % this.width
       return new Square(row, col)
     })
-    this.loadPreset(preset)
+    if (preset) this.loadPreset(preset)
   }
 
   get emptySquares() {
@@ -31,14 +37,14 @@ export default class Board {
     return this.squares.map((sqr) => sqr.value)
   }
 
-  loadPreset(preset) {
-    if (preset && preset.length === this.squares.length)
+  loadPreset(preset: number[]) {
+    if (preset.length === this.squares.length)
       preset.forEach((val, idx) => {
         this.squares[idx].setValue(val)
       })
   }
 
-  static fromObject(obj) {
+  static fromObject(obj: IBoard) {
     const board = new Board(obj.width, obj.height)
     board.squares = obj.squares.map((sqr) => Square.fromObject(sqr))
     return board
@@ -50,29 +56,29 @@ export default class Board {
     return copy
   }
 
-  getSquare(row, col) {
+  getSquare(row: number, col: number) {
     return this.squares.find((sqr) => sqr.row == row && sqr.col == col)
   }
 
-  getSquareNeighbor(row, col, dir) {
+  getSquareNeighbor(row: number, col: number, dir: Direction) {
     switch (dir) {
-      case 'right':
+      case Direction.Right:
         return this.getSquare(row, col + 1)
-      case 'left':
+      case Direction.Left:
         return this.getSquare(row, col - 1)
-      case 'up':
+      case Direction.Up:
         return this.getSquare(row - 1, col)
-      case 'down':
+      case Direction.Down:
         return this.getSquare(row + 1, col)
     }
   }
 
-  getSquareValidMovement(row, col, dir) {
+  getSquareValidMovement(row: number, col: number, dir: Direction) {
     const sqr = this.getSquare(row, col)
     let neighbor = this.getSquareNeighbor(row, col, dir),
       selectedNeighbor = null
     while (neighbor != null) {
-      if (neighbor.value == sqr.value) {
+      if (neighbor.value == sqr?.value) {
         if (neighbor.willMerge) {
           selectedNeighbor = neighbor
         }
@@ -89,7 +95,7 @@ export default class Board {
       : [null, null]
   }
 
-  updateSquare(row, col, val) {
+  updateSquare(row: number, col: number, val: number) {
     const sqr = this.getSquare(row, col)
     if (sqr) {
       if (sqr.value == val) {

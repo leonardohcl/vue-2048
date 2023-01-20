@@ -1,4 +1,5 @@
 import Board from './Board'
+import Direction from './Direction'
 
 const preset = [0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
 
@@ -53,23 +54,23 @@ describe('Board.js', () => {
     let neighbor
 
     // Valid neighbors
-    neighbor = board.getSquareNeighbor(1, 1, 'up')
+    neighbor = board.getSquareNeighbor(1, 1, Direction.Up)
     expect(neighbor === board.squares[1]).toBe(true)
-    neighbor = board.getSquareNeighbor(1, 1, 'right')
+    neighbor = board.getSquareNeighbor(1, 1, Direction.Right)
     expect(neighbor === board.squares[6]).toBe(true)
-    neighbor = board.getSquareNeighbor(1, 1, 'down')
+    neighbor = board.getSquareNeighbor(1, 1, Direction.Down)
     expect(neighbor === board.squares[9]).toBe(true)
-    neighbor = board.getSquareNeighbor(1, 1, 'left')
+    neighbor = board.getSquareNeighbor(1, 1, Direction.Left)
     expect(neighbor === board.squares[4]).toBe(true)
 
     // Edge neighbors (no-neighbor to that direction)
-    neighbor = board.getSquareNeighbor(0, 0, 'up')
+    neighbor = board.getSquareNeighbor(0, 0, Direction.Up)
     expect(neighbor).toBe(undefined)
-    neighbor = board.getSquareNeighbor(3, 3, 'right')
+    neighbor = board.getSquareNeighbor(3, 3, Direction.Right)
     expect(neighbor).toBe(undefined)
-    neighbor = board.getSquareNeighbor(3, 3, 'down')
+    neighbor = board.getSquareNeighbor(3, 3, Direction.Down)
     expect(neighbor).toBe(undefined)
-    neighbor = board.getSquareNeighbor(0, 0, 'left')
+    neighbor = board.getSquareNeighbor(0, 0, Direction.Left)
     expect(neighbor).toBe(undefined)
   })
 
@@ -81,32 +82,32 @@ describe('Board.js', () => {
     )
 
     // Free moves
-    expect(board.getSquareValidMovement(3, 3, 'up')).toEqual([0, 3])
-    expect(board.getSquareValidMovement(0, 0, 'right')).toEqual([0, 3])
-    expect(board.getSquareValidMovement(0, 0, 'down')).toEqual([3, 0])
-    expect(board.getSquareValidMovement(3, 3, 'left')).toEqual([3, 0])
+    expect(board.getSquareValidMovement(3, 3, Direction.Up)).toEqual([0, 3])
+    expect(board.getSquareValidMovement(0, 0, Direction.Right)).toEqual([0, 3])
+    expect(board.getSquareValidMovement(0, 0, Direction.Down)).toEqual([3, 0])
+    expect(board.getSquareValidMovement(3, 3, Direction.Left)).toEqual([3, 0])
 
     // Can't move
-    expect(board.getSquareValidMovement(0, 0, 'up')).toEqual([null, null])
-    expect(board.getSquareValidMovement(3, 3, 'right')).toEqual([null, null])
-    expect(board.getSquareValidMovement(3, 3, 'down')).toEqual([null, null])
-    expect(board.getSquareValidMovement(0, 0, 'left')).toEqual([null, null])
+    expect(board.getSquareValidMovement(0, 0, Direction.Up)).toEqual([null, null])
+    expect(board.getSquareValidMovement(3, 3, Direction.Right)).toEqual([null, null])
+    expect(board.getSquareValidMovement(3, 3, Direction.Down)).toEqual([null, null])
+    expect(board.getSquareValidMovement(0, 0, Direction.Left)).toEqual([null, null])
 
     // will merge
     board.loadPreset([0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0])
-    expect(board.getSquareValidMovement(2, 1, 'up')).toEqual([0, 1])
-    expect(board.getSquareValidMovement(2, 1, 'right')).toEqual([2, 3])
+    expect(board.getSquareValidMovement(2, 1, Direction.Up)).toEqual([0, 1])
+    expect(board.getSquareValidMovement(2, 1, Direction.Right)).toEqual([2, 3])
     board.loadPreset([0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0])
-    expect(board.getSquareValidMovement(1, 2, 'down')).toEqual([3, 2])
-    expect(board.getSquareValidMovement(1, 2, 'left')).toEqual([1, 0])
+    expect(board.getSquareValidMovement(1, 2, Direction.Down)).toEqual([3, 2])
+    expect(board.getSquareValidMovement(1, 2, Direction.Left)).toEqual([1, 0])
 
     // won't merge
     board.loadPreset([0, 4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 4, 0, 0, 0, 0])
-    expect(board.getSquareValidMovement(2, 1, 'up')).toEqual([1, 1])
-    expect(board.getSquareValidMovement(2, 1, 'right')).toEqual([2, 2])
+    expect(board.getSquareValidMovement(2, 1, Direction.Up)).toEqual([1, 1])
+    expect(board.getSquareValidMovement(2, 1, Direction.Right)).toEqual([2, 2])
     board.loadPreset([0, 0, 0, 0, 4, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0])
-    expect(board.getSquareValidMovement(1, 2, 'down')).toEqual([2, 2])
-    expect(board.getSquareValidMovement(1, 2, 'left')).toEqual([1, 1])
+    expect(board.getSquareValidMovement(1, 2, Direction.Down)).toEqual([2, 2])
+    expect(board.getSquareValidMovement(1, 2, Direction.Left)).toEqual([1, 1])
   })
 
   test('must generate identical clone with no object reference', () => {

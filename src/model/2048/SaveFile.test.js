@@ -1,11 +1,10 @@
 import SaveFile from './SaveFile'
 import MOCK_GAME from '../../mocks/game.json'
-import GameController, {
-  GameProgress,
-  GameSettings,
-  GameState,
-} from './GameController'
+import GameController from './GameController'
 import { deepCopy } from '../../utils/copy'
+import GameSettings from './interfaces/GameSettings'
+import GameState from './interfaces/GameState'
+import GameProgress from './interfaces/GameProgress'
 
 /** Encodes a string as base64 format */
 global.btoa = (str) => Buffer.from(str, 'binary').toString('base64')
