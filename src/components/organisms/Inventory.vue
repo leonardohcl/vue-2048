@@ -36,6 +36,7 @@
           icon: 'hammer',
           max: 3,
           blocksRequired: 1,
+          price: 100,
         },
         {
           id: 'upgradeBlock',
@@ -43,6 +44,7 @@
           icon: 'square-plus',
           max: 2,
           blocksRequired: 1,
+          price: 1000,
         },
         {
           id: 'shrinkBlock',
@@ -50,6 +52,7 @@
           icon: 'square-minus',
           max: 5,
           blocksRequired: 1,
+          price: 250,
         },
         {
           id: 'moveBlock',
@@ -57,6 +60,7 @@
           icon: 'hand',
           max: 3,
           blocksRequired: 2,
+          price: 500,
         },
       ]
 
@@ -67,8 +71,8 @@
         }))
       )
 
-      const handlePurchase = (itemId) => {
-        context.emit('purchase', itemId)
+      const handlePurchase = (itemId, price) => {
+        context.emit('purchase', itemId, price)
       }
       const handleCancel = (itemId) => {
         context.emit('cancel', itemId)
@@ -97,6 +101,7 @@
     gap: $default-spacing * 0.5;
     align-items: center;
     justify-content: center;
+    list-style: none;
 
     .item {
       flex: 1;

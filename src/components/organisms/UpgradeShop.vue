@@ -1,9 +1,9 @@
 <template>
   <ul class="upgrade-shop">
     <Upgrade
-      v-for="item in items"
-      :key="item.id"
-      :item="item"
+      v-for="upgrade in upgrades"
+      :key="upgrade.id"
+      :upgrade="upgrade"
       :disabled="!allowShopping"
       @update="handlePurchase"
     />
@@ -28,7 +28,7 @@
       },
     },
     setup(props, context) {
-      const attrs = [
+      const availableUpgrades = [
         {
           id: 'winningBlock',
           icon: [
@@ -46,20 +46,40 @@
           ],
           name: 'Highest Block',
           max: -1,
+          price: 5000,
           type: 'block',
         },
-        { id: 'width', icon: 'arrows-left-right', name: 'Board Width', max: 8 },
-        { id: 'height', icon: 'arrows-up-down', name: 'Board Height', max: 8 },
-        { id: 'historySize', icon: 'brain', name: 'Memory Size', max: 5 },
+        {
+          id: 'width',
+          icon: 'arrows-left-right',
+          name: 'Board Width',
+          price: 2500,
+          max: 8,
+        },
+        {
+          id: 'height',
+          icon: 'arrows-up-down',
+          name: 'Board Height',
+          price: 2500,
+          max: 8,
+        },
+        {
+          id: 'historySize',
+          icon: 'brain',
+          name: 'Memory Size',
+          price: 5000,
+          max: 5,
+        },
       ]
 
-      const items = computed(() =>
-        attrs.map((attr) => ({ ...attr, current: props.game[attr.id] }))
+      const upgrades = computed(() =>
+        availableUpgrades.map((up) => ({ ...up, current: props.game[up.id] }))
       )
 
-      const handlePurchase = (item) => context.emit('upgrade', item)
+      const handlePurchase = (upgrade, price) =>
+        context.emit('upgrade', upgrade, price)
 
-      return { items, handlePurchase }
+      return { upgrades, handlePurchase }
     },
   }
 </script>

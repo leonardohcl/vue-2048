@@ -101,8 +101,8 @@
     }
 
     &--icon {
-      height: 2em !important;
-      width: 2em !important;
+      height: 1.5em !important;
+      width: 1.5em !important;
       padding: 0 !important;
     }
 

@@ -19,16 +19,10 @@
       <div class="roguelike__center">
         <div class="roguelike__status">
           <div class="roguelike__status--entry">Run: {{ history.run }}</div>
-          <div class="roguelike__status--entry justify-content-center">
-            Best:
-            <Square
-              class="mx-2"
-              :data="{ value: history.highestBlock }"
-              inline
-            />
-          </div>
           <div class="roguelike__status--entry justify-content-end">
-            Best Score: {{ history.bestScore }}
+            <span class="badge-light badge-pill">
+              {{ currentCoins }} <FontAwesomeIcon icon="coins" class="ml-1" />
+            </span>
           </div>
         </div>
         <Game
@@ -43,6 +37,19 @@
           @game-over="handleRoundOver"
           @square-selected="handleSquareSelected"
         />
+        <div class="roguelike__status">
+          <div class="roguelike__status--entry">
+            Best:
+            <Square
+              class="mx-2"
+              :data="{ value: history.highestBlock }"
+              inline
+            />
+          </div>
+          <div class="roguelike__status--entry justify-content-end">
+            Best Score: {{ history.bestScore }}
+          </div>
+        </div>
       </div>
       <div class="roguelike__right roguelike__sidebar">
         <h3 class="text-center text-secondary font-weight-bold">Upgrades</h3>
@@ -64,11 +71,17 @@
   import Square from '@/components/atoms/Square.vue'
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
   import Inventory from '@/components/organisms/Inventory.vue'
-  import { reactive, ref } from 'vue'
+  import { reactive, ref, computed } from 'vue'
+  import { useStore } from 'vuex'
+  import { UPDATE_BALANCE } from '@/store/wallet'
 
   export default {
     components: { Game, Square, UpgradeShop, Inventory },
     setup() {
+      const store = useStore()
+
+      const currentCoins = computed(() => store.getters.currentCoins)
+
       const game = ref(
         new GameController({
           width: 3,
@@ -131,11 +144,13 @@
           history.highestBlock = game.value.board.highestValue
       }
 
-      const handleUpgrade = (purchase) => {
+      const handleUpgrade = (purchase, price) => {
+        store.commit(UPDATE_BALANCE, -price)
         game.value.updateSettings(purchase)
       }
 
-      const handlePurchase = (itemId) => {
+      const handlePurchase = (itemId, price) => {
+        store.commit(UPDATE_BALANCE, -price)
         inventory.value[itemId]
           ? inventory.value[itemId]++
           : (inventory.value[itemId] = 1)
@@ -170,10 +185,11 @@
 
       return {
         game,
-        allowShopping,
         history,
         inventory,
         activeItem,
+        currentCoins,
+        allowShopping,
         allowSquareSelection,
         handleNewGame,
         handleRestart,
@@ -211,7 +227,7 @@
 
     &__status {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       font-weight: bold;
 
       &--entry {

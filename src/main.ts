@@ -20,7 +20,8 @@ import {
   faMinusSquare,
   faHammer,
   faHand,
-  faCircleXmark
+  faCircleXmark,
+  faCoins
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -46,7 +47,8 @@ library.add(...[
   faHammer,
   faMinusSquare,
   faHand,
-  faCircleXmark
+  faCircleXmark,
+  faCoins
 ])
 
 import {
