@@ -6,6 +6,7 @@
       'item--empty': item.current <= 0,
       'item--active': active,
       'item--disabled': disabled && !active,
+      'item--shopping': allowShopping,
     }"
   >
     <div class="item__icon--container">
@@ -115,21 +116,31 @@
 <style lang="scss" scoped>
   .item {
     $container: &;
+
     padding: 0;
     position: relative;
     cursor: pointer;
 
     &__icon {
-      position: relative;
+      font-size: 0.75em;
       color: $secondary;
       border-radius: 50%;
       padding: 1em;
       border: 3px solid $secondary;
-      background-image: linear-gradient(
-        45deg,
-        fade-out($bg-secondary, 0.25) 0%,
-        fade-out($secondary, 0.9) 100%
-      );
+      background: $bg;
+
+      @include screen-above(sm) {
+        font-size: 1em;
+      }
+
+      @include screen-above(md) {
+        font-size: 0.9em;
+        background-image: linear-gradient(
+          45deg,
+          fade-out($bg-secondary, 0.25) 0%,
+          fade-out($secondary, 0.9) 100%
+        );
+      }
 
       &--container {
         position: relative;
@@ -143,24 +154,48 @@
 
     &__capacity {
       position: absolute;
-      right: 0;
-      bottom: 0;
+      left: 0;
+      top: -0.5em;
+
+      @include screen-above(md) {
+        top: unset;
+        bottom: 0;
+      }
     }
 
     &__price {
+      display: none;
       position: absolute;
       left: 0;
-      bottom: 0;
+      right: 0;
+      bottom: -0.5em;
+
+      @include screen-above(md) {
+        display: block;
+        bottom: 0;
+        left: unset;
+      }
     }
 
     &__btn {
       position: absolute;
-      top: 0;
+      font-size: 1.5rem;
       &--purchase {
-        right: 0;
+        top: -0.5em;
+        right: -0.5em;
+
+        @include screen-above(md) {
+          top: 0;
+          right: 0;
+        }
       }
       &--cancel {
-        left: 0;
+        left: -0.5em;
+        bottom: -0.5em;
+        @include screen-above(md) {
+          left: 0;
+          top: 0;
+        }
       }
     }
 
@@ -170,13 +205,21 @@
       white-space: nowrap;
       text-overflow: ellipsis;
       line-break: none;
+      display: none;
+      text-align: center;
+      @include screen-above(md) {
+        display: block;
+      }
     }
 
     &--empty,
     &--disabled {
       cursor: initial;
       #{$container}__icon {
-        opacity: 0.5;
+        color: $bg-secondary !important;
+        background: $bg;
+        border-color: $bg-secondary;
+        background-image: none !important;
       }
     }
 
@@ -190,6 +233,12 @@
 
     &--shopping {
       cursor: initial;
+
+      #{$container} {
+        &__price {
+          display: block;
+        }
+      }
     }
 
     &:hover {
@@ -203,6 +252,10 @@
           );
         }
       }
+    }
+
+    @include screen-above(md) {
+      font-size: 1rem;
     }
   }
 

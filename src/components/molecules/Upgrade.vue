@@ -30,7 +30,10 @@
         :disabled="disabled || !canAfford"
         @increase="handleUpdate"
       />
-      <div class="upgrade__price--container">
+      <div
+        class="upgrade__price--container"
+        v-if="upgrade.max !== upgrade.current"
+      >
         <PriceIndicator
           class="upgrade__price"
           :price="upgrade.price"
@@ -117,6 +120,13 @@
       position: relative;
       transition: box-shadow 0.2s;
       box-shadow: 0 0 0 0 $secondary;
+
+      @include screen-above(md) {
+        display: none;
+      }
+      @include screen-above(lg) {
+        display: flex;
+      }
     }
 
     &__details {

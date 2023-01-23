@@ -81,7 +81,7 @@
           left: '',
           animationDuration: '',
           'font-size': `${
-            props.data.value >= 1000 ? 1 : props.data.value > 100 ? 1.2 : 1.3
+            props.data.value >= 1000 ? .8 : props.data.value > 100 ? 1 : 1.3
           }em`,
         }
 
@@ -120,7 +120,7 @@
     padding-top: 100%;
     border-radius: $border-radius;
     background-color: fade-out($square-color, 0.8);
-    font-size: 1.3rem;
+    font-size: .9rem;
 
     &--inline {
       padding-top: 2rem;
@@ -168,6 +168,13 @@
           background-color: $value;
         }
       }
+    }
+
+    @include screen-above(md){
+      font-size: 1rem;
+    }
+    @include screen-above(lg){
+      font-size: 1.2rem;
     }
   }
 

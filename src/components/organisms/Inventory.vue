@@ -95,10 +95,10 @@
 
 <style lang="scss" scoped>
   .inventory {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
     padding: 0;
-    gap: $default-spacing * 0.5;
+    display: flex;
+    flex-direction: column;
+    gap: $default-spacing * 0.75;
     align-items: center;
     justify-content: center;
     list-style: none;
@@ -111,6 +111,20 @@
       .item {
         cursor: initial;
       }
+    }
+
+    @include screen-above(sm) {
+      gap: $default-spacing * 1.5;
+    }
+
+    @include screen-above(md) {
+      display: grid;
+      gap: $default-spacing * 0.5;
+    }
+
+    @include screen-above(lg) {
+      gap: $default-spacing * 0.75;
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>

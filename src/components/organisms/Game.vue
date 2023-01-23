@@ -158,7 +158,7 @@
 
 <style lang="scss" scoped>
   $container-border-size: 3px;
-  $container-padding: 1rem;
+  $container-padding: $default-spacing * 0.5;
   .game {
     border-radius: $border-radius;
     border: solid $container-border-size $bg-secondary;
@@ -166,13 +166,13 @@
     position: relative;
     width: 100%;
     min-width: 200px;
-    max-width: 400px;
+    max-width: map-get($grid-breakpoints, 'sm') * 0.75;
 
     &--over {
       .game {
         &__hud {
           & > * {
-            opacity: 0;
+            opacity: 0.5;
           }
         }
 
@@ -264,6 +264,14 @@
 
     &__command-listener {
       display: none;
+    }
+
+    @include screen-above(md) {
+      max-width: map-get($grid-breakpoints, 'md') * 0.75;
+    }
+
+    @include screen-above(lg) {
+      max-width: map-get($grid-breakpoints, 'lg') * 0.4;
     }
   }
 

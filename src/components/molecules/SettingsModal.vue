@@ -132,7 +132,7 @@
       font-size: 1.1rem;
       display: inline-block;
       font-weight: bold;
-      margin-bottom: $default-spacing/4;
+      margin-bottom: $default-spacing * 0.25;
     }
   }
 </style>

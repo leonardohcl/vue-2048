@@ -55,7 +55,7 @@
 
     &__bars {
       display: flex;
-      gap: 1px;
+      gap: 3px;
       width: 100%;
       align-items: center;
     }

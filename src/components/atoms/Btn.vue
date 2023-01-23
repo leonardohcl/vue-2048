@@ -7,7 +7,14 @@
     @click="handleClick"
   >
     <slot>
-      <FontAwesomeIcon :icon="icon" v-if="icon" />
+      <FontAwesomeLayers v-if="Array.isArray(icon)">
+        <FontAwesomeIcon v-for="i in icon" :key="i" :icon="i" fixed-width />
+      </FontAwesomeLayers>
+      <FontAwesomeIcon
+        v-else-if="icon"
+        :icon="icon"
+        fixed-width
+      />
       {{ text }}
     </slot>
   </component>

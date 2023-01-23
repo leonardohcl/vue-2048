@@ -21,7 +21,9 @@ import {
   faHammer,
   faHand,
   faCircleXmark,
-  faCoins
+  faCoins,
+  faChessBoard,
+  faTimes,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -30,26 +32,30 @@ import {
   faSquare as farSquare,
 } from '@fortawesome/free-regular-svg-icons'
 
-library.add(...[
-  faGears,
-  faRankingStar,
-  faTrophy,
-  faFloppyDisk,
-  faFolderOpen,
-  faArrowsLeftRight,
-  faArrowsUpDown,
-  faBrain,
-  faAnglesUp,
-  faPlusSquare,
-  farSquare,
-  farPlusSquare,
-  farMinusSquare,
-  faHammer,
-  faMinusSquare,
-  faHand,
-  faCircleXmark,
-  faCoins
-])
+library.add(
+  ...[
+    faGears,
+    faRankingStar,
+    faTrophy,
+    faFloppyDisk,
+    faFolderOpen,
+    faArrowsLeftRight,
+    faArrowsUpDown,
+    faBrain,
+    faAnglesUp,
+    faPlusSquare,
+    farSquare,
+    farPlusSquare,
+    farMinusSquare,
+    faHammer,
+    faMinusSquare,
+    faHand,
+    faCircleXmark,
+    faCoins,
+    faChessBoard,
+    faTimes,
+  ]
+)
 
 import {
   FontAwesomeIcon,

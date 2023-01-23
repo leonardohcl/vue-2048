@@ -5,8 +5,12 @@
       <small class="badge badge-secondary">Roguelike</small>
     </div>
     <div class="roguelike__game">
-      <div class="roguelike__left roguelike__sidebar">
-        <h3 class="text-center text-secondary font-weight-bold">Items</h3>
+      <div class="roguelike__sidebar--left roguelike__sidebar">
+        <h3
+          class="roguelike__sidebar--title text-center text-secondary font-weight-bold"
+        >
+          Items
+        </h3>
         <Inventory
           :inventory="inventory"
           :active-item="activeItem.id"
@@ -51,9 +55,22 @@
           </div>
         </div>
       </div>
-      <div class="roguelike__right roguelike__sidebar">
-        <h3 class="text-center text-secondary font-weight-bold">Upgrades</h3>
-
+      <div
+        class="roguelike__sidebar--right roguelike__sidebar"
+        :class="{ 'roguelike__sidebar--active': displayUpgrades }"
+      >
+        <h3
+          class="roguelike__sidebar--title text-center text-secondary font-weight-bold"
+        >
+          Upgrades
+        </h3>
+        <Btn
+          fab
+          class="roguelike__sidebar--toggle"
+          :icon="displayUpgrades ? 'times' : ['fa-chess-board', 'angles-up']"
+          :theme="displayUpgrades ? 'danger' : 'primary'"
+          @click="displayUpgrades = !displayUpgrades"
+        />
         <UpgradeShop
           :game="game"
           :allow-shopping="allowShopping"
@@ -71,12 +88,13 @@
   import Square from '@/components/atoms/Square.vue'
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
   import Inventory from '@/components/organisms/Inventory.vue'
+  import Btn from '@/components/atoms/Btn.vue'
   import { reactive, ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { UPDATE_BALANCE } from '@/store/wallet'
 
   export default {
-    components: { Game, Square, UpgradeShop, Inventory },
+    components: { Game, Square, Btn, UpgradeShop, Inventory },
     setup() {
       const store = useStore()
 
@@ -183,6 +201,8 @@
         }
       }
 
+      const displayUpgrades = ref(false)
+
       return {
         game,
         history,
@@ -190,6 +210,7 @@
         activeItem,
         currentCoins,
         allowShopping,
+        displayUpgrades,
         allowSquareSelection,
         handleNewGame,
         handleRestart,
@@ -204,7 +225,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .roguelike {
     padding: 2rem;
     display: flex;
@@ -213,6 +234,7 @@
     align-items: center;
     min-width: 100vw;
     min-height: 100vh;
+    overflow: hidden;
 
     &__title {
       position: relative;
@@ -239,16 +261,113 @@
 
     &__game {
       width: 100%;
-      display: grid;
+      display: flex;
+      position: relative;
       justify-content: center;
-      gap: $default-spacing;
-      grid-template-columns: min(33%, 250px) auto min(33%, 250px);
+      align-items: center;
+
+      .game {
+        padding: $default-spacing;
+      }
+
+      @include screen-above(md) {
+        display: grid;
+        justify-content: center;
+        gap: $default-spacing;
+        grid-template-columns: min(25%, 250px) auto min(25%, 250px);
+
+        .game {
+          padding: $default-spacing * 0.5;
+        }
+      }
+
+      @include screen-above(xl) {
+        grid-template-columns: min(33%, 300px) auto min(33%, 300px);
+      }
     }
 
     &__sidebar {
-      padding: calc($default-spacing/2);
-      border: solid 3px $bg-secondary;
-      border-radius: $border-radius;
+      $sidebar-container: &;
+
+      padding: $default-spacing * 0.5;
+
+      position: absolute;
+
+      &--title {
+        margin-bottom: $default-spacing;
+      }
+
+      &--left {
+        position: absolute;
+        top: 4.3rem + $default-spacing;
+        transform: translateX(-50%);
+        left: 0;
+        z-index: $hud-z-index;
+        #{$sidebar-container}--title {
+          display: none;
+        }
+
+        @include screen-above(sm) {
+          transform: none;
+        }
+        @include screen-above(md) {
+          position: initial;
+          height: 100%;
+          #{$sidebar-container}--title {
+            display: block;
+          }
+        }
+      }
+
+      &--right {
+        position: fixed;
+        top: 0;
+        left: 100%;
+        background: $bg;
+        z-index: $hud-z-index;
+        transition: left 0.5s ease-in-out;
+        width: 100vw;
+        height: 100vh;
+
+        &#{$sidebar-container}--active {
+          left: 0;
+        }
+
+        #{$sidebar-container}--toggle {
+          position: fixed;
+          bottom: $default-spacing;
+          right: $default-spacing;
+
+          .fa-layers {
+            width: 100%;
+            height: 100%;
+            .fa-chess-board {
+              font-size: 1.5em;
+            }
+            .fa-angles-up {
+              position: relative;
+              color: white;
+              top: 0;
+              left: 0.5em;
+            }
+          }
+
+          @include screen-above(md) {
+            display: none;
+          }
+        }
+
+        @include screen-above(md){
+          position: initial;
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      @include screen-above(md) {
+        border: solid 3px $bg-secondary;
+        border-radius: $border-radius;
+      }
     }
   }
 </style>

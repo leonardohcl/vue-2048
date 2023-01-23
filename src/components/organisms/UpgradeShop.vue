@@ -90,8 +90,15 @@
     padding: 0;
     margin: 0;
 
-    .upgrade {
-      margin-bottom: calc($default-spacing/2);
+    @include screen-above(sm){
+      display: grid;
+      gap: $default-spacing * 0.5;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include screen-above(md){
+      grid-template-columns: auto;
+
     }
   }
 </style>

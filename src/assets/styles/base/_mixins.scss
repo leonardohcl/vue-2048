@@ -7,6 +7,14 @@
     }
 }
 
+@mixin screen-below($size) {
+    @if map-has-key($grid-breakpoints, $size) {
+        @media (max-width: map-get($grid-breakpoints, $size)) {
+            @content;
+        }
+    }
+}
+
 @mixin transition-animation-enter($name, $duration, $easing) {
     &.#{$name}-enter-active {
         animation: #{$name} $duration $easing;
