@@ -2,7 +2,7 @@ export const UPDATE_BALANCE = "UPDATE COINS"
 
 export default {
   state: {
-    coins: 3000,
+    coins: 0,
   },
   getters: {
     currentCoins(state) {

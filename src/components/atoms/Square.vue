@@ -81,7 +81,7 @@
           left: '',
           animationDuration: '',
           'font-size': `${
-            props.data.value >= 1000 ? .8 : props.data.value > 100 ? 1 : 1.3
+            props.data.value >= 1000 ? .9 : props.data.value > 100 ? 1.1 : 1.3
           }em`,
         }
 

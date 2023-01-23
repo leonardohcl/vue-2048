@@ -79,6 +79,12 @@
       </div>
     </div>
   </div>
+
+  <RewardsManager
+    :game="game"
+    ref="rewardsManager"
+    @reward-earned="handleReward"
+  />
 </template>
 
 <script>
@@ -88,17 +94,20 @@
   import Square from '@/components/atoms/Square.vue'
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
   import Inventory from '@/components/organisms/Inventory.vue'
+  import RewardsManager from '@/components/organisms/RewardsManager.vue'
   import Btn from '@/components/atoms/Btn.vue'
   import { reactive, ref, computed } from 'vue'
   import { useStore } from 'vuex'
   import { UPDATE_BALANCE } from '@/store/wallet'
 
   export default {
-    components: { Game, Square, Btn, UpgradeShop, Inventory },
+    components: { Game, Square, Btn, UpgradeShop, Inventory, RewardsManager },
     setup() {
       const store = useStore()
 
       const currentCoins = computed(() => store.getters.currentCoins)
+
+      const rewardsManager = ref()
 
       const game = ref(
         new GameController({
@@ -154,6 +163,7 @@
       }
 
       const handleRoundOver = () => {
+        if (rewardsManager.value) rewardsManager.value.lootRewards()
         allowShopping.value = true
         if (game.value.score > history.bestScore)
           history.bestScore = game.value.score
@@ -201,6 +211,10 @@
         }
       }
 
+      const handleReward = (amount) => {
+        store.commit(UPDATE_BALANCE, amount)
+      }
+
       const displayUpgrades = ref(false)
 
       return {
@@ -210,11 +224,13 @@
         activeItem,
         currentCoins,
         allowShopping,
+        rewardsManager,
         displayUpgrades,
         allowSquareSelection,
         handleNewGame,
         handleRestart,
         handleRoundOver,
+        handleReward,
         handleUpgrade,
         handlePurchase,
         handleSquareSelected,
@@ -357,7 +373,7 @@
           }
         }
 
-        @include screen-above(md){
+        @include screen-above(md) {
           position: initial;
           width: 100%;
           height: 100%;
