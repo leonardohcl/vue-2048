@@ -39,9 +39,11 @@
 </template>
 
 <script>
+  import GameMode from '@/model/GameMode'
   import Square from '@/components/atoms/Square.vue'
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
+
   export default {
     components: { Square },
     props: {
@@ -49,12 +51,13 @@
       mode: { type: String, default: '' },
       maxSlots: { type: Number, default: 5 },
       closeAfterSelect: { type: Boolean, default: false },
+      gameMode: { type: GameMode, default: 'regular' },
     },
     emits: ['selected'],
     setup(props, context) {
       const isOpen = ref(false)
       const store = useStore()
-      const saves = computed(() => store.getters.saves)
+      const saves = computed(() => store.getters.saves(props.gameMode))
 
       const slots = computed(() => {
         const list = []

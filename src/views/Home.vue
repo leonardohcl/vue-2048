@@ -1,33 +1,36 @@
 <template>
   <div class="home">
     <h1>2048</h1>
-    <div class="home__hud">
-      <div class="home__hud--left"><Ranking /></div>
-      <div class="home__hud--right">
-        <MemoryManager
-          :save-button-options="{ disabled: game.gameOver }"
-          :close-on-load="true"
-          @save="handleSaveGame"
-          @load="handleLoadGame"
-        />
-        <Settings
-          :game="game"
-          @open="handleSettingsOpen"
-          @close="handleSettingsClose"
-          @update="handleSettingsUpdate"
-        />
+    <div class="home__container">
+      <div class="home__hud">
+        <div class="home__hud--left"><Ranking /></div>
+        <div class="home__hud--right">
+          <MemoryManager
+            :save-button-options="{ disabled: game.gameOver }"
+            :close-on-load="true"
+            @save="handleSaveGame"
+            @load="handleLoadGame"
+          />
+          <Settings
+            :game="game"
+            @open="handleSettingsOpen"
+            @close="handleSettingsClose"
+            @update="handleSettingsUpdate"
+          />
+        </div>
       </div>
+      <Game
+        :game="game"
+        emit-moves
+        @move="movementListener"
+        @new-high-score="handleNewHighScore"
+        @new-game="game.start()"
+        @restart="game.start()"
+        @set-endless="game.activateEndless()"
+      />
     </div>
-    <Game
-      :game="game"
-      emit-moves
-      @move="movementListener"
-      @new-high-score="handleNewHighScore"
-      @new-game="game.start()"
-      @restart="game.start()"
-      @set-endless="game.activateEndless()"
-    />
   </div>
+
   <HighScoreManager ref="highScoreManager" :game="game" />
 </template>
 
@@ -38,15 +41,12 @@
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
   import GameController from '@/model/2048/GameController'
-  import { defineComponent } from 'vue'
+  import { computed, defineComponent } from 'vue'
 
   import { ref } from 'vue'
   import { useStore } from 'vuex'
 
-  import {
-    ADD_GAME_ACTION,
-    SAVE_LAST_GAME_MUTATION,
-  } from '@/store/memory-card'
+  import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from '@/store/memory-card'
 
   export default defineComponent({
     components: { Game, Ranking, Settings, MemoryManager, HighScoreManager },
@@ -54,9 +54,9 @@
     setup() {
       const store = useStore()
       const autoMemory = {
-        moveUntilSave: 5,
-        moveCountdown: 5,
-        idleTimeUntilSave: 3000,
+        moveUntilSave: 15,
+        moveCountdown: 15,
+        idleTimeUntilSave: 1000,
         idleSaveTimeout: null,
       }
       const highScoreManager = ref(null)
@@ -71,12 +71,13 @@
         })
       )
 
-      if (store.getters.lastGame)
-        game.value.loadSaveFile(store.getters.lastGame)
+      const lastGame = computed(() => store.getters.lastGame())
+
+      if (lastGame.value) game.value.loadSaveFile(lastGame.value)
 
       const saveCurrentGame = () => {
         const save = GameController.getSaveFile('last-game', game.value)
-        store.commit(SAVE_LAST_GAME_MUTATION, save)
+        store.dispatch(SAVE_LAST_GAME_ACTION, save)
       }
 
       const movementListener = () => {
@@ -152,8 +153,6 @@
       display: flex;
       justify-content: space-between;
       width: 100%;
-      min-width: 200px;
-      max-width: 400px;
     }
   }
 </style>
