@@ -29,6 +29,10 @@
     },
     emits: ['purchase', 'cancel', 'use'],
     setup(props, context) {
+      /**
+       * These prices take in consideration an average of 20 coins
+       * per run in the early game and 40 coins in the late game
+       **/
       const availableItems = [
         {
           id: 'breakBlock',
@@ -36,7 +40,7 @@
           icon: 'hammer',
           max: 3,
           blocksRequired: 1,
-          price: 100,
+          price: 40,
         },
         {
           id: 'upgradeBlock',
@@ -44,7 +48,7 @@
           icon: 'square-plus',
           max: 2,
           blocksRequired: 1,
-          price: 1000,
+          price: 240,
         },
         {
           id: 'shrinkBlock',
@@ -52,7 +56,7 @@
           icon: 'square-minus',
           max: 5,
           blocksRequired: 1,
-          price: 250,
+          price: 80,
         },
         {
           id: 'moveBlock',
@@ -60,7 +64,7 @@
           icon: 'hand',
           max: 3,
           blocksRequired: 2,
-          price: 500,
+          price: 400,
         },
       ]
 

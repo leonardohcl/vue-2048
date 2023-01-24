@@ -20,6 +20,7 @@
         :allow-decrease="false"
         :current="upgrade.current"
         :disabled="disabled || !canAfford"
+        :max="upgrade.max"
         @increase="handleUpdate"
       />
       <BarEqualizer
@@ -36,7 +37,7 @@
       >
         <PriceIndicator
           class="upgrade__price"
-          :price="upgrade.price"
+          :price="currentPrice"
           :can-afford="canAfford && !disabled"
         />
       </div>
@@ -75,9 +76,15 @@
 
       const currentCoins = computed(() => store.getters.currentCoins)
 
-      const canAfford = computed(
-        () => currentCoins.value >= props.upgrade.price
-      )
+      const currentPrice = computed(() => {
+        const match = props.upgrade.price[props.upgrade.current]
+        if (match !== undefined) return match
+
+        if(Array.isArray(props.upgrade.price)) return props.upgrade.price[props.upgrade.price.length - 1]
+        else return props.upgrade.price.default
+      })
+
+      const canAfford = computed(() => currentCoins.value >= currentPrice.value)
 
       const handleUpdate = () => {
         if (canAfford.value)
@@ -85,15 +92,15 @@
             'update',
             {
               [props.upgrade.id]:
-                props.type === 'block'
+                props.upgrade.type === 'block'
                   ? props.upgrade.current * 2
                   : props.upgrade.current + 1,
             },
-            props.upgrade.price
+            currentPrice.value
           )
       }
 
-      return { canAfford, handleUpdate }
+      return { canAfford, currentPrice, handleUpdate }
     },
   }
 </script>

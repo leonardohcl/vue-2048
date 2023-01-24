@@ -6,7 +6,7 @@
       outlined
       :theme="theme"
       icon="fa-regular fa-minus-square"
-      :disabled="disabled || current === min"
+      :disabled="disabled || current <= min"
       @click="$emit('decrease')"
     />
   <Square :data="{value: current}" inline/>
@@ -16,7 +16,7 @@
       outlined
       :theme="theme"
       icon="fa-regular fa-plus-square"
-      :disabled="disabled || current === max"
+      :disabled="disabled || current >= max"
       @click="$emit('increase')"
     />
   </div>

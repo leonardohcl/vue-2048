@@ -1,4 +1,5 @@
 module.exports = {
+  publicPath: process.env.NODE_ENV === 'production' ? '/vue-2048/' : '/',
   css: {
     loaderOptions: {
       sass: {
@@ -17,10 +18,10 @@ module.exports = {
           ...options,
           compilerOptions: {
             compatConfig: {
-              MODE: 2
-            }
-          }
+              MODE: 2,
+            },
+          },
         }
       })
-  }
-};
+  },
+}
