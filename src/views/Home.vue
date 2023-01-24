@@ -44,7 +44,7 @@
   import { useStore } from 'vuex'
 
   import {
-    ADD_GAME_MUTATION,
+    ADD_GAME_ACTION,
     SAVE_LAST_GAME_MUTATION,
   } from '@/store/memory-card'
 
@@ -107,7 +107,7 @@
 
       const handleSaveGame = (slot) => {
         const save = GameController.getSaveFile(slot.filename, game.value)
-        store.commit(ADD_GAME_MUTATION, save)
+        store.dispatch(ADD_GAME_ACTION, save)
       }
 
       const handleLoadGame = (save) => {

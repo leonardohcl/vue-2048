@@ -55,7 +55,7 @@
   import Square from '@/components/atoms/Square.vue'
   import GameController from '@/model/2048/GameController'
   import { BFormInput } from 'bootstrap-vue'
-  import { ADD_SCORE_MUTATION } from '@/store/ranking'
+  import { ADD_SCORE_ACTION } from '@/store/ranking'
   import { useStore } from 'vuex'
   import Btn from '@/components/atoms/Btn.vue'
 
@@ -75,7 +75,7 @@
       const store = useStore()
 
       const saveScore = () => {
-        store.commit(ADD_SCORE_MUTATION, {
+        store.dispatch(ADD_SCORE_ACTION, {
           game: props.game,
           name: username.value,
         })

@@ -1,5 +1,8 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/vue-2048/' : '/',
+  publicPath:
+    process.env.NODE_ENV === 'production'
+      ? 'https://leonardohcl.github.io/vue-2048/'
+      : '/',
   css: {
     loaderOptions: {
       sass: {
