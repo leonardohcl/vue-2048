@@ -10,8 +10,7 @@ const BLOCK_VALUES: LooseObject = {
       dict[x] = idx
       return dict
     }, {}),
-  [`${0}_win`]: 10,
-  [`${0}_loss`]: 0.5,
+  0: 0,
 }
 
 export interface IBlockRewards {
@@ -33,12 +32,8 @@ export default class GameRewards implements IGameRewards {
 
     const blockSizes = Object.getOwnPropertyNames(count)
 
-    const zero_idx = blockSizes.findIndex((x) => x === '0')
-    if (zero_idx >= 0) {
-      const zero_name = `0_${game.winner ? 'win' : 'loss'}`
-      blockSizes[zero_idx] = zero_name
-      count[zero_name] = count[0]
-    }
+    if (game.winner) BLOCK_VALUES[0] = BLOCK_VALUES[game.winningBlock]
+    else BLOCK_VALUES[0] = 0.5
 
     this.squares = blockSizes.map((size) => ({
       block: parseInt(size),
