@@ -1,6 +1,6 @@
 import SaveFile from '@/model/2048/SaveFile'
 import GameMode from '@/model/GameMode'
-import RogueSaveFile from '@/model/roguelike/RogueSaveFile'
+import RoguelikeSaveFile from '@/model/roguelike/RogueSaveFile'
 
 const LOCAL_STORAGE_KEY = 'v2048-memory'
 
@@ -11,7 +11,7 @@ export interface IDefaultMemoryCard<Type> {
 
 export interface IMemoryCard {
   regular: IDefaultMemoryCard<SaveFile>
-  roguelike: IDefaultMemoryCard<RogueSaveFile>
+  roguelike: IDefaultMemoryCard<RoguelikeSaveFile>
 }
 
 export const ADD_GAME_ACTION = 'ADD GAME ACTION'
@@ -53,11 +53,11 @@ export default {
       )
 
       if (roguelikeMemory) {
-        state.roguelike.lastGame = RogueSaveFile.fromString(
+        state.roguelike.lastGame = RoguelikeSaveFile.fromString(
           roguelikeMemory.lastGame || ''
         )
         state.roguelike.savedGames = (roguelikeMemory.savedGames ?? []).map(
-          (encoded: string) => RogueSaveFile.fromString(encoded)
+          (encoded: string) => RoguelikeSaveFile.fromString(encoded)
         )
       }
     },
@@ -83,14 +83,14 @@ export default {
       {
         save,
         gameMode = 'regular',
-      }: { save: SaveFile | RogueSaveFile; gameMode: GameMode }
+      }: { save: SaveFile | RoguelikeSaveFile; gameMode: GameMode }
     ) {
       const memoryFile =
         gameMode === 'regular'
           ? (state[gameMode] as IDefaultMemoryCard<SaveFile>)
-          : (state[gameMode] as IDefaultMemoryCard<RogueSaveFile>)
+          : (state[gameMode] as IDefaultMemoryCard<RoguelikeSaveFile>)
       const idx = memoryFile.savedGames.findIndex(
-        (entry: SaveFile | RogueSaveFile) => entry.filename === save.filename
+        (entry: SaveFile | RoguelikeSaveFile) => entry.filename === save.filename
       )
       if (idx < 0) memoryFile.savedGames.push(save)
       else memoryFile.savedGames[idx] = save

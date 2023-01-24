@@ -22,15 +22,11 @@
       </div>
       <div class="roguelike__center">
         <div class="roguelike__status">
-          <div class="roguelike__status--entry pb-0">
-            <MemoryManager
-              game-mode="roguelike"
-              close-on-load
-              @save="handleSaveGame"
-              @load="handleLoadGame"
-            />
-          </div>
-          <div class="roguelike__status--entry pb-0 justify-content-end">
+          <div
+            class="roguelike__status--entry roguelike__status--full-width-entry d-flex justify-content-between pb-0"
+          >
+            <Ranking :ranking-id="rankingId"/>
+
             <Btn
               icon="rotate-left"
               text="Start Over"
@@ -39,6 +35,15 @@
               @click="handleStartOver"
               theme="secondary"
             />
+
+            <div>
+              <MemoryManager
+                game-mode="roguelike"
+                close-on-load
+                @save="handleSaveGame"
+                @load="handleLoadGame"
+              />
+            </div>
           </div>
           <div class="roguelike__status--entry">Run: {{ history.run }}</div>
           <div class="roguelike__status--entry justify-content-end">
@@ -49,6 +54,7 @@
         </div>
         <Game
           :game="game"
+          :ranking-id="rankingId"
           :time-to-idle="1000"
           :emit-moves-interval="15"
           :allow-endless="false"
@@ -113,6 +119,7 @@
   import GameController from '@/model/2048/GameController'
   import InventoryTracker from '@/model/roguelike/Inventory'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
+  import Ranking from '@/components/organisms/Ranking.vue'
   import Item from '@/model/items/Item'
   import Game from '@/components/organisms/Game.vue'
   import Square from '@/components/atoms/Square.vue'
@@ -135,11 +142,14 @@
       Inventory,
       RewardsManager,
       MemoryManager,
+      Ranking,
     },
     setup() {
       const store = useStore()
 
       const currentCoins = computed(() => store.getters.currentCoins)
+
+      const rankingId = 'roguelike'
 
       const rewardsManager = ref()
 
@@ -324,6 +334,7 @@
       return {
         game,
         history,
+        rankingId,
         inventory,
         activeItem,
         currentCoins,

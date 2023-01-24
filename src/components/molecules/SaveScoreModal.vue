@@ -28,13 +28,13 @@
                 required
               />
             </td>
-            <td>{{ game.score }}</td>
-            <td>{{ game.moves }}</td>
-            <td>{{ game.undos }}</td>
+            <td>{{ entry.score }}</td>
+            <td>{{ entry.moves }}</td>
+            <td>{{ entry.undos }}</td>
             <td>
               <Square
                 class="save-score-modal--square mx-auto"
-                :data="{ value: game.board.highestValue }"
+                :data="{ value: entry.block }"
                 inline
               />
             </td>
@@ -53,18 +53,18 @@
 <script>
   import { ref } from 'vue'
   import Square from '@/components/atoms/Square.vue'
-  import GameController from '@/model/2048/GameController'
   import { BFormInput } from 'bootstrap-vue'
   import { ADD_SCORE_ACTION } from '@/store/ranking'
   import { useStore } from 'vuex'
+  import RankinEntry from '@/model/2048/RankingEntry'
   import Btn from '@/components/atoms/Btn.vue'
 
   export default {
     components: { Square, BFormInput, Btn },
     props: {
       id: { type: String, required: true },
-      game: {
-        type: GameController,
+      entry: {
+        type: RankinEntry,
         required: true,
       },
     },
@@ -76,7 +76,7 @@
 
       const saveScore = () => {
         store.dispatch(ADD_SCORE_ACTION, {
-          game: props.game,
+          ...props.entry,
           name: username.value,
         })
         isOpen.value = false

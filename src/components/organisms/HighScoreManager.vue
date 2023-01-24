@@ -1,26 +1,40 @@
 <template>
-  <SaveScoreModal :game="game" :id="`${id}-new-highscore`" />
+  <SaveScoreModal :id="`${id}-new-highscore`" :entry="entry" />
 </template>
 
 <script>
-  import GameController from '@/model/2048/GameController'
   import SaveScoreModal from '@/components/molecules/SaveScoreModal.vue'
+  import GameController from '@/model/2048/GameController'
+  import { ref } from 'vue'
+
   export default {
     components: { SaveScoreModal },
     props: {
-      game: {
-        type: GameController,
-        required: true,
-      },
       id: {
         type: String,
         default: 'main-game',
       },
+      rankingId: {
+        type: String,
+        required: true,
+      },
+      game: {
+        type: GameController,
+        required: true,
+      },
     },
     methods: {
-      saveScore() {
+      saveScore(entry) {
+        if (entry) this.entry = entry
         this.$bvModal.show(`${this.id}-new-highscore`)
       },
+    },
+    setup(props) {
+      const entry = ref(
+        GameController.getRankingEntry(props.rankingId, '', props.game)
+      )
+
+      return { entry }
     },
   }
 </script>

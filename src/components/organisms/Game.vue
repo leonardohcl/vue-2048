@@ -64,7 +64,7 @@
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
   import { computed, watch } from 'vue'
-  import { useHighScore } from '@/mixins/ranking'
+  import { useStore } from 'vuex'
   import { useGameCommands } from '@/mixins/gameCommands'
 
   export default {
@@ -108,6 +108,7 @@
       restartText: { type: String, default: 'Restart' },
       newGameText: { type: String, default: 'New Game' },
       continueText: { type: String, default: 'Continue' },
+      rankingId: { type: String, required: true },
     },
     emits: [
       'move',
@@ -125,7 +126,24 @@
         idleTimeout: null,
       }
 
-      const highScores = useHighScore(props.game)
+      const store = useStore()
+
+      const ranking = computed(() => store.getters.ranking(props.rankingId))
+
+      const highScores = computed(() => {
+        if (ranking.value.length > 0)
+          return {
+            first: ranking.value[0].score,
+            last: ranking.value[ranking.value.length - 1].score,
+            count: ranking.value.length,
+          }
+
+        return {
+          first: 0,
+          last: 0,
+          count: 0,
+        }
+      })
 
       const newHighscore = computed(
         () =>
@@ -172,7 +190,8 @@
             highScores.value.count < 10 ||
             props.game.score > highScores.value.last
 
-          if (shouldSaveScore) context.emit('newHighScore')
+          if (shouldSaveScore)
+            context.emit('newHighScore', GameController.getRankingEntry(props.rankingId, '', props.game))
         }
       })
 

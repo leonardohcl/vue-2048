@@ -7,7 +7,7 @@ import RogueGameProgress, {
 } from './interfaces/GameProgress'
 import Inventory, { IInventory } from './Inventory'
 
-export default class RogueSaveFile extends SaveFile {
+export default class RoguelikeSaveFile extends SaveFile {
   inventory = new Inventory()
   progress: RogueGameProgress
 
@@ -26,7 +26,7 @@ export default class RogueSaveFile extends SaveFile {
   static fromString(str: string) {
     if (!str) return null
     const obj = JSON.parse(atob(str))
-    return new RogueSaveFile(
+    return new RoguelikeSaveFile(
       obj.filename || '',
       obj.settings || new GameSettings(),
       obj.state || new GameState(),

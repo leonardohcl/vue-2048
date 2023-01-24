@@ -3,7 +3,9 @@
     <h1>2048</h1>
     <div class="home__container">
       <div class="home__hud">
-        <div class="home__hud--left"><Ranking /></div>
+        <div class="home__hud--left">
+          <Ranking :ranking-id="rankingId" />
+        </div>
         <div class="home__hud--right">
           <MemoryManager
             :save-button-options="{ disabled: game.gameOver }"
@@ -21,6 +23,7 @@
       </div>
       <Game
         :game="game"
+        :rankingId="rankingId"
         :emit-moves-interval="15"
         :time-to-idle="1000"
         @idle="saveCurrentGame"
@@ -33,7 +36,11 @@
     </div>
   </div>
 
-  <HighScoreManager ref="highScoreManager" :game="game" />
+  <HighScoreManager
+    :game="game"
+    :ranking-id="rankingId"
+    ref="highScoreManager"
+  />
 </template>
 
 <script>
@@ -45,7 +52,7 @@
   import GameController from '@/model/2048/GameController'
   import { defineComponent } from 'vue'
 
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import { useStore } from 'vuex'
 
   import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from '@/store/memory-card'
@@ -66,6 +73,10 @@
           historySize: 2,
           updateDelay: 100,
         })
+      )
+
+      const rankingId = computed(
+        () => `${game.value.width}x${game.value.height}`
       )
 
       const saveCurrentGame = () => {
@@ -94,15 +105,17 @@
         game.value.loadSaveFile(save)
       }
 
-      const handleNewHighScore = () => {
-        if (highScoreManager.value) highScoreManager.value.saveScore()
+      const handleNewHighScore = (highscoreEntry) => {
+        if (highScoreManager.value)
+          highScoreManager.value.saveScore(highscoreEntry)
       }
 
       const lastGame = store.getters.lastGame()
-      if(lastGame) handleLoadGame(lastGame)
+      if (lastGame) handleLoadGame(lastGame)
 
       return {
         game,
+        rankingId,
         highScoreManager,
         handleSettingsOpen,
         handleSettingsClose,

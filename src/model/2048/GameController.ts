@@ -7,6 +7,7 @@ import GameState from './interfaces/GameState'
 import GameProgress from './interfaces/GameProgress'
 import Direction from './Direction'
 import IBoard from './interfaces/Board'
+import RankingEntry from './RankingEntry'
 
 const MOVEMENT_ARRAY = [
   Direction.Up,
@@ -77,6 +78,19 @@ export default class GameController {
       new GameState(game),
       new GameProgress(game)
     )
+  }
+
+  static getRankingEntry(id: string, name: string, game: GameController) {
+    return new RankingEntry({
+      id,
+      name,
+      score: game.score,
+      height: game.height,
+      width: game.width,
+      block: game.highestValue,
+      moves: game.moves,
+      undos: game.undos,
+    })
   }
 
   loadSaveFile(save: SaveFile) {

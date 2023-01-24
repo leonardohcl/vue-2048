@@ -1,25 +1,14 @@
-import { orderBy } from 'lodash'
-import GameController from '@/model/2048/GameController'
+import { IRankingEntry } from '@/model/2048/RankingEntry'
 
-export interface IRankingEntry {
-  name: string
-  score: number
-  highestValue: number
-  moves: number
-  undos: number
-}
-
-export interface IRankingGroup {
-  width: number
-  height: number
-  scores: IRankingEntry[]
+export interface IRankingDict {
+  [key: string]: IRankingEntry[]
 }
 
 export interface IRanking {
-  rankings: IRankingGroup[]
+  rankings: IRankingDict
 }
 
-const LOCAL_STORAGE_KEY = 'v2048-scores'
+const LOCAL_STORAGE_KEY = 'v2048-ranking'
 const MAXIMUM_RANKING_SIZE = 10
 
 export const ADD_SCORE_ACTION = 'ADD SCORE ACTION'
@@ -30,57 +19,40 @@ export const ADD_SCORE_MUTATION = 'ADD SCORE MUTATION'
 
 export default {
   state: {
-    rankings: [],
+    rankings: {},
   },
   getters: {
-    availableRankings: (state: IRanking) => {
-      return state.rankings.map((list) => ({
-        name: `${list.width}x${list.height}`,
-        width: list.width,
-        height: list.height,
-        scores: list.scores,
-      }))
+    ranking: (state: IRanking) => (id: string) => {
+      return state.rankings[id]
+        ? state.rankings[id].sort((a, b) => b.score - a.score)
+        : []
     },
   },
   mutations: {
     [LOAD_SCORE_MUTATION](state: IRanking) {
-      state.rankings = JSON.parse(
-        localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+      const rankings = JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE_KEY) || '{}'
       )
+      state.rankings = rankings
     },
     [SAVE_SCORE_MUTATION](state: IRanking) {
-      localStorage.setItem(
-        LOCAL_STORAGE_KEY,
-        JSON.stringify(orderBy(state.rankings, ['width', 'height']))
-      )
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.rankings))
     },
-    [ADD_SCORE_MUTATION](
-      state: IRanking,
-      data: { name: string; game: GameController }
-    ) {
-      const { score, moves, undos, width, height } = data.game
-      const highestValue = data.game.board.highestValue
-      const entry = { name: data.name, score, highestValue, moves, undos }
-
-      const existingIdx = state.rankings.findIndex(
-        (list) => list.width === width && list.height === height
-      )
-      if (existingIdx >= 0) {
-        const list = state.rankings[existingIdx].scores
-        list.push(entry)
-        list.sort((a, b) => b.score - a.score).splice(MAXIMUM_RANKING_SIZE)
+    [ADD_SCORE_MUTATION](state: IRanking, entry: IRankingEntry) {
+      console.log(entry, state.rankings)
+      if (state.rankings[entry.id]) {
+        state.rankings[entry.id].push(entry)
+        state.rankings[entry.id]
+          .sort((a, b) => b.score - a.score)
+          .splice(MAXIMUM_RANKING_SIZE)
       } else {
-        const newList = { width, height, scores: [entry] }
-        state.rankings.push(newList)
+        state.rankings[entry.id] = [entry]
       }
     },
   },
   actions: {
-    [ADD_SCORE_ACTION](
-      context: { commit: Function },
-      data: { name: string; game: GameController }
-    ) {
-      context.commit(ADD_SCORE_MUTATION, data)
+    [ADD_SCORE_ACTION](context: { commit: Function }, entry: IRankingEntry) {
+      context.commit(ADD_SCORE_MUTATION, entry)
       context.commit(SAVE_SCORE_MUTATION)
     },
   },
