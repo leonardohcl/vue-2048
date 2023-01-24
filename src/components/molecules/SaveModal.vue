@@ -25,10 +25,22 @@
           EMPTY SLOT
         </div>
         <div class="save-modal__slot--details" v-else>
+          <div class="save-modal__slot--progress" v-if="slot.progress.run >= 0">
+            <span class="badge badge-dark">Run {{ slot.progress.run }}</span>
+          </div>
           <Square inline :data="{ value: slot.progress.highestValue }" />
-          <span class="save-modal__slot--score">
-            Score: {{ slot.progress.score }}</span
-          >
+          <div class="save-modal__slot--currency">
+            <span class="save-modal__slot--score">
+              Score: {{ slot.progress.bestScore || slot.progress.score }}
+            </span>
+            <span
+              class="save-modal__slot--coins badge badge-warning badge-pill"
+              v-if="slot.inventory"
+            >
+              {{ slot.inventory.coins }}
+              <FontAwesomeIcon icon="coins" />
+            </span>
+          </div>
           <span class="save-modal__slot--shape">
             {{ slot.settings.width }} x {{ slot.settings.height }}</span
           >
@@ -51,7 +63,7 @@
       mode: { type: String, default: '' },
       maxSlots: { type: Number, default: 5 },
       closeAfterSelect: { type: Boolean, default: false },
-      gameMode: { type: GameMode, default: 'regular' },
+      gameMode: { type: GameMode, required: true },
     },
     emits: ['selected'],
     setup(props, context) {
@@ -94,6 +106,9 @@
       $slot: &;
 
       cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border: solid 2px $secondary;
       padding: calc($default-spacing/2);
       margin-bottom: calc($default-spacing/2);
@@ -119,6 +134,12 @@
         display: flex;
         justify-content: space-evenly;
         align-items: center;
+      }
+
+      &--currency {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
       }
 
       &--score {

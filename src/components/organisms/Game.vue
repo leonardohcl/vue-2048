@@ -79,9 +79,13 @@
         type: String,
         default: 'main-game',
       },
-      emitMoves: {
-        type: Boolean,
-        default: false,
+      emitMovesInterval: {
+        type: Number,
+        default: 0,
+      },
+      timeToIdle: {
+        type: Number,
+        default: 0,
       },
       allowEndless: {
         type: Boolean,
@@ -107,6 +111,7 @@
     },
     emits: [
       'move',
+      'idle',
       'win',
       'gameOver',
       'newHighScore',
@@ -115,6 +120,11 @@
       'setEndless',
     ],
     setup(props, context) {
+      const stateTracker = {
+        moveCountdown: props.emitMovesInterval,
+        idleTimeout: null,
+      }
+
       const highScores = useHighScore(props.game)
 
       const newHighscore = computed(
@@ -123,8 +133,33 @@
           props.game.score > highScores.value.first
       )
 
-      const { move, undo } = useGameCommands(props.game, '#touchArea', (dir) =>
-        context.emit('move', dir)
+      const resetIdle = () => {
+        if (stateTracker.idleTimeout) clearTimeout(stateTracker.idleTimeout)
+        stateTracker.idleTimeout = setTimeout(() => {
+          context.emit('idle')
+        }, props.timeToIdle)
+      }
+
+      const trackMove = (dir) => {
+        stateTracker.moveCountdown--
+        if (stateTracker.moveCountdown === 0) {
+          context.emit('move', dir)
+          stateTracker.moveCountdown = props.emitMovesInterval
+        }
+      }
+
+      const moveCallbacks = []
+      if (props.emitMovesInterval) moveCallbacks.push(trackMove)
+      if (props.timeToIdle) moveCallbacks.push(resetIdle)
+
+      const { move, undo } = useGameCommands(
+        props.game,
+        '#touchArea',
+        moveCallbacks.length > 0
+          ? (dir) => {
+              moveCallbacks.forEach((fn) => fn(dir))
+            }
+          : null
       )
 
       const gameEnded = computed(() => props.game.winner || props.game.gameOver)

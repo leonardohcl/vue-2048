@@ -66,6 +66,10 @@ export default class GameController {
     this.clearBoard()
   }
 
+  get highestValue() {
+    return this.board.highestValue
+  }
+
   static getSaveFile(filename: string, game: GameController) {
     return new SaveFile(
       filename,

@@ -11,11 +11,6 @@ export interface IItem {
 }
 
 export default abstract class Item {
-  static breakBlock = new BreakBlock()
-  static shrinkBlock = new ShrinkBlock()
-  static upgradeBlock = new UpgradeBlock()
-  static moveBlock = new MoveBlock()
-
   static prepare(item: IItem, game: GameController) {
     item.prepare(game)
   }

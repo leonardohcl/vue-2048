@@ -7,7 +7,7 @@
         <div class="home__hud--right">
           <MemoryManager
             :save-button-options="{ disabled: game.gameOver }"
-            :close-on-load="true"
+            close-on-load
             @save="handleSaveGame"
             @load="handleLoadGame"
           />
@@ -21,8 +21,10 @@
       </div>
       <Game
         :game="game"
-        emit-moves
-        @move="movementListener"
+        :emit-moves-interval="15"
+        :time-to-idle="1000"
+        @idle="saveCurrentGame"
+        @move="saveCurrentGame"
         @new-high-score="handleNewHighScore"
         @new-game="game.start()"
         @restart="game.start()"
@@ -41,7 +43,7 @@
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
   import GameController from '@/model/2048/GameController'
-  import { computed, defineComponent } from 'vue'
+  import { defineComponent } from 'vue'
 
   import { ref } from 'vue'
   import { useStore } from 'vuex'
@@ -53,12 +55,7 @@
     name: 'Home',
     setup() {
       const store = useStore()
-      const autoMemory = {
-        moveUntilSave: 15,
-        moveCountdown: 15,
-        idleTimeUntilSave: 1000,
-        idleSaveTimeout: null,
-      }
+
       const highScoreManager = ref(null)
 
       const game = ref(
@@ -71,27 +68,9 @@
         })
       )
 
-      const lastGame = computed(() => store.getters.lastGame())
-
-      if (lastGame.value) game.value.loadSaveFile(lastGame.value)
-
       const saveCurrentGame = () => {
         const save = GameController.getSaveFile('last-game', game.value)
-        store.dispatch(SAVE_LAST_GAME_ACTION, save)
-      }
-
-      const movementListener = () => {
-        autoMemory.moveCountdown--
-        if (autoMemory.moveCountdown == 0) {
-          autoMemory.moveCountdown = autoMemory.moveUntilSave
-          saveCurrentGame(game.value)
-        }
-
-        if (autoMemory.idleSaveTimeout) clearTimeout(autoMemory.idleSaveTimeout)
-        autoMemory.idleSaveTimeout = setTimeout(() => {
-          autoMemory.moveCountdown = autoMemory.moveUntilSave
-          saveCurrentGame()
-        }, autoMemory.idleTimeUntilSave)
+        store.dispatch(SAVE_LAST_GAME_ACTION, { save })
       }
 
       const handleSettingsOpen = () => {
@@ -108,7 +87,7 @@
 
       const handleSaveGame = (slot) => {
         const save = GameController.getSaveFile(slot.filename, game.value)
-        store.dispatch(ADD_GAME_ACTION, save)
+        store.dispatch(ADD_GAME_ACTION, { save })
       }
 
       const handleLoadGame = (save) => {
@@ -119,6 +98,9 @@
         if (highScoreManager.value) highScoreManager.value.saveScore()
       }
 
+      const lastGame = store.getters.lastGame()
+      if(lastGame) handleLoadGame(lastGame)
+
       return {
         game,
         highScoreManager,
@@ -128,7 +110,7 @@
         handleNewHighScore,
         handleSaveGame,
         handleLoadGame,
-        movementListener,
+        saveCurrentGame,
       }
     },
   })

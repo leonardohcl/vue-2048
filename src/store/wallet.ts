@@ -3,6 +3,7 @@ export interface IWallet {
 }
 
 export const UPDATE_BALANCE = 'UPDATE COINS MUTATION'
+export const SET_COINS = 'SET COINS MUTATION'
 
 export default {
   state: {
@@ -16,6 +17,9 @@ export default {
   mutations: {
     [UPDATE_BALANCE](state: IWallet, amount: number) {
       state.coins += amount
+    },
+    [SET_COINS](state: IWallet, amount: number) {
+      state.coins = amount
     },
   },
 }

@@ -15,8 +15,10 @@
 </template>
 
 <script>
+  import Inventory from '@/model/roguelike/Inventory'
   import Item from '@/components/molecules/Item.vue'
   import { computed } from 'vue'
+
   export default {
     components: { Item },
     props: {
@@ -29,47 +31,8 @@
     },
     emits: ['purchase', 'cancel', 'use'],
     setup(props, context) {
-      /**
-       * These prices take in consideration an average of 20 coins
-       * per run in the early game and 40 coins in the late game
-       **/
-      const availableItems = [
-        {
-          id: 'breakBlock',
-          name: 'Break Block',
-          icon: 'hammer',
-          max: 3,
-          blocksRequired: 1,
-          price: 40,
-        },
-        {
-          id: 'upgradeBlock',
-          name: 'Upgrade Block',
-          icon: 'square-plus',
-          max: 2,
-          blocksRequired: 1,
-          price: 240,
-        },
-        {
-          id: 'shrinkBlock',
-          name: 'Shrink Block',
-          icon: 'square-minus',
-          max: 5,
-          blocksRequired: 1,
-          price: 80,
-        },
-        {
-          id: 'moveBlock',
-          name: 'Move Block',
-          icon: 'hand',
-          max: 3,
-          blocksRequired: 2,
-          price: 400,
-        },
-      ]
-
       const items = computed(() =>
-        availableItems.map((item) => ({
+        Inventory.availableItems.map((item) => ({
           ...item,
           current: props.inventory[item.id] || 0,
         }))

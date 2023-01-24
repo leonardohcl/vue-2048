@@ -14,10 +14,12 @@
     @selected="handleSelected"
     :close-after-select="closeAfterSelect"
     :mode="mode"
+    :game-mode="gameMode"
   />
 </template>
 
 <script>
+  import GameMode from '@/model/GameMode'
   import Btn from '@/components/atoms/Btn.vue'
   import SaveModal from '@/components/molecules/SaveModal.vue'
 
@@ -37,6 +39,7 @@
       },
       closeOnLoad: { type: Boolean, default: false },
       closeOnSave: { type: Boolean, default: false },
+      gameMode: { type: GameMode, default: 'regular' },
     },
     emits: ['save', 'load'],
     setup(props, context) {

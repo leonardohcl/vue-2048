@@ -22,6 +22,24 @@
       </div>
       <div class="roguelike__center">
         <div class="roguelike__status">
+          <div class="roguelike__status--entry pb-0">
+            <MemoryManager
+              game-mode="roguelike"
+              close-on-load
+              @save="handleSaveGame"
+              @load="handleLoadGame"
+            />
+          </div>
+          <div class="roguelike__status--entry pb-0 justify-content-end">
+            <Btn
+              icon="rotate-left"
+              text="Start Over"
+              outlined
+              size="sm"
+              @click="handleStartOver"
+              theme="secondary"
+            />
+          </div>
           <div class="roguelike__status--entry">Run: {{ history.run }}</div>
           <div class="roguelike__status--entry justify-content-end">
             <span class="badge-light badge-pill">
@@ -31,10 +49,14 @@
         </div>
         <Game
           :game="game"
+          :time-to-idle="1000"
+          :emit-moves-interval="15"
           :allow-endless="false"
           :allow-square-selection="allowSquareSelection"
           disable-pause-screen
           restart-text="Give Up"
+          @move="saveCurrentGame"
+          @idle="saveCurrentGame"
           @new-game="handleNewGame"
           @restart="handleRestart"
           @win="handleRoundOver"
@@ -89,6 +111,8 @@
 
 <script>
   import GameController from '@/model/2048/GameController'
+  import InventoryTracker from '@/model/roguelike/Inventory'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import Item from '@/model/items/Item'
   import Game from '@/components/organisms/Game.vue'
   import Square from '@/components/atoms/Square.vue'
@@ -98,16 +122,28 @@
   import Btn from '@/components/atoms/Btn.vue'
   import { reactive, ref, computed } from 'vue'
   import { useStore } from 'vuex'
-  import { UPDATE_BALANCE } from '@/store/wallet'
+  import { SET_COINS, UPDATE_BALANCE } from '@/store/wallet'
+  import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from '@/store/memory-card'
+  import RogueSaveFile from '@/model/roguelike/RogueSaveFile'
 
   export default {
-    components: { Game, Square, Btn, UpgradeShop, Inventory, RewardsManager },
+    components: {
+      Game,
+      Square,
+      Btn,
+      UpgradeShop,
+      Inventory,
+      RewardsManager,
+      MemoryManager,
+    },
     setup() {
       const store = useStore()
 
       const currentCoins = computed(() => store.getters.currentCoins)
 
       const rewardsManager = ref()
+
+      const ignoreRewards = ref(false)
 
       const game = ref(
         new GameController({
@@ -127,7 +163,7 @@
         highestBlock: 0,
       })
 
-      const inventory = ref({})
+      const inventory = ref(new InventoryTracker())
 
       const allowSquareSelection = ref(false)
 
@@ -135,10 +171,12 @@
         id: '',
         blocksRequired: 0,
         selectedSquares: [],
+        type: null,
       })
 
       const handleNewGame = () => {
         allowShopping.value = false
+        ignoreRewards.value = false
         history.run++
         game.value.start()
       }
@@ -162,19 +200,62 @@
         setUsingItemState(false)
       }
 
+      const getCurrentSaveFile = (filename) => {
+        const save = GameController.getSaveFile(filename, game.value)
+
+        save.progress.highestValue = history.highestBlock
+        save.score = history.bestScore
+
+        return new RogueSaveFile(
+          save.filename,
+          save.settings,
+          save.state,
+          { ...save.progress, run: history.run, bestScore: history.bestScore },
+          { ...inventory.value, coins: currentCoins.value }
+        )
+      }
+
+      const handleSaveGame = (slot) => {
+        store.dispatch(ADD_GAME_ACTION, {
+          save: getCurrentSaveFile(slot.filename),
+          gameMode: 'roguelike',
+        })
+      }
+
+      const saveCurrentGame = () => {
+        store.dispatch(SAVE_LAST_GAME_ACTION, {
+          save: getCurrentSaveFile('last-game'),
+          gameMode: 'roguelike',
+        })
+      }
+
+      const handleLoadGame = (slot) => {
+        ignoreRewards.value = true
+        game.value.loadSaveFile(slot)
+        history.run = slot.progress.run || 0
+        history.highestBlock = slot.progress.highestValue
+        history.bestScore = slot.progress.bestScore
+        inventory.value = slot.inventory
+        store.commit(SET_COINS, slot.inventory.coins || 0)
+      }
+
       const handleRoundOver = () => {
-        if (rewardsManager.value) rewardsManager.value.lootRewards()
+        if (rewardsManager.value && !ignoreRewards.value)
+          rewardsManager.value.lootRewards()
         allowShopping.value = true
         if (game.value.score > history.bestScore)
           history.bestScore = game.value.score
 
         if (game.value.board.highestValue > history.highestBlock)
           history.highestBlock = game.value.board.highestValue
+
+        saveCurrentGame()
       }
 
       const handleUpgrade = (purchase, price) => {
         store.commit(UPDATE_BALANCE, -price)
         game.value.updateSettings(purchase)
+        saveCurrentGame()
       }
 
       const handlePurchase = (itemId, price) => {
@@ -182,13 +263,16 @@
         inventory.value[itemId]
           ? inventory.value[itemId]++
           : (inventory.value[itemId] = 1)
+
+        saveCurrentGame()
       }
 
       const handleUseItem = (item) => {
         if (!inventory.value[item.id]) return
         activeItem.id = item.id
         activeItem.blocksRequired = item.blocksRequired
-        Item.prepare(Item[item.id], game.value)
+        activeItem.type = item.type
+        Item.prepare(item.type, game.value)
         setUsingItemState(true)
       }
 
@@ -201,7 +285,7 @@
         if (activeItem.selectedSquares.length >= activeItem.blocksRequired) {
           const itemId = activeItem.id
           const success = Item.apply(
-            Item[itemId],
+            activeItem.type,
             game.value,
             activeItem.selectedSquares
           )
@@ -215,7 +299,27 @@
         store.commit(UPDATE_BALANCE, amount)
       }
 
+      const handleStartOver = () => {
+        game.value.updateSettings({
+          width: 3,
+          height: 3,
+          historySize: 0,
+          winningBlock: 64,
+        })
+
+        store.commit(SET_COINS, 0)
+
+        inventory.value = new InventoryTracker()
+
+        history.run = 0
+        history.bestScore = 0
+        history.highestBlock = 0
+      }
+
       const displayUpgrades = ref(false)
+
+      const lastGame = store.getters.lastGame('roguelike')
+      if (lastGame) handleLoadGame(lastGame)
 
       return {
         game,
@@ -235,7 +339,11 @@
         handlePurchase,
         handleSquareSelected,
         handleUseItem,
+        handleSaveGame,
+        handleLoadGame,
+        handleStartOver,
         setUsingItemState,
+        saveCurrentGame,
       }
     },
   }
@@ -272,6 +380,10 @@
         display: flex;
         padding: 1rem 0;
         align-items: center;
+      }
+
+      &--full-width-entry {
+        grid-column: 1/3;
       }
     }
 

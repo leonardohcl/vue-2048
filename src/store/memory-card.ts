@@ -1,15 +1,17 @@
 import SaveFile from '@/model/2048/SaveFile'
 import GameMode from '@/model/GameMode'
+import RogueSaveFile from '@/model/roguelike/RogueSaveFile'
 
 const LOCAL_STORAGE_KEY = 'v2048-memory'
 
-export interface IDefaultMemoryCard {
-  savedGames: SaveFile[]
-  lastGame: SaveFile | null
+export interface IDefaultMemoryCard<Type> {
+  savedGames: Type[]
+  lastGame: Type | null
 }
 
 export interface IMemoryCard {
-  regular: IDefaultMemoryCard
+  regular: IDefaultMemoryCard<SaveFile>
+  roguelike: IDefaultMemoryCard<RogueSaveFile>
 }
 
 export const ADD_GAME_ACTION = 'ADD GAME ACTION'
@@ -23,6 +25,10 @@ export const SAVE_LAST_GAME_MUTATION = 'SAVE LAST GAME MUTATION'
 export default {
   state: {
     regular: {
+      savedGames: [],
+      lastGame: null,
+    },
+    roguelike: {
       savedGames: [],
       lastGame: null,
     },
@@ -41,9 +47,22 @@ export default {
           (encoded: string) => SaveFile.fromString(encoded)
         )
       }
+
+      const roguelikeMemory = JSON.parse(
+        localStorage.getItem(`${LOCAL_STORAGE_KEY}_roguelike`) || 'null'
+      )
+
+      if (roguelikeMemory) {
+        state.roguelike.lastGame = RogueSaveFile.fromString(
+          roguelikeMemory.lastGame || ''
+        )
+        state.roguelike.savedGames = (roguelikeMemory.savedGames ?? []).map(
+          (encoded: string) => RogueSaveFile.fromString(encoded)
+        )
+      }
     },
     [SAVE_GAMES_MUTATION](state: IMemoryCard) {
-      const { regular } = state
+      const { regular, roguelike } = state
       localStorage.setItem(
         LOCAL_STORAGE_KEY,
         JSON.stringify({
@@ -51,23 +70,34 @@ export default {
           savedGames: regular.savedGames.map((save) => save.toString()),
         })
       )
+      localStorage.setItem(
+        `${LOCAL_STORAGE_KEY}_roguelike`,
+        JSON.stringify({
+          lastGame: roguelike.lastGame ? roguelike.lastGame.toString() : null,
+          savedGames: roguelike.savedGames.map((save) => save.toString()),
+        })
+      )
     },
     [ADD_GAME_MUTATION](
       state: IMemoryCard,
-      save: SaveFile,
-      gameMode: GameMode = 'regular'
+      {
+        save,
+        gameMode = 'regular',
+      }: { save: SaveFile | RogueSaveFile; gameMode: GameMode }
     ) {
-      const memoryFile = state[gameMode]
+      const memoryFile =
+        gameMode === 'regular'
+          ? (state[gameMode] as IDefaultMemoryCard<SaveFile>)
+          : (state[gameMode] as IDefaultMemoryCard<RogueSaveFile>)
       const idx = memoryFile.savedGames.findIndex(
-        (entry: SaveFile) => entry.filename === save.filename
+        (entry: SaveFile | RogueSaveFile) => entry.filename === save.filename
       )
       if (idx < 0) memoryFile.savedGames.push(save)
       else memoryFile.savedGames[idx] = save
     },
     [SAVE_LAST_GAME_MUTATION](
       state: IMemoryCard,
-      save: SaveFile,
-      gameMode: GameMode = 'regular'
+      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
     ) {
       const memoryFile = state[gameMode]
       memoryFile.lastGame = save
@@ -76,18 +106,16 @@ export default {
   actions: {
     [ADD_GAME_ACTION](
       context: { commit: Function },
-      save: SaveFile,
-      gameMode: GameMode = 'regular'
+      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
     ) {
-      context.commit(ADD_GAME_MUTATION, save)
+      context.commit(ADD_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
     },
     [SAVE_LAST_GAME_ACTION](
       context: { commit: Function },
-      save: SaveFile,
-      gameMode: GameMode = 'regular'
+      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
     ) {
-      context.commit(SAVE_LAST_GAME_MUTATION, save)
+      context.commit(SAVE_LAST_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
     },
   },

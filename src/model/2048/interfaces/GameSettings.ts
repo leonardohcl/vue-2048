@@ -12,7 +12,14 @@ export default class GameSettings implements IGameSettings {
   historySize = 0
   winningBlock = 0
 
-  constructor(game: GameController | IGameSettings) {
+  constructor(
+    game: GameController | IGameSettings = {
+      width: 4,
+      height: 4,
+      historySize: 0,
+      winningBlock: 2048,
+    }
+  ) {
     this.width = game.width
     this.height = game.height
     this.historySize = game.historySize

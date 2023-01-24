@@ -24,6 +24,7 @@ import {
   faCoins,
   faChessBoard,
   faTimes,
+  faRotateLeft,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -54,6 +55,7 @@ library.add(
     faCoins,
     faChessBoard,
     faTimes,
+    faRotateLeft
   ]
 )
 

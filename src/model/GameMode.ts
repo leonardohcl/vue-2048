@@ -1,3 +1,3 @@
-type GameMode = 'regular'
+type GameMode = 'regular' | 'roguelike'
 
 export default GameMode

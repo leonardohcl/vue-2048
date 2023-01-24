@@ -1,4 +1,5 @@
 import { deepCopy } from '../../../utils/copy'
+import Board from '../Board'
 import GameController from '../GameController'
 import IBoard from '../interfaces/Board'
 
@@ -8,10 +9,12 @@ export interface IGameState {
 }
 
 export default class GameState {
-  board:IBoard
+  board: IBoard
   history: { board: IBoard; pointsGained: number }[]
 
-  constructor(game: GameController | IGameState) {
+  constructor(
+    game: GameController | IGameState = { board: new Board(4, 4), history: [] }
+  ) {
     this.board = deepCopy(game.board)
     this.history = deepCopy(game.history)
   }
