@@ -79,7 +79,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .btn {
     border: none;
     outline: none;

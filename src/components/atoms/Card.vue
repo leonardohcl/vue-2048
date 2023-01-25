@@ -23,7 +23,7 @@
   };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .card {
     padding: $default-spacing / 2;
     border-radius: $border-radius;

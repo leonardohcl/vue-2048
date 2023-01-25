@@ -28,9 +28,9 @@
         :time-to-idle="1000"
         @idle="saveCurrentGame"
         @move="saveCurrentGame"
-        @new-high-score="handleNewHighScore"
         @new-game="game.start()"
         @restart="game.start()"
+        @game-over="handleGameOver"
         @set-endless="game.activateEndless()"
       />
     </div>
@@ -105,9 +105,15 @@
         game.value.loadSaveFile(save)
       }
 
-      const handleNewHighScore = (highscoreEntry) => {
-        if (highScoreManager.value)
+      const handleGameOver = () => {
+        if (highScoreManager.value) {
+          const highscoreEntry = GameController.getRankingEntry({
+            id: rankingId.value,
+            game: game.value,
+          })
+          console.log(highscoreEntry)
           highScoreManager.value.saveScore(highscoreEntry)
+        }
       }
 
       const lastGame = store.getters.lastGame()
@@ -120,7 +126,7 @@
         handleSettingsOpen,
         handleSettingsClose,
         handleSettingsUpdate,
-        handleNewHighScore,
+        handleGameOver,
         handleSaveGame,
         handleLoadGame,
         saveCurrentGame,
@@ -129,7 +135,7 @@
   })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .home {
     padding: 2rem;
     display: flex;

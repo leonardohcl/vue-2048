@@ -68,7 +68,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .game-controls {
     display: flex;
     flex-wrap: wrap;

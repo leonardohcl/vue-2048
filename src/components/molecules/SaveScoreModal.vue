@@ -10,15 +10,6 @@
       <table
         class="table table-striped table-borderless table-sm w-100 text-center"
       >
-        <thead>
-          <tr>
-            <td></td>
-            <td>Score</td>
-            <td>Moves</td>
-            <td>Undos</td>
-            <td>Highest Block</td>
-          </tr>
-        </thead>
         <tbody>
           <tr>
             <td>
@@ -56,6 +47,7 @@
   import { BFormInput } from 'bootstrap-vue'
   import { ADD_SCORE_ACTION } from '@/store/ranking'
   import { useStore } from 'vuex'
+  import RoguelikeRankingEntry from '@/model/roguelike/RankingEntry'
   import RankinEntry from '@/model/2048/RankingEntry'
   import Btn from '@/components/atoms/Btn.vue'
 
@@ -64,7 +56,7 @@
     props: {
       id: { type: String, required: true },
       entry: {
-        type: RankinEntry,
+        type: [RankinEntry, RoguelikeRankingEntry],
         required: true,
       },
     },

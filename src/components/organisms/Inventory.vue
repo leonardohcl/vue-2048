@@ -60,7 +60,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .inventory {
     padding: 0;
     display: flex;

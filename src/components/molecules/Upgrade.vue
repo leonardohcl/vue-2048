@@ -5,9 +5,7 @@
         <FontAwesomeIcon
           v-for="icon in upgrade.icon"
           :key="icon.name"
-          :icon="icon.name"
-          :class="icon.class"
-          :style="icon.style"
+          v-bind="icon"
           fixed-width
         />
       </FontAwesomeLayers>
@@ -80,7 +78,8 @@
         const match = props.upgrade.price[props.upgrade.current]
         if (match !== undefined) return match
 
-        if(Array.isArray(props.upgrade.price)) return props.upgrade.price[props.upgrade.price.length - 1]
+        if (Array.isArray(props.upgrade.price))
+          return props.upgrade.price[props.upgrade.price.length - 1]
         else return props.upgrade.price.default
       })
 
@@ -105,7 +104,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .upgrade {
     $container: &;
 

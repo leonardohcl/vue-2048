@@ -25,7 +25,7 @@
           <div
             class="roguelike__status--entry roguelike__status--full-width-entry d-flex justify-content-between pb-0"
           >
-            <Ranking :ranking-id="rankingId"/>
+            <Ranking :ranking-id="rankingId" with-run with-board />
 
             <Btn
               icon="rotate-left"
@@ -70,16 +70,26 @@
           @square-selected="handleSquareSelected"
         />
         <div class="roguelike__status">
-          <div class="roguelike__status--entry">
-            Best:
-            <Square
-              class="mx-2"
-              :data="{ value: history.highestBlock }"
-              inline
+          <div
+            class="roguelike__status--entry roguelike__status--full-width-entry justify-content-between"
+          >
+            <div class="d-flex align-items-center">
+              Best:
+              <Square
+                class="mx-2"
+                :data="{ value: history.highestBlock }"
+                inline
+              />
+            </div>
+            <div>Best Score: {{ history.bestScore }}</div>
+            <HighScoreManager
+              ref="highscoreManager"
+              :ranking-id="rankingId"
+              :game="game"
+              :disabled="!isRankingWorthy || haveSubmitedScore"
+              use-submit
+              @submit-score="saveScore"
             />
-          </div>
-          <div class="roguelike__status--entry justify-content-end">
-            Best Score: {{ history.bestScore }}
           </div>
         </div>
       </div>
@@ -119,6 +129,7 @@
   import GameController from '@/model/2048/GameController'
   import InventoryTracker from '@/model/roguelike/Inventory'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
+  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
   import Ranking from '@/components/organisms/Ranking.vue'
   import Item from '@/model/items/Item'
   import Game from '@/components/organisms/Game.vue'
@@ -143,6 +154,7 @@
       RewardsManager,
       MemoryManager,
       Ranking,
+      HighScoreManager,
     },
     setup() {
       const store = useStore()
@@ -152,6 +164,8 @@
       const rankingId = 'roguelike'
 
       const rewardsManager = ref()
+
+      const highscoreManager = ref()
 
       const ignoreRewards = ref(false)
 
@@ -253,11 +267,15 @@
         if (rewardsManager.value && !ignoreRewards.value)
           rewardsManager.value.lootRewards()
         allowShopping.value = true
-        if (game.value.score > history.bestScore)
+        if (game.value.score > history.bestScore) {
+          haveSubmitedScore.value = false
           history.bestScore = game.value.score
+        }
 
-        if (game.value.board.highestValue > history.highestBlock)
+        if (game.value.board.highestValue > history.highestBlock) {
+          haveSubmitedScore.value = false
           history.highestBlock = game.value.board.highestValue
+        }
 
         saveCurrentGame()
       }
@@ -326,6 +344,29 @@
         history.highestBlock = 0
       }
 
+      const haveSubmitedScore = ref(false)
+
+      const isRankingWorthy = computed(() => {
+        if (!highscoreManager.value) return false
+        return highscoreManager.value.isRankingWorthy(history.bestScore)
+      })
+
+      const saveScore = () => {
+        if (!highscoreManager.value) return
+
+        haveSubmitedScore.value = true
+        const highscoreEntry = GameController.getRankingEntry({
+          id: rankingId,
+          game: game.value,
+        })
+
+        highscoreEntry.score = history.bestScore
+        highscoreEntry.block = history.highestBlock
+        highscoreEntry.run = history.run
+
+        highscoreManager.value.saveScore(highscoreEntry)
+      }
+
       const displayUpgrades = ref(false)
 
       const lastGame = store.getters.lastGame('roguelike')
@@ -341,6 +382,9 @@
         allowShopping,
         rewardsManager,
         displayUpgrades,
+        isRankingWorthy,
+        highscoreManager,
+        haveSubmitedScore,
         allowSquareSelection,
         handleNewGame,
         handleRestart,
@@ -355,6 +399,7 @@
         handleStartOver,
         setUsingItemState,
         saveCurrentGame,
+        saveScore,
       }
     },
   }

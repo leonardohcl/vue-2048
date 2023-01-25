@@ -80,7 +80,15 @@ export default class GameController {
     )
   }
 
-  static getRankingEntry(id: string, name: string, game: GameController) {
+  static getRankingEntry({
+    id,
+    game,
+    name = '',
+  }: {
+    id: string
+    name: string
+    game: GameController
+  }) {
     return new RankingEntry({
       id,
       name,

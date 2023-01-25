@@ -1,6 +1,14 @@
 <template>
-  <Btn v-bind="buttonAttrs" v-b-modal="`${id}-ranking`" />
-  <RankingModal :id="`${id}-ranking`" :ranking-id="rankingId" />
+  <div class="ranking">
+    <Btn v-bind="buttonAttrs" v-b-modal="`${id}-ranking`" />
+
+    <RankingModal
+      :id="`${id}-ranking`"
+      :ranking-id="rankingId"
+      :with-board="withBoard"
+      :with-run="withRun"
+    />
+  </div>
 </template>
 
 <script>
@@ -18,6 +26,14 @@
         type: Object,
         default: () => ({}),
       },
+      withRun: {
+        type: Boolean,
+        default: false,
+      },
+      withBoard: {
+        type: Boolean,
+        default: false,
+      },
     },
     setup(props) {
       const buttonAttrs = computed(() => ({
@@ -34,3 +50,4 @@
     },
   }
 </script>
+

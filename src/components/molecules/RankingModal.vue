@@ -1,57 +1,41 @@
 <template>
-  <b-modal :id="id" centered title="Ranking" class="ranking-modal" hide-footer>
-    <table
-      class="ranking-modal--table table table-borderless table-sm table-striped"
-      v-if="ranking.length > 0"
-    >
-      <thead>
-        <tr>
-          <td></td>
-          <td>Score</td>
-          <td>Moves</td>
-          <td>Undos</td>
-          <td>Highest Block</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(entry, idx) in ranking" :key="idx">
-          <td class="truncated-field text-right">{{ entry.name }}</td>
-          <td>{{ entry.score }}</td>
-          <td>{{ entry.moves }}</td>
-          <td>{{ entry.undos }}</td>
-          <td>
-            <Square
-              class="ranking-modal--square"
-              :data="{ value: entry.block }"
-              inline
-            />
-          </td>
-        </tr>
-        <tr v-for="idx in 10 - ranking.length" :key="idx">
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>
-            <Square class="ranking-modal--square" :data="{ value: 0 }" inline />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div v-else class="text-center font-italic">No rankings saved yet</div>
+  <b-modal
+    :id="id"
+    centered
+    title="Ranking"
+    class="ranking-modal"
+    hide-footer
+    scrollable
+  >
+    <RankingEntry
+      v-for="(entry, idx) in ranking"
+      :key="idx"
+      :position="idx + 1"
+      :entry="entry"
+      :with-board="withBoard"
+      :with-run="withRun"
+    />
   </b-modal>
 </template>
 
 <script>
-  import Square from '@/components/atoms/Square.vue'
+  import RankingEntry from '@/components/atoms/RankingEntry.vue'
   import { useStore } from 'vuex'
   import { computed } from 'vue'
 
   export default {
-    components: { Square },
+    components: { RankingEntry },
     props: {
       id: { type: String, required: true },
       rankingId: { type: String, required: true },
+      withRun: {
+        type: Boolean,
+        default: false,
+      },
+      withBoard: {
+        type: Boolean,
+        default: false,
+      },
     },
     setup(props) {
       const store = useStore()
@@ -63,7 +47,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .ranking-modal {
     &--table {
       max-width: 100%;

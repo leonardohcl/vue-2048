@@ -36,16 +36,11 @@
         {
           id: 'winningBlock',
           icon: [
-            { name: 'fa-regular fa-square' },
+            { icon: ['far', 'square'] },
             {
-              name: 'angles-up',
-              class: 'text-light position-absolute',
-              style: {
-                fontSize: '.5em',
-                left: 'unset',
-                bottom: 'unset',
-                top: '-.25em',
-              },
+              icon: 'angles-up',
+              transform: 'shrink-8 right-5',
+              class: 'text-light',
             },
           ],
           name: 'Highest Block',
@@ -88,7 +83,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .upgrade-shop {
     list-style: none;
     padding: 0;

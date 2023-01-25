@@ -25,6 +25,12 @@ import {
   faChessBoard,
   faTimes,
   faRotateLeft,
+  faAward,
+  faUpDownLeftRight,
+  faMedal,
+  faPersonRunning,
+  faTableCells,
+  faHashtag
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -55,7 +61,13 @@ library.add(
     faCoins,
     faChessBoard,
     faTimes,
-    faRotateLeft
+    faRotateLeft,
+    faAward,
+    faUpDownLeftRight,
+    faMedal,
+    faPersonRunning,
+    faTableCells,
+    faHashtag
   ]
 )
 
@@ -80,9 +92,8 @@ app.use(store)
 /** End main style, router and store setup */
 
 /** Boostrap Setup */
-import { ModalPlugin, TooltipPlugin, TabsPlugin } from 'bootstrap-vue'
+import { ModalPlugin, TooltipPlugin } from 'bootstrap-vue'
 
-app.use(TabsPlugin)
 app.use(ModalPlugin)
 app.use(TooltipPlugin)
 

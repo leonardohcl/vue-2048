@@ -126,7 +126,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .settings-modal {
     &--section-title {
       font-size: 1.1rem;

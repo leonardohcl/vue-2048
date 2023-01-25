@@ -94,7 +94,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .save-modal {
     &__list {
       list-style: none;

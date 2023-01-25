@@ -115,7 +115,6 @@
       'idle',
       'win',
       'gameOver',
-      'newHighScore',
       'newGame',
       'restart',
       'setEndless',
@@ -185,13 +184,6 @@
       watch(gameEnded, () => {
         if (gameEnded.value) {
           context.emit(props.game.winner ? 'win' : 'gameOver')
-
-          const shouldSaveScore =
-            highScores.value.count < 10 ||
-            props.game.score > highScores.value.last
-
-          if (shouldSaveScore)
-            context.emit('newHighScore', GameController.getRankingEntry(props.rankingId, '', props.game))
         }
       })
 
@@ -210,7 +202,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   $container-border-size: 3px;
   $container-padding: $default-spacing * 0.5;
   .game {

@@ -64,7 +64,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .board {
     background-color: $bg-secondary;
     border-radius: $border-radius;

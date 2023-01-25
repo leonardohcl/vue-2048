@@ -51,7 +51,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .rewards-modal {
     &__block {
       display: flex;

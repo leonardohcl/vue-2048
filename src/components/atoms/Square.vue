@@ -111,7 +111,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   $pulse-color: white;
 
   .square {

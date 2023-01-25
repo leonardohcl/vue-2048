@@ -57,7 +57,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .bar-equalizer {
     width: 100%;
     display: flex;

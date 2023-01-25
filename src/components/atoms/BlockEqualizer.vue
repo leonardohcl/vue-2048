@@ -40,7 +40,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .block-equalizer {
     display: flex;
     align-items: center;

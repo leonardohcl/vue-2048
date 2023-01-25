@@ -113,7 +113,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .item {
     $container: &;
 

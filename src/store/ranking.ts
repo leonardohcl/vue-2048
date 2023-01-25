@@ -1,4 +1,5 @@
 import { IRankingEntry } from '@/model/2048/RankingEntry'
+import { IRoguelikeRankingEntry } from '@/model/roguelike/RankingEntry'
 
 export interface IRankingDict {
   [key: string]: IRankingEntry[]
@@ -38,8 +39,10 @@ export default {
     [SAVE_SCORE_MUTATION](state: IRanking) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.rankings))
     },
-    [ADD_SCORE_MUTATION](state: IRanking, entry: IRankingEntry) {
-      console.log(entry, state.rankings)
+    [ADD_SCORE_MUTATION](
+      state: IRanking,
+      entry: IRankingEntry | IRoguelikeRankingEntry
+    ) {
       if (state.rankings[entry.id]) {
         state.rankings[entry.id].push(entry)
         state.rankings[entry.id]
@@ -51,7 +54,10 @@ export default {
     },
   },
   actions: {
-    [ADD_SCORE_ACTION](context: { commit: Function }, entry: IRankingEntry) {
+    [ADD_SCORE_ACTION](
+      context: { commit: Function },
+      entry: IRankingEntry | IRoguelikeRankingEntry
+    ) {
       context.commit(ADD_SCORE_MUTATION, entry)
       context.commit(SAVE_SCORE_MUTATION)
     },
