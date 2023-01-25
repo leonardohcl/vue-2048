@@ -1,9 +1,9 @@
 <template>
-  <div class="roguelike">
-    <div class="roguelike__title">
-      <h1>2048</h1>
-      <small class="badge badge-secondary">Roguelike</small>
-    </div>
+  <PageContainer
+    class="roguelike"
+    subtitle="Roguelike"
+    :subtitle-options="{ class: 'badge-secondary' }"
+  >
     <div class="roguelike__game">
       <div class="roguelike__sidebar--left roguelike__sidebar">
         <h3
@@ -116,7 +116,7 @@
         />
       </div>
     </div>
-  </div>
+  </PageContainer>
 
   <RewardsManager
     :game="game"
@@ -126,6 +126,7 @@
 </template>
 
 <script>
+  import PageContainer from '@/components/atoms/PageContainer.vue'
   import GameController from '@/model/2048/GameController'
   import InventoryTracker from '@/model/roguelike/Inventory'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
@@ -143,9 +144,11 @@
   import { SET_COINS, UPDATE_BALANCE } from '@/store/wallet'
   import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from '@/store/memory-card'
   import RogueSaveFile from '@/model/roguelike/RogueSaveFile'
+  import { useRoute } from 'vue-router'
 
   export default {
     components: {
+      PageContainer,
       Game,
       Square,
       Btn,
@@ -369,8 +372,19 @@
 
       const displayUpgrades = ref(false)
 
-      const lastGame = store.getters.lastGame('roguelike')
-      if (lastGame) handleLoadGame(lastGame)
+      const route = useRoute()
+
+      if (route.query.load) {
+        const slot = route.query.load
+        let save
+        if (slot === 'last') {
+          save = store.getters.lastGame('roguelike')
+        } else {
+          const saves = store.getters.saves('roguelike')
+          save = saves.find((s) => s.filename === slot)
+        }
+        if (save) handleLoadGame(save)
+      }
 
       return {
         game,
@@ -407,25 +421,7 @@
 
 <style lang="scss">
   .roguelike {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-width: 100vw;
-    min-height: 100vh;
     overflow: hidden;
-
-    &__title {
-      position: relative;
-      margin-bottom: 2rem;
-
-      .badge {
-        position: absolute;
-        right: -5%;
-        bottom: 0;
-      }
-    }
 
     &__status {
       display: grid;

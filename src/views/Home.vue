@@ -1,159 +1,110 @@
 <template>
-  <div class="home">
-    <h1>2048</h1>
-    <div class="home__container">
-      <div class="home__hud">
-        <div class="home__hud--left">
-          <Ranking :ranking-id="rankingId" />
-        </div>
-        <div class="home__hud--right">
-          <MemoryManager
-            :save-button-options="{ disabled: game.gameOver }"
-            close-on-load
-            @save="handleSaveGame"
-            @load="handleLoadGame"
-          />
-          <Settings
-            :game="game"
-            @open="handleSettingsOpen"
-            @close="handleSettingsClose"
-            @update="handleSettingsUpdate"
-          />
-        </div>
-      </div>
-      <Game
-        :game="game"
-        :rankingId="rankingId"
-        :emit-moves-interval="15"
-        :time-to-idle="1000"
-        @idle="saveCurrentGame"
-        @move="saveCurrentGame"
-        @new-game="game.start()"
-        @restart="game.start()"
-        @game-over="handleGameOver"
-        @set-endless="game.activateEndless()"
+  <PageContainer
+    class="home"
+    :subtitle="gameMode === 'roguelike' ? 'Roguelike' : ''"
+    :subtitleOptions="{ class: `badge-${theme}` }"
+  >
+    <div class="home__hud">
+      <BFormRadioGroup
+        class="align-self-right"
+        size="sm"
+        buttons
+        v-model="gameMode"
+        :options="gameModes"
+        :button-variant="`outline-${theme}`"
+        alig
+      />
+      <Btn
+        text="Continue"
+        size="lg"
+        :theme="theme"
+        block
+        v-if="lastGame"
+        @click="handleLoad('last')"
+      />
+      <Btn
+        text="New Game"
+        size="lg"
+        :theme="theme"
+        block
+        tag="router-link"
+        :to="`/${gameMode}`"
+      />
+      <MemoryManager
+        :game-mode="gameMode"
+        :allow-save="false"
+        :load-button-options="{
+          text: 'Load Game',
+          size: 'lg',
+          theme,
+          isIcon: false,
+          outlined: false,
+          block: true,
+        }"
+        @load="(slot) => handleLoad(slot.filename)"
       />
     </div>
-  </div>
-
-  <HighScoreManager
-    :game="game"
-    :ranking-id="rankingId"
-    ref="highScoreManager"
-  />
+  </PageContainer>
 </template>
 
 <script>
-  import Game from '@/components/organisms/Game.vue'
-  import Ranking from '@/components/organisms/Ranking.vue'
-  import Settings from '@/components/organisms/Settings.vue'
+  import PageContainer from '@/components/atoms/PageContainer.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
-  import GameController from '@/model/2048/GameController'
-  import { defineComponent } from 'vue'
+  import { BFormRadioGroup } from 'bootstrap-vue'
+  import Btn from '@/components/atoms/Btn.vue'
 
-  import { ref, computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
+  import { useRouter } from 'vue-router'
 
-  import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from '@/store/memory-card'
-
-  export default defineComponent({
-    components: { Game, Ranking, Settings, MemoryManager, HighScoreManager },
-    name: 'Home',
+  export default {
+    components: {
+      PageContainer,
+      BFormRadioGroup,
+      Btn,
+      MemoryManager,
+    },
     setup() {
       const store = useStore()
+      const router = useRouter()
 
-      const highScoreManager = ref(null)
+      const gameModes = [
+        { text: 'Default', value: 'regular' },
+        { text: 'Roguelike', value: 'roguelike' },
+      ]
+      const gameMode = ref('regular')
 
-      const game = ref(
-        new GameController({
-          width: 4,
-          height: 4,
-          winningBlock: 2048,
-          historySize: 2,
-          updateDelay: 100,
+      const theme = computed(() =>
+        gameMode.value === 'roguelike' ? 'secondary' : 'primary'
+      )
+
+      const lastGame = computed(() => store.getters.lastGame(gameMode.value))
+
+      const handleLoad = (slot) => {
+        router.push({
+          name: gameMode.value,
+          query: { load: slot },
         })
-      )
-
-      const rankingId = computed(
-        () => `${game.value.width}x${game.value.height}`
-      )
-
-      const saveCurrentGame = () => {
-        const save = GameController.getSaveFile('last-game', game.value)
-        store.dispatch(SAVE_LAST_GAME_ACTION, { save })
       }
 
-      const handleSettingsOpen = () => {
-        game.value.paused = true
-      }
-
-      const handleSettingsClose = () => {
-        game.value.paused = false
-      }
-
-      const handleSettingsUpdate = (newSettings) => {
-        game.value.updateSettings(newSettings)
-      }
-
-      const handleSaveGame = (slot) => {
-        const save = GameController.getSaveFile(slot.filename, game.value)
-        store.dispatch(ADD_GAME_ACTION, { save })
-      }
-
-      const handleLoadGame = (save) => {
-        game.value.loadSaveFile(save)
-      }
-
-      const handleGameOver = () => {
-        if (highScoreManager.value) {
-          const highscoreEntry = GameController.getRankingEntry({
-            id: rankingId.value,
-            game: game.value,
-          })
-          console.log(highscoreEntry)
-          highScoreManager.value.saveScore(highscoreEntry)
-        }
-      }
-
-      const lastGame = store.getters.lastGame()
-      if (lastGame) handleLoadGame(lastGame)
-
-      return {
-        game,
-        rankingId,
-        highScoreManager,
-        handleSettingsOpen,
-        handleSettingsClose,
-        handleSettingsUpdate,
-        handleGameOver,
-        handleSaveGame,
-        handleLoadGame,
-        saveCurrentGame,
-      }
+      return { gameModes, gameMode, theme, lastGame, handleLoad }
     },
-  })
+  }
 </script>
 
 <style lang="scss">
   .home {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-width: 100vw;
-    min-height: 100vh;
-
-    h1 {
-      font-size: 3rem;
-      margin: 0 0 0.25em;
+    .page__title {
+      font-size: 5rem;
     }
 
     &__hud {
-      display: flex;
-      justify-content: space-between;
       width: 100%;
+      min-width: 200px;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: $default-spacing;
     }
   }
 </style>

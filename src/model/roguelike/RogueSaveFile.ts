@@ -1,13 +1,21 @@
 import { IGameProgress } from '../2048/interfaces/GameProgress'
 import GameSettings, { IGameSettings } from '../2048/interfaces/GameSettings'
 import GameState, { IGameState } from '../2048/interfaces/GameState'
-import SaveFile from '../2048/SaveFile'
+import SaveFile, { ISaveFile } from '../2048/SaveFile'
 import RogueGameProgress, {
   IRogueGameProgress,
 } from './interfaces/GameProgress'
 import Inventory, { IInventory } from './Inventory'
 
-export default class RoguelikeSaveFile extends SaveFile {
+export interface IRoguelikeSaveFile extends ISaveFile {
+  inventory: Inventory
+  progress: IRogueGameProgress
+}
+
+export default class RoguelikeSaveFile
+  extends SaveFile
+  implements IRoguelikeSaveFile
+{
   inventory = new Inventory()
   progress: RogueGameProgress
 

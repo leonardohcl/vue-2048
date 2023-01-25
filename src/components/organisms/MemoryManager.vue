@@ -3,11 +3,13 @@
     v-bind="saveButtonAttrs"
     v-b-modal="`${id}-memory`"
     @click="mode = 'save'"
+    v-if="allowSave"
   />
   <Btn
     v-bind="loadButtonAttrs"
     v-b-modal="`${id}-memory`"
     @click="mode = 'load'"
+    v-if="allowLoad"
   />
   <SaveModal
     :id="`${id}-memory`"
@@ -29,6 +31,8 @@
     components: { Btn, SaveModal },
     props: {
       id: { type: String, default: 'main-game' },
+      allowSave: { type: Boolean, default: true },
+      allowLoad: { type: Boolean, default: true },
       saveButtonOptions: {
         type: Object,
         default: () => ({}),

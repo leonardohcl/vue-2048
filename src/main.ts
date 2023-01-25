@@ -1,102 +1,20 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
-const app = createApp(App)
-
-/** Fontawesome setup */
-import { library } from '@fortawesome/fontawesome-svg-core'
-
-import {
-  faGears,
-  faRankingStar,
-  faTrophy,
-  faFloppyDisk,
-  faFolderOpen,
-  faArrowsLeftRight,
-  faArrowsUpDown,
-  faBrain,
-  faAnglesUp,
-  faPlusSquare,
-  faMinusSquare,
-  faHammer,
-  faHand,
-  faCircleXmark,
-  faCoins,
-  faChessBoard,
-  faTimes,
-  faRotateLeft,
-  faAward,
-  faUpDownLeftRight,
-  faMedal,
-  faPersonRunning,
-  faTableCells,
-  faHashtag
-} from '@fortawesome/free-solid-svg-icons'
-
-import {
-  faMinusSquare as farMinusSquare,
-  faPlusSquare as farPlusSquare,
-  faSquare as farSquare,
-} from '@fortawesome/free-regular-svg-icons'
-
-library.add(
-  ...[
-    faGears,
-    faRankingStar,
-    faTrophy,
-    faFloppyDisk,
-    faFolderOpen,
-    faArrowsLeftRight,
-    faArrowsUpDown,
-    faBrain,
-    faAnglesUp,
-    faPlusSquare,
-    farSquare,
-    farPlusSquare,
-    farMinusSquare,
-    faHammer,
-    faMinusSquare,
-    faHand,
-    faCircleXmark,
-    faCoins,
-    faChessBoard,
-    faTimes,
-    faRotateLeft,
-    faAward,
-    faUpDownLeftRight,
-    faMedal,
-    faPersonRunning,
-    faTableCells,
-    faHashtag
-  ]
-)
-
-import {
-  FontAwesomeIcon,
-  FontAwesomeLayers,
-} from '@fortawesome/vue-fontawesome'
-app.component('FontAwesomeIcon', FontAwesomeIcon)
-app.component('FontAwesomeLayers', FontAwesomeLayers)
-
-/** End Fontawesome setup */
-
 import '@/assets/styles/main.scss'
 import '@/assets/styles/bootstrap.scss'
 
 import router from './router'
 import store from './store'
+import { setupFontAwesome } from './setup/FontAwesome'
+import { setupBootstrap } from './setup/Bootstrap'
+
+const app = createApp(App)
 
 app.use(router)
 app.use(store)
 
-/** End main style, router and store setup */
-
-/** Boostrap Setup */
-import { ModalPlugin, TooltipPlugin } from 'bootstrap-vue'
-
-app.use(ModalPlugin)
-app.use(TooltipPlugin)
-
-/** End Bootstrap setup */
+setupFontAwesome(app)
+setupBootstrap(app)
 
 app.mount('#app')

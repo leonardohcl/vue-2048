@@ -1,7 +1,7 @@
 <template>
   <component
     :is="tag"
-    class="btn"
+    class="button"
     :class="classes"
     :type="type"
     @click="handleClick"
@@ -10,11 +10,7 @@
       <FontAwesomeLayers v-if="Array.isArray(icon)">
         <FontAwesomeIcon v-for="i in icon" :key="i" :icon="i" fixed-width />
       </FontAwesomeLayers>
-      <FontAwesomeIcon
-        v-else-if="icon"
-        :icon="icon"
-        fixed-width
-      />
+      <FontAwesomeIcon v-else-if="icon" :icon="icon" fixed-width />
       {{ text }}
     </slot>
   </component>
@@ -44,6 +40,10 @@
       text: {
         type: String,
       },
+      block: {
+        type: Boolean,
+        default: false,
+      },
       isIcon: {
         type: Boolean,
         default: false,
@@ -60,11 +60,12 @@
     },
     setup(props, context) {
       const classes = computed(() => [
-        `btn--${props.theme}`,
-        props.isIcon && `btn--icon`,
-        props.size && `btn--${props.size}`,
-        props.outlined && `btn--outlined`,
-        props.fab && `btn--fab`,
+        `button--${props.theme}`,
+        props.isIcon && `button--icon`,
+        props.size && `button--${props.size}`,
+        props.block && `button--block`,
+        props.outlined && `button--outlined`,
+        props.fab && `button--fab`,
       ])
 
       const handleClick = (evt) => {
@@ -80,8 +81,12 @@
 </script>
 
 <style lang="scss">
-  .btn {
+  .button {
     border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
     outline: none;
     height: 40px;
     padding: 0 1em;
@@ -94,10 +99,19 @@
     color: black;
     cursor: pointer;
 
+    &--block {
+      width: 100%;
+    }
+
     &--sm {
       height: 20px;
       font-size: 0.8rem;
       padding: 0 0.5em;
+    }
+
+    &--lg {
+      height: 60px;
+      font-size: 1.5rem;
     }
 
     &--fab {
@@ -134,7 +148,7 @@
           background-color: desaturate(darken($value, 5%), 50%);
         }
 
-        &.btn--outlined {
+        &.button--outlined {
           background-color: transparent;
           color: $value;
 
@@ -157,7 +171,7 @@
   }
 
   @include screen-above(md) {
-    .btn {
+    .button {
       &--sm {
         height: 30px;
         font-size: 0.9rem;

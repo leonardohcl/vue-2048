@@ -8,56 +8,24 @@
     hide-footer
   >
     <ul class="save-modal__list">
-      <li
+      <SaveSlot
         v-for="slot in slots"
         :key="slot.filename"
-        @click="handleClick(slot)"
-        class="save-modal__slot"
-        :class="[
-          slot.isEmpty && 'save-modal__slot--empty',
-          `save-modal__slot--${mode}`,
-        ]"
-      >
-        <span class="save-modal__slot--title">
-          {{ slot.filename }}
-        </span>
-        <div class="save-modal__slot--details" v-if="slot.isEmpty">
-          EMPTY SLOT
-        </div>
-        <div class="save-modal__slot--details" v-else>
-          <div class="save-modal__slot--progress" v-if="slot.progress.run >= 0">
-            <span class="badge badge-dark">Run {{ slot.progress.run }}</span>
-          </div>
-          <Square inline :data="{ value: slot.progress.highestValue }" />
-          <div class="save-modal__slot--currency">
-            <span class="save-modal__slot--score">
-              Score: {{ slot.progress.bestScore || slot.progress.score }}
-            </span>
-            <span
-              class="save-modal__slot--coins badge badge-warning badge-pill"
-              v-if="slot.inventory"
-            >
-              {{ slot.inventory.coins }}
-              <FontAwesomeIcon icon="coins" />
-            </span>
-          </div>
-          <span class="save-modal__slot--shape">
-            {{ slot.settings.width }} x {{ slot.settings.height }}</span
-          >
-        </div>
-      </li>
+        :save="slot"
+        @select="handleSelect"
+      />
     </ul>
   </b-modal>
 </template>
 
 <script>
   import GameMode from '@/model/GameMode'
-  import Square from '@/components/atoms/Square.vue'
+  import SaveSlot from '@/components/atoms/SaveSlot.vue'
   import { computed, ref } from 'vue'
   import { useStore } from 'vuex'
 
   export default {
-    components: { Square },
+    components: { SaveSlot },
     props: {
       id: { type: String, required: true },
       mode: { type: String, default: '' },
@@ -75,7 +43,7 @@
         const list = []
 
         for (let idx = 1; idx <= props.maxSlots; idx++) {
-          const filename = `Slot ${idx}`
+          const filename = `slot-${idx}`
           const existing = saves.value.find((x) => x.filename === filename)
           if (existing) list.push(existing)
           else list.push({ filename, isEmpty: true })
@@ -84,12 +52,12 @@
         return list
       })
 
-      const handleClick = (slot) => {
+      const handleSelect = (slot) => {
         context.emit('selected', slot)
         if (props.closeAfterSelect) isOpen.value = false
       }
 
-      return { isOpen, slots, handleClick }
+      return { isOpen, slots, handleSelect }
     },
   }
 </script>
@@ -100,66 +68,6 @@
       list-style: none;
       padding: 0;
       margin: 0;
-    }
-
-    &__slot {
-      $slot: &;
-
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: solid 2px $secondary;
-      padding: calc($default-spacing/2);
-      margin-bottom: calc($default-spacing/2);
-      border-radius: $border-radius;
-      display: flex;
-      box-shadow: 0 0 0 0 $secondary;
-      transition: box-shadow 0.1s ease;
-
-      &:hover {
-        box-shadow: 0 0 9px 3px $secondary;
-      }
-
-      &--title {
-        text-transform: uppercase;
-        font-weight: bold;
-        color: $secondary;
-        font-size: 1.1em;
-        flex-shrink: 0;
-      }
-
-      &--details {
-        width: 100%;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-      }
-
-      &--currency {
-        display: flex;
-        flex-direction: column;
-        align-items: end;
-      }
-
-      &--score {
-        font-weight: bold;
-      }
-
-      &--empty {
-        border-color: $bg-secondary;
-        color: $bg-secondary;
-        font-weight: bold;
-        text-align: center;
-
-        #{$slot}--title {
-          color: inherit;
-        }
-        &#{$slot}--load {
-          cursor: initial;
-          box-shadow: none !important;
-        }
-      }
     }
   }
 </style>
