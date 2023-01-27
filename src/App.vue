@@ -1,7 +1,5 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <router-view />
 </template>
 
 <script>
@@ -10,6 +8,7 @@
 
   import { useStore } from 'vuex'
   export default {
+    name: 'MainGame',
     setup() {
       const store = useStore()
       store.commit(LOAD_SCORE_MUTATION)

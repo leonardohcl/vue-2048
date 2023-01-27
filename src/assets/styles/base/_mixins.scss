@@ -1,37 +1,41 @@
-
 @mixin screen-above($size) {
-    @if map-has-key($grid-breakpoints, $size) {
-        @media (min-width: map-get($grid-breakpoints, $size)) {
-            @content;
-        }
+  @if map-has-key($grid-breakpoints, $size) {
+    @media (min-width: map-get($grid-breakpoints, $size)) {
+      @content;
     }
+  }
 }
 
 @mixin screen-below($size) {
-    @if map-has-key($grid-breakpoints, $size) {
-        @media (max-width: map-get($grid-breakpoints, $size)) {
-            @content;
-        }
+  @if map-has-key($grid-breakpoints, $size) {
+    @media (max-width: map-get($grid-breakpoints, $size)) {
+      @content;
     }
+  }
 }
 
 @mixin transition-animation-enter($name, $duration, $easing) {
-    &.#{$name}-enter-active {
-        animation: #{$name} $duration $easing;
-        @content;
-    }
+  &.#{$name}-enter-active {
+    animation-name: #{$name};
+    animation-duration: $duration;
+    animation-timing-function: $easing;
+    animation-direction: normal;
+    @content;
+  }
 }
 
 @mixin transition-animation-leave($name, $duration, $easing) {
-    &.#{$name}-leave-active {
-        animation: #{$name} $duration $easing reverse;
-        @content;
-    }
+  &.#{$name}-leave-active {
+    animation-name: #{$name};
+    animation-duration: $duration;
+    animation-timing-function: $easing;
+    animation-direction: reverse;
+    @content;
+  }
 }
 
-@mixin transition-animation($name, $duration, $easing) {
-    @include transition-animation-enter($name, $duration, $easing);
+@mixin transition-animation($name, $duration: 100ms, $easing: ease) {
+  @include transition-animation-enter($name, $duration, $easing);
 
-    @include transition-animation-leave($name, $duration, $easing);    
+  @include transition-animation-leave($name, $duration, $easing);
 }
-
