@@ -14,7 +14,7 @@
         v-for="square in rewards.squares"
         :key="square.block"
       >
-        <Square inline :data="{ value: square.block }" />
+        <Square inline :value="square.block" />
         <span class="small ml-2">
           ({{ square.value }} <FontAwesomeIcon icon="coins" />)
         </span>

@@ -33,17 +33,20 @@ export function useGameCommands(game, swipeTarget = '', moveCallback = null) {
   }
 
   const move = async (dir) => {
-    if (!canMove(dir)) return
-    startCooldown()
-    await game.move(dir)
-    if(moveCallback) moveCallback(dir)
-}
+    let success = false
+    if (canMove(dir)) {
+      startCooldown()
+      await game.move(dir)
+      success = true
+    }
+    if (moveCallback) moveCallback(dir, success)
+  }
 
-const undo = async () => {
+  const undo = async () => {
     if (!canMove()) return
     startCooldown()
     await game.undo()
-    if(moveCallback) moveCallback('undo')
+    if (moveCallback) moveCallback('undo')
   }
 
   const keyboardCommand = (cmd) => {
@@ -79,6 +82,6 @@ const undo = async () => {
   return {
     move,
     undo,
-    canMove
+    canMove,
   }
 }

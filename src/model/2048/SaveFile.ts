@@ -57,8 +57,8 @@ export default class SaveFile implements ISaveFile {
       return entry
     })
 
-    game.gameOver = false
-    game.winner = false
+    game.gameOver = this.state.gameOver
+    game.winner = this.state.winner
     game.updateGameState()
 
     return game

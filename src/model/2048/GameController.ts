@@ -113,8 +113,8 @@ export default class GameController {
       return entry
     })
 
-    this.gameOver = false
-    this.winner = false
+    this.gameOver = save.state.gameOver
+    this.winner = save.state.winner
     this.updateGameState()
   }
 

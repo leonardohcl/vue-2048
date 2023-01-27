@@ -7,9 +7,9 @@ export default class Square implements ISquare {
   value = 0
   row = 0
   col = 0
+  isSpawn = false
 
   nextMove = {
-    spawn: false,
     reverse: false,
     vertical: 0,
     horizontal: 0,
@@ -21,6 +21,10 @@ export default class Square implements ISquare {
     this.value = value
     this.row = row
     this.col = col
+  }
+
+  get id() {
+    return `s${this.row}x${this.col}-${this.value}`
   }
 
   get isEmpty() {
@@ -41,8 +45,12 @@ export default class Square implements ISquare {
     this.value = value
   }
 
-  setSpawn() {
-    this.nextMove.spawn = true
+  setSpawn(resetAfter = 0) {
+    this.isSpawn = true
+    if (resetAfter)
+      setTimeout(() => {
+        this.isSpawn = false
+      }, resetAfter)
   }
 
   setMove(move: {

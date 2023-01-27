@@ -1,13 +1,13 @@
 <template>
   <div class="board" :style="boardStyle" :class="[inline && 'board--inline']">
     <Square
-      v-for="(sqr, idx) in board.squares"
-      :key="idx"
-      :data="sqr"
+      v-for="sqr in board.squares"
+      :key="sqr.id"
       :transition-duration="transitionDuration"
       :gap="gap"
       :inline="inline"
-      @click="handleSquareClick"
+      v-bind="sqr"
+      @click="handleSquareClick(sqr)"
     />
   </div>
 </template>
@@ -52,13 +52,13 @@
         return styles
       })
 
-      const handleSquareClick = sqr => {
+      const handleSquareClick = (sqr) => {
         context.emit('square-selected', sqr)
       }
 
       return {
         boardStyle,
-        handleSquareClick
+        handleSquareClick,
       }
     },
   }

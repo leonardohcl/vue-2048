@@ -9,7 +9,7 @@
       :disabled="disabled || current <= min"
       @click="$emit('decrease')"
     />
-  <Square :data="{value: current}" inline/>
+  <Square :value="current" inline/>
     <Btn
       v-if="allowIncrease"
       is-icon

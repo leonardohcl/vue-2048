@@ -42,7 +42,7 @@
         </span>
       </div>
     </div>
-    <div class="game__board">
+    <div class="game__board" :class="boardClasses">
       <div
         class="game__board--touch-area"
         id="touchArea"
@@ -63,7 +63,7 @@
   import GameControls from '@/components/molecules/GameControls.vue'
   import Board from '@/components/molecules/Board.vue'
   import Btn from '@/components/atoms/Btn.vue'
-  import { computed, watch } from 'vue'
+  import { computed, watch, ref } from 'vue'
   import { useStore } from 'vuex'
   import { useGameCommands } from '@/mixins/gameCommands'
 
@@ -150,6 +150,15 @@
           props.game.score > highScores.value.first
       )
 
+      const invalidMove = ref('')
+      const boardClasses = computed(() => ({
+        [`game__board--invalid-move`]: !!invalidMove.value,
+        [`game__board--invalid-move-right`]: invalidMove.value === 'right',
+        [`game__board--invalid-move-left`]: invalidMove.value === 'left',
+        [`game__board--invalid-move-up`]: invalidMove.value === 'up',
+        [`game__board--invalid-move-down`]: invalidMove.value === 'down',
+      }))
+
       const resetIdle = () => {
         if (stateTracker.idleTimeout) clearTimeout(stateTracker.idleTimeout)
         stateTracker.idleTimeout = setTimeout(() => {
@@ -157,7 +166,8 @@
         }, props.timeToIdle)
       }
 
-      const trackMove = (dir) => {
+      const trackMove = (dir, success) => {
+        if (!success) return
         stateTracker.moveCountdown--
         if (stateTracker.moveCountdown === 0) {
           context.emit('move', dir)
@@ -165,7 +175,14 @@
         }
       }
 
-      const moveCallbacks = []
+      const trackInvalidMove = (dir, success) => {
+        if (!success) {
+          invalidMove.value = dir
+          setTimeout(() => (invalidMove.value = ''), 200)
+        } else invalidMove.value = ''
+      }
+
+      const moveCallbacks = [trackInvalidMove]
       if (props.emitMovesInterval) moveCallbacks.push(trackMove)
       if (props.timeToIdle) moveCallbacks.push(resetIdle)
 
@@ -173,8 +190,8 @@
         props.game,
         '#touchArea',
         moveCallbacks.length > 0
-          ? (dir) => {
-              moveCallbacks.forEach((fn) => fn(dir))
+          ? (dir, success) => {
+              moveCallbacks.forEach((fn) => fn(dir, success))
             }
           : null
       )
@@ -196,6 +213,7 @@
         undo,
         highScores,
         newHighscore,
+        boardClasses,
         handleSquareSelected,
       }
     },
@@ -306,6 +324,39 @@
         height: 100%;
         z-index: 1;
       }
+
+      &--invalid-move {
+        .square__block {
+          opacity: 1;
+          animation-duration: 200ms;
+          animation-timing-function: ease-in-out;
+        }
+
+        &-left {
+          .square__block {
+            transform-origin: bottom left;
+            animation-name: bump-left;
+          }
+        }
+        &-right {
+          .square__block {
+            transform-origin: bottom right;
+            animation-name: bump-right;
+          }
+        }
+        &-up {
+          .square__block {
+            transform-origin: top center;
+            animation-name: bump-up;
+          }
+        }
+        &-down {
+          .square__block {
+            transform-origin: bottom center;
+            animation-name: bump-down;
+          }
+        }
+      }
     }
 
     &__command-listener {
@@ -314,20 +365,22 @@
 
     @include screen-above(md) {
       max-width: map-get($grid-breakpoints, 'md') * 0.75;
-    }
-
-    @include screen-above(lg) {
-      max-width: map-get($grid-breakpoints, 'lg') * 0.4;
-    }
-  }
-
-  @include screen-above(md) {
-    .game {
       &__hud {
         &--score {
           font-size: 1.2rem;
         }
       }
     }
+
+    @include screen-above(lg) {
+      max-width: map-get($grid-breakpoints, 'lg') * 0.4;
+    }
+
+    $bump-dislocation: 5px;
+    $bump-rotation: 1deg;
+    @include bumpAnimation('bump-left', $x: -$bump-dislocation, $rotation: -$bump-rotation);
+    @include bumpAnimation('bump-right', $x: $bump-dislocation, $rotation: $bump-rotation);
+    @include bumpAnimation('bump-up', $y: -$bump-dislocation, $rotation: 0);
+    @include bumpAnimation('bump-down', $y: $bump-dislocation, $rotation: 0);
   }
 </style>

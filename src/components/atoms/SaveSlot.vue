@@ -13,7 +13,7 @@
       <div class="save-slot--progress" v-if="save.progress.run >= 0">
         <span class="badge badge-dark">Run {{ save.progress.run }}</span>
       </div>
-      <Square inline :data="{ value: save.progress.highestValue }" />
+      <Square inline :value="save.progress.highestValue" />
       <div class="save-slot--currency">
         <span class="save-slot--score">
           Score: {{ save.progress.bestScore || save.progress.score }}

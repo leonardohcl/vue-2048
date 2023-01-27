@@ -18,7 +18,7 @@
       {{ entry.score }}
     </div>
     <div class="ranking-entry__block" v-b-tooltip.hover title="Highest Block">
-      <Square :data="{ value: entry.block }" inline />
+      <Square :value="entry.block" inline />
     </div>
     <div class="ranking-entry__details">
       <div

@@ -25,7 +25,7 @@
             <td>
               <Square
                 class="save-score-modal--square mx-auto"
-                :data="{ value: entry.block }"
+                :value="entry.block"
                 inline
               />
             </td>

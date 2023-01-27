@@ -76,11 +76,7 @@
           >
             <div class="d-flex align-items-center">
               Best:
-              <Square
-                class="mx-2"
-                :data="{ value: history.highestBlock }"
-                inline
-              />
+              <Square class="mx-2" :value="history.highestBlock" inline />
             </div>
             <div>Best Score: {{ history.bestScore }}</div>
             <HighScoreManager
@@ -202,11 +198,22 @@
         type: null,
       })
 
-      const handleNewGame = () => {
+      const startRun = () => {
         allowShopping.value = false
         ignoreRewards.value = false
         history.run++
         game.value.start()
+      }
+
+      const endRun = () => {
+        allowShopping.value = true
+        ignoreRewards.value = false
+        setUsingItemState(false)
+      }
+
+      const getLootFromBoard = () => {
+        if (rewardsManager.value && !ignoreRewards.value)
+          rewardsManager.value.lootRewards()
       }
 
       const setUsingItemState = (isUsing) => {
@@ -223,9 +230,24 @@
         }
       }
 
+      const updateBestPerformance = () => {
+        if (game.value.score > history.bestScore) {
+          haveSubmitedScore.value = false
+          history.bestScore = game.value.score
+        }
+
+        if (game.value.board.highestValue > history.highestBlock) {
+          haveSubmitedScore.value = false
+          history.highestBlock = game.value.board.highestValue
+        }
+      }
+
+      const handleNewGame = () => {
+        startRun()
+      }
+
       const handleRestart = () => {
         game.value.gameOver = true
-        setUsingItemState(false)
       }
 
       const getCurrentSaveFile = (filename) => {
@@ -268,19 +290,9 @@
       }
 
       const handleRoundOver = () => {
-        if (rewardsManager.value && !ignoreRewards.value)
-          rewardsManager.value.lootRewards()
-        allowShopping.value = true
-        if (game.value.score > history.bestScore) {
-          haveSubmitedScore.value = false
-          history.bestScore = game.value.score
-        }
-
-        if (game.value.board.highestValue > history.highestBlock) {
-          haveSubmitedScore.value = false
-          history.highestBlock = game.value.board.highestValue
-        }
-
+        endRun()
+        getLootFromBoard()
+        updateBestPerformance()
         saveCurrentGame()
       }
 

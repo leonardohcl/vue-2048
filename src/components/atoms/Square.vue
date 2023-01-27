@@ -1,26 +1,39 @@
 <template>
-  <div class="square" :class="squareClasses" @click="$emit('click', data)">
+  <div class="square" :class="squareClasses" @click="$emit('click')">
     <div
       class="square__block"
       :class="blockClasses"
       :style="blockStyles"
-      v-if="data.value"
+      v-if="value"
     >
-      {{ data.value }}
+      {{ value }}
     </div>
   </div>
 </template>
 
 <script>
-  import Square from '@/model/2048/Square'
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
 
   export default {
     name: 'Square',
     props: {
-      data: {
-        type: [Square, Object],
-        required: true,
+      value: { type: Number, required: true },
+      nextMove: {
+        type: Object,
+        default: () => ({
+          spawn: false,
+          reverse: false,
+          vertical: 0,
+          horizontal: 0,
+        }),
+      },
+      isSpawn: {
+        type: Boolean,
+        default: false,
+      },
+      customStates: {
+        type: Object,
+        default: () => ({}),
       },
       transitionDuration: {
         type: Number,
@@ -39,7 +52,7 @@
     setup(props) {
       if (props.inline) {
         const blockClasses = computed(() => {
-          return [`square__block--${props.data.value}`]
+          return [`square__block--${props.value}`]
         })
         return {
           squareClasses: ['square--inline'],
@@ -49,30 +62,39 @@
       }
 
       const stepSize = computed(() => {
-        const { horizontal, vertical } = props.data.nextMove
+        const { horizontal, vertical } = props.nextMove
         return horizontal || vertical
       })
 
       const isReverse = computed(() => {
-        return props.data.nextMove.reverse
+        return props.nextMove.reverse
       })
 
       const squareClasses = computed(() => ({
-        'square--selectable': props.data.customStates.selectable,
-        'square--selected': props.data.customStates.selected,
+        'square--selectable': props.customStates.selectable,
+        'square--selected': props.customStates.selected,
       }))
 
-      const blockClasses = computed(() => {
-        const { nextMove } = props.data
-        return {
-          [`square__block--${props.data.value}`]: true,
-          'square__block--spawn': nextMove.spawn && !nextMove.reverse,
-          'square__block--reverse': nextMove.reverse,
+      const alreadySpawned = ref(false)
+
+      const getBlockClasses = () => {
+        if(props.isSpawn) {
+          setTimeout(() => {
+            alreadySpawned.value = true
+          },200)
         }
-      })
+
+        return {
+          [`square__block--${props.value}`]: true,
+          'square__block--spawn': props.isSpawn && !alreadySpawned.value,
+          'square__block--reverse': props.nextMove.reverse,
+        }
+      }
+
+      const blockClasses = computed(getBlockClasses)
 
       const blockStyles = computed(() => {
-        if (!props.data.value) return {}
+        if (!props.value) return {}
 
         const styles = {
           transition: '',
@@ -81,7 +103,7 @@
           left: '',
           animationDuration: '',
           'font-size': `${
-            props.data.value >= 1000 ? .9 : props.data.value > 100 ? 1.1 : 1.3
+            props.value >= 1000 ? 0.9 : props.value > 100 ? 1.1 : 1.3
           }em`,
         }
 
@@ -90,7 +112,7 @@
             stepSize.value * -props.gap
           }rem)`
 
-          const dir = props.data.nextMove.horizontal ? 'left' : 'top'
+          const dir = props.nextMove.horizontal ? 'left' : 'top'
           styles[dir] = transform
           styles.transition = `${dir} ${props.transitionDuration}ms ease`
 
@@ -120,7 +142,7 @@
     padding-top: 100%;
     border-radius: $border-radius;
     background-color: fade-out($square-color, 0.8);
-    font-size: .9rem;
+    font-size: 0.9rem;
 
     &--inline {
       padding-top: 2rem;
@@ -139,6 +161,8 @@
     }
 
     &__block {
+      position: absolute;
+      z-index: 1;
       top: 0;
       left: 0;
       width: 100%;
@@ -149,7 +173,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      position: absolute;
       animation-fill-mode: forwards;
 
       &--spawn {
@@ -170,10 +193,10 @@
       }
     }
 
-    @include screen-above(md){
+    @include screen-above(md) {
       font-size: 1rem;
     }
-    @include screen-above(lg){
+    @include screen-above(lg) {
       font-size: 1.2rem;
     }
   }

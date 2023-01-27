@@ -39,3 +39,17 @@
 
   @include transition-animation-leave($name, $duration, $easing);
 }
+
+@mixin bumpAnimation($name, $x: 0, $y: 0, $rotation: 3deg) {
+  @keyframes #{$name} {
+    0% {
+      transform: translate(0, 0) rotate(0);
+    }
+    50% {
+      transform: translate($x, $y) rotate($rotation);
+    }
+    100% {
+      transform: rotate(0) rotate(0);
+    }
+  }
+}
