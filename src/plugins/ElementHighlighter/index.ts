@@ -1,6 +1,13 @@
 import { App, createApp, inject, provide, createVNode } from 'vue'
-import IElementHighlighterOptions from './options'
 import HighlighterApp from './app.vue'
+
+export interface IElementHighlighterOptions {
+  id?: string
+  resizeStagger?: number
+  transitionDuration?: number
+  bgColor?: string
+  bgOpacity?: number
+}
 
 const ElementHighlighterPlugin = {
   install(app: App, options: IElementHighlighterOptions = {}) {
@@ -8,7 +15,8 @@ const ElementHighlighterPlugin = {
       id = 'highlighter',
       resizeStagger,
       transitionDuration,
-      bgColor
+      bgColor,
+      bgOpacity,
     } = options
 
     const appContainer = document.createElement('div')
@@ -28,21 +36,26 @@ const ElementHighlighterPlugin = {
       setConfig: Function
     }
 
-    component.setConfig({ resizeStagger, transitionDuration, bgColor })
-
     const setBackgroundCallback = (bgCallback: Function) =>
       component.setConfig({ bgCallback })
+
+    component.setConfig({
+      resizeStagger,
+      transitionDuration,
+      bgColor,
+      bgOpacity,
+    })
 
     const { highlight, dismiss } = component
 
     const expodedFunctions = {
       highlight,
       dismiss,
-      setBackgroundCallback
+      setBackgroundCallback,
     }
 
     app.config.globalProperties.$highlighter = expodedFunctions
-    app.provide('highlight',expodedFunctions)
+    app.provide('highlight', expodedFunctions)
 
     const router = app.config.globalProperties.$router
     if (router) {
@@ -54,7 +67,11 @@ const ElementHighlighterPlugin = {
 }
 
 export function useHighlighter() {
-  return inject<{ highlight: Function; dismiss: Function }>('highlight')
+  return inject<{
+    highlight: Function
+    dismiss: Function
+    setBackgroundCallback: Function
+  }>('highlight')
 }
 
 export default ElementHighlighterPlugin

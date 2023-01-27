@@ -40,21 +40,25 @@
         width: '0',
         transition: null,
         backgroundColor: null,
+        opacity: 1,
       })
       const rightStyle = reactive({
         width: '0',
         transition: null,
         backgroundColor: null,
+        opacity: 1,
       })
       const topStyle = reactive({
         height: '0',
         transition: null,
         backgroundColor: null,
+        opacity: 1,
       })
       const bottomStyle = reactive({
         height: '0',
         transition: null,
         backgroundColor: null,
+        opacity: 1,
       })
       const windowStyle = reactive({
         width: '100vw',
@@ -72,7 +76,8 @@
         resizeStagger: 250,
         transitionDuration: 200,
         bgCallback: null,
-        bgColor: 'rgba(0,0,0,.75)',
+        bgColor: 'black',
+        bgOpacity: 0.75,
       })
 
       const memory = reactive({
@@ -80,6 +85,7 @@
           selector: 'body',
           padding: 0,
           bgColor: config.bgColor,
+          bgOpacity: config.bgOpacity,
         },
         refreshTimeout: null,
       })
@@ -104,7 +110,7 @@
       })
 
       const updateTransition = (duration) => {
-        const properties = ['width', 'height', 'background-color']
+        const properties = ['width', 'height', 'background-color', 'opacity']
         const transition = properties
           .map((prop) => `${prop} ${duration}ms`)
           .join(', ')
@@ -127,6 +133,7 @@
         el = document.body.getBoundingClientRect(),
         padding = 0,
         bgColor = config.bgColor,
+        bgOpacity = config.bgOpacity,
       } = {}) => {
         containerStyle.width = page.width
         containerStyle.height = page.height
@@ -139,10 +146,11 @@
         topStyle.height = `${el.top - padding}px`
         bottomStyle.height = `${page.height - el.top - el.height - padding}px`
 
-        leftStyle.backgroundColor = bgColor
-        rightStyle.backgroundColor = bgColor
-        topStyle.backgroundColor = bgColor
-        bottomStyle.backgroundColor = bgColor
+        const styles = [leftStyle, rightStyle, topStyle, bottomStyle]
+        styles.forEach((style) => {
+          style.opacity = bgOpacity
+          style.backgroundColor = bgColor
+        })
       }
 
       const highlight = async (
@@ -152,6 +160,7 @@
           shouldDisplay = true,
           padding = 0,
           bgColor = config.bgColor,
+          bgOpacity = config.bgOpacity,
         } = {}
       ) => {
         if (!selector) return
@@ -159,7 +168,7 @@
         const el = document.querySelector(selector)
         if (!el) return
 
-        memory.lastHighlight = { selector, padding, bgColor }
+        memory.lastHighlight = { selector, padding, bgColor, bgOpacity }
 
         const haveUpdated = updateTransition(transitionDuration)
 
@@ -169,7 +178,12 @@
         if (haveUpdated || previousDisplayValue != display.value)
           await nextTick()
 
-        updateStyles({ el: el.getBoundingClientRect(), padding, bgColor })
+        updateStyles({
+          el: el.getBoundingClientRect(),
+          padding,
+          bgColor,
+          bgOpacity,
+        })
 
         return new Promise((resolve) =>
           setTimeout(async () => {
@@ -203,11 +217,13 @@
         transitionDuration = config.transitionDuration,
         bgCallback = config.bgCallback,
         bgColor = config.bgColor,
+        bgOpacity = config.bgOpacity,
       } = {}) => {
         config.resizeStagger = resizeStagger
         config.transitionDuration = transitionDuration
         config.bgCallback = bgCallback
         config.bgColor = bgColor
+        config.bgOpacity = bgOpacity
       }
 
       const handleBackgroudClick = (evt) => {
@@ -222,6 +238,7 @@
             shouldDisplay: display.value,
             padding: memory.lastHighlight.padding,
             bgColor: memory.lastHighlight.bgColor,
+            bgOpacity: memory.lastHighlight.bgOpacity,
           })
         }, config.resizeStagger)
       }
