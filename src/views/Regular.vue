@@ -1,5 +1,5 @@
 <template>
-  <PageContainer class="regular">
+  <PageContainer class="regular" navigate-to="/">
     <div class="regular__container">
       <div class="regular__hud">
         <div class="regular__hud--left">

@@ -2,6 +2,7 @@
   <PageContainer
     class="roguelike"
     subtitle="Roguelike"
+    navigate-to="/"
     :subtitle-options="{ class: 'badge-secondary' }"
   >
     <div class="roguelike__game">

@@ -1,7 +1,12 @@
 <template>
   <div class="page">
     <div class="page__title--container">
-      <h1 class="page__title">{{ title }}</h1>
+      <component
+        class="page__title"
+        :is="navigateTo ? 'router-link' : 'h1'"
+        v-bind="{ to: navigateTo }"
+        >{{ title }}</component
+      >
       <small
         v-if="subtitle"
         class="page__subtitle badge"
@@ -17,6 +22,7 @@
   export default {
     props: {
       title: { type: String, default: '2048' },
+      navigateTo: { type: String, default: null },
       subtitle: { type: String },
       subtitleOptions: {
         type: Object,
@@ -39,6 +45,8 @@
     &__title {
       font-size: 3rem;
       margin-bottom: 0;
+      color: $text-color !important;
+      text-decoration: none !important;
 
       &--container {
         position: relative;
