@@ -3,9 +3,9 @@ import Direction from './Direction'
 
 const preset = [0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
 
-describe('Board.js', () => {
+describe('Board.ts', () => {
   test('must create board correctly', () => {
-    ;[
+    [
       [3, 3],
       [4, 4],
       [3, 4],

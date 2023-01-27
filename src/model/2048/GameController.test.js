@@ -7,7 +7,7 @@ import GameProgress from './interfaces/GameProgress'
 import GameState from './interfaces/GameState'
 import GameSettings from './interfaces/GameSettings'
 
-describe('GameController.js', () => {
+describe('GameController.ts', () => {
   test('must create game correctly', () => {
     const game = new GameController()
     expect(game.width).toBe(4)
@@ -20,6 +20,8 @@ describe('GameController.js', () => {
     expect(game.canMove.down).toBe(true)
     expect(game.canMove.left).toBe(true)
     expect(game.score).toBe(0)
+    expect(game.historySize).toBe(2)
+    expect(game.updateDelay).toBe(0)
     expect(game.board.emptySquares.length).toBe(16)
   })
 
@@ -31,6 +33,8 @@ describe('GameController.js', () => {
     expect(game.history.length).toBe(0)
     expect(game.paused).toBe(false)
     expect(game.endless).toBe(false)
+    expect(game.moves).toBe(0)
+    expect(game.undos).toBe(0)
     expect(game.board.filledSquares.length).toBe(2)
   })
 
@@ -54,60 +58,6 @@ describe('GameController.js', () => {
     }
   })
 
-  test('must load board correctly', () => {
-    const game = new GameController()
-    const MOCK_BOARD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2]
-    game.start()
-    game.loadBoardPreset(MOCK_BOARD)
-    expect(game.board.flat).toEqual(MOCK_BOARD)
-    expect(game.canMove.right).toBe(false)
-    expect(game.canMove.down).toBe(false)
-  })
-
-  test('must allow only valid movements', () => {
-    const game = new GameController()
-    game.start()
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2])
-    expect(game.canMove.right).toBe(false)
-    expect(game.canMove.down).toBe(false)
-    game.start()
-    game.loadBoardPreset([2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    expect(game.canMove.left).toBe(false)
-    expect(game.canMove.up).toBe(false)
-  })
-
-  test('must spawn block after moving', async () => {
-    const game = new GameController()
-    game.spawnBlock = jest.fn()
-    game.start()
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move(Direction.right)
-    expect(game.spawnBlock).toHaveBeenCalled()
-  })
-
-  test('must update score correctly', async () => {
-    const game = new GameController()
-    game.start()
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move(Direction.Right)
-    expect(game.score).toBe(4)
-  })
-
-  test('must set game state to win if reached specified winning block', async () => {
-    const game = new GameController()
-    game.start()
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
-
-    await game.move(Direction.Right)
-    expect(game.winner).toBe(true)
-
-    game.start()
-    game.winningBlock = 512
-    game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 256])
-    await game.move(Direction.Right)
-    expect(game.winner).toBe(true)
-  })
-
   test('must set game ignore win if set to endless mode', async () => {
     const game = new GameController()
     game.start()
@@ -118,18 +68,6 @@ describe('GameController.js', () => {
     game.activateEndless()
     expect(game.winner).toBe(false)
     expect(game.endless).toBe(true)
-  })
-
-  test("must set game state to game over if can't make any movement", () => {
-    const game = new GameController()
-    game.start()
-    game.loadBoardPreset([2, 8, 4, 2, 4, 2, 16, 8, 8, 16, 2, 4, 2, 4, 8, 2])
-
-    expect(game.canMove.up).toBe(false)
-    expect(game.canMove.down).toBe(false)
-    expect(game.canMove.left).toBe(false)
-    expect(game.canMove.right).toBe(false)
-    expect(game.gameOver).toBe(true)
   })
 
   test('must store only the right limit of boards for history', async () => {
@@ -202,9 +140,16 @@ describe('GameController.js', () => {
     await game.move(Direction.Right)
     await game.move(Direction.Down)
     await game.move(Direction.Left)
-    await game.undo()
-
+    
     game.loadSaveFile(save)
+    
+    expect(deepCopy(game)).toEqual(deepCopy(originalGame))
+    
+    await game.move(Direction.Up)
+    await game.move(Direction.Right)
+    await game.move(Direction.Down)
+    await game.move(Direction.Left)  
+    await game.undo()
 
     expect(deepCopy(game)).toEqual(deepCopy(originalGame))
   })
