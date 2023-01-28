@@ -1,16 +1,16 @@
 import { createApp } from 'vue'
-import App from './App.vue'
+import MainApp from '@/App.vue'
 
 import '@/assets/styles/main.scss'
 import '@/assets/styles/bootstrap.scss'
 
-import router from './router'
-import store from './store'
 import { setupFontAwesome } from './setup/FontAwesome'
 import { setupBootstrap } from './setup/Bootstrap'
-import ElementHighlighterPlugin from './plugins/ElementHighlighter'
+import router from '@/router'
+import store from '@/store'
 
-const app = createApp(App)
+import ElementHighlighterPlugin from '@/plugins/ElementHighlighter'
+const app = createApp(MainApp)
 
 app.use(router)
 app.use(store)
