@@ -1,91 +1,103 @@
 <template>
-  <Btn
-    v-bind="saveButtonAttrs"
-    v-b-modal="`${id}-memory`"
-    @click="mode = 'save'"
+  <v-btn
     v-if="allowSave"
-  />
-  <Btn
-    v-bind="loadButtonAttrs"
-    v-b-modal="`${id}-memory`"
-    @click="mode = 'load'"
+    v-bind="saveButtonAttrs"
+    @click="handleOpenModal('save')"
+  >
+    {{ saveButtonAttrs.text || "" }}
+  </v-btn>
+  <v-btn
     v-if="allowLoad"
-  />
+    v-bind="loadButtonAttrs"
+    @click="handleOpenModal('load')"
+  >
+    {{ loadButtonAttrs.text || "" }}
+  </v-btn>
+
   <SaveModal
-    :id="`${id}-memory`"
     @selected="handleSelected"
     :close-after-select="closeAfterSelect"
     :mode="mode"
     :game-mode="gameMode"
+    :theme="theme"
+    ref="saveModal"
   />
 </template>
 
 <script>
-  import GameMode from '@/model/GameMode'
-  import Btn from '@/components/atoms/Btn.vue'
-  import SaveModal from '@/components/molecules/SaveModal.vue'
+import GameMode from "@/model/GameMode";
+import SaveModal from "@/components/molecules/SaveModal.vue";
 
-  import { computed, ref } from 'vue'
+import { computed, ref } from "vue";
 
-  export default {
-    components: { Btn, SaveModal },
-    props: {
-      id: { type: String, default: 'main-game' },
-      allowSave: { type: Boolean, default: true },
-      allowLoad: { type: Boolean, default: true },
-      saveButtonOptions: {
-        type: Object,
-        default: () => ({}),
-      },
-      loadButtonOptions: {
-        type: Object,
-        default: () => ({}),
-      },
-      closeOnLoad: { type: Boolean, default: false },
-      closeOnSave: { type: Boolean, default: false },
-      gameMode: { type: GameMode, default: 'regular' },
+export default {
+  components: { SaveModal },
+  props: {
+    theme: { type: String, default: "primary" },
+    allowSave: { type: Boolean, default: true },
+    allowLoad: { type: Boolean, default: true },
+    saveButtonOptions: {
+      type: Object,
+      default: () => ({}),
     },
-    emits: ['save', 'load'],
-    setup(props, context) {
-      const saveButtonAttrs = computed(() => ({
-        theme: 'plain',
-        isIcon: true,
-        icon: 'floppy-disk',
-        outlined: true,
-        ...props.saveButtonOptions,
-      }))
-
-      const loadButtonAttrs = computed(() => ({
-        theme: 'plain',
-        isIcon: true,
-        icon: 'folder-open',
-        outlined: true,
-        ...props.loadButtonOptions,
-      }))
-
-      const mode = ref('')
-
-      const closeAfterSelect = computed(() => {
-        const flags = {
-          load: props.closeOnLoad,
-          save: props.closeOnSave,
-        }
-
-        return flags[mode.value]
-      })
-
-      const handleSelected = (slot) => {
-        if (mode.value === 'load' && slot.isEmpty) return
-        context.emit(mode.value, slot)
-      }
-
-      return {
-        mode,
-        saveButtonAttrs,
-        loadButtonAttrs,
-        closeAfterSelect,
-        handleSelected,
-      }
+    loadButtonOptions: {
+      type: Object,
+      default: () => ({}),
     },
-  }
+    closeOnLoad: { type: Boolean, default: false },
+    closeOnSave: { type: Boolean, default: false },
+    gameMode: { type: String, default: GameMode.Regular },
+  },
+  emits: ["save", "load"],
+  setup(props, context) {
+    const btnSettings = {
+      variant: "plain",
+    };
+
+    const saveButtonAttrs = computed(() => ({
+      prependIcon: "fas fa-fw fa-floppy-disk",
+      ...btnSettings,
+      ...props.saveButtonOptions,
+    }));
+
+    const loadButtonAttrs = computed(() => ({
+      prependIcon: "fas fa-fw fa-folder-open",
+      ...btnSettings,
+      ...props.loadButtonOptions,
+    }));
+
+    const mode = ref("");
+
+    const closeAfterSelect = computed(() => {
+      const flags = {
+        load: props.closeOnLoad,
+        save: props.closeOnSave,
+      };
+
+      return flags[mode.value];
+    });
+
+    const handleSelected = (slot) => {
+      if (mode.value === "load" && slot.isEmpty) return;
+      context.emit(mode.value, slot);
+    };
+
+    const saveModal = ref();
+
+    const handleOpenModal = (gameMode) => {
+      mode.value = gameMode;
+      saveModal.value?.open();
+    };
+
+    return {
+      mode,
+      saveModal,
+      saveButtonAttrs,
+      loadButtonAttrs,
+      closeAfterSelect,
+      handleOpenModal,
+      handleSelected,
+    };
+  },
+};
 </script>

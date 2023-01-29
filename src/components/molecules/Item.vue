@@ -9,262 +9,217 @@
       'item--shopping': allowShopping,
     }"
   >
-    <div class="item__icon--container">
-      <div class="item__icon" @click="handleClick">
-        <FontAwesomeIcon class="fa-2x" :icon="item.icon" fixed-width />
-      </div>
-      <span class="badge badge-dark badge-pill item__capacity">
-        {{ item.current }}/{{ item.max }}
-      </span>
-      <PriceIndicator
-        class="item__price"
-        :price="item.price"
-        :can-afford="canAfford && allowShopping"
+    <v-badge
+      :content="`${item.current}/${item.max}`"
+      color="secondary"
+      @click="handleClick"
+    >
+      <v-progress-circular
+        class="item__icon rounded-circle"
+        :model-value="(100 * item.current) / item.max"
+        color="secondary"
+      >
+        <v-icon class="fa-fw" :icon="item.icon" color="grey-lighten-1" />
+      </v-progress-circular>
+      <v-btn
+        v-if="!disabled && active"
+        class="item__btn item__btn--cancel"
+        icon="fas fa-circle-xmark"
+        color="error"
+        size="small"
+        variant="text"
+        @click.stop="$emit('cancel', item.id)"
       />
-    </div>
-    <Btn
-      v-if="allowShopping && item.current < item.max"
-      :disabled="!canPurchase"
-      class="item__btn item__btn--purchase"
-      icon="fa-plus-square"
-      is-icon
-      outlined
-      @click="handlePurchase"
-    />
-    <Btn
-      v-if="!disabled && active"
-      class="item__btn item__btn--cancel"
-      icon="fa-circle-xmark"
-      is-icon
-      outlined
-      theme="danger"
-      @click="$emit('cancel', item.id)"
-    />
-
+    </v-badge>
     <div class="item__details">
       {{ item.name }}
     </div>
+    <PurchaseButton
+      class="item__price"
+      :class="{ 'item__price--affordable': canAfford && !disabled }"
+      :price="item.price"
+      :can-afford="canAfford && allowShopping && item.current < item.max"
+      @click="handlePurchase"
+    />
   </component>
 </template>
 
 <script>
-  import Btn from '@/components/atoms/Btn.vue'
-  import PriceIndicator from '@/components/atoms/PriceIndicator.vue'
-  import { computed } from 'vue'
-  import { useStore } from 'vuex'
+import PurchaseButton from "@/components/atoms/PurchaseButton.vue";
+import { computed } from "vue";
+import { useStore } from "vuex";
 
-  export default {
-    components: { Btn, PriceIndicator },
-    props: {
-      item: {
-        type: Object,
-        required: true,
-        validate: (obj) => {
-          if (!obj.id || !obj.name || !obj.max || !obj.current || !obj.price)
-            return false
-          return true
-        },
-      },
-      tag: {
-        type: String,
-        default: 'li',
-      },
-      active: {
-        type: Boolean,
-        default: false,
-      },
-      allowShopping: {
-        type: Boolean,
-        default: false,
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
+export default {
+  components: { PurchaseButton },
+  props: {
+    item: {
+      type: Object,
+      required: true,
+      validate: (obj) => {
+        if (!obj.id || !obj.name || !obj.max || !obj.current || !obj.price)
+          return false;
+        return true;
       },
     },
-    emits: ['purchase', 'click'],
-    setup(props, context) {
-      const store = useStore()
-
-      const currentCoins = computed(() => store.getters.currentCoins)
-
-      const canAfford = computed(() => currentCoins.value >= props.item.price)
-
-      const canPurchase = computed(() => {
-        return !props.disabled && props.allowShopping && canAfford.value
-      })
-
-      const handleClick = (evt) => {
-        if (!props.disabled) context.emit('click', evt)
-      }
-
-      const handlePurchase = () => {
-        if (canAfford.value)
-          context.emit('purchase', props.item.id, props.item.price)
-      }
-
-      return {
-        canAfford,
-        canPurchase,
-        handleClick,
-        handlePurchase,
-      }
+    tag: {
+      type: String,
+      default: "li",
     },
-  }
+    active: {
+      type: Boolean,
+      default: false,
+    },
+    allowShopping: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ["purchase", "click", "cancel"],
+  setup(props, context) {
+    const store = useStore();
+
+    const currentCoins = computed(() => store.getters.currentCoins);
+
+    const canAfford = computed(() => currentCoins.value >= props.item.price);
+
+    const canPurchase = computed(() => {
+      return !props.disabled && props.allowShopping && canAfford.value;
+    });
+
+    const handleClick = (evt) => {
+      if (!props.disabled) context.emit("click", evt);
+    };
+
+    const handlePurchase = () => {
+      if (canAfford.value)
+        context.emit("purchase", props.item.id, props.item.price);
+    };
+
+    return {
+      canAfford,
+      canPurchase,
+      handleClick,
+      handlePurchase,
+    };
+  },
+};
 </script>
 
 <style lang="scss">
-  .item {
-    $container: &;
+.item {
+  $container: &;
 
-    padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+
+  &__icon {
+    width: 3em;
+    height: 3em;
+    background: $bg;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
-    cursor: pointer;
-
-    &__icon {
-      font-size: 0.75em;
-      color: $secondary;
-      border-radius: 50%;
-      padding: 1em;
-      border: 3px solid $secondary;
-      background: $bg;
-
-      @include screen-above(sm) {
-        font-size: 1em;
-      }
-
-      @include screen-above(md) {
-        font-size: 0.9em;
-        background-image: linear-gradient(
-          45deg,
-          fade-out($bg-secondary, 0.25) 0%,
-          fade-out($secondary, 0.9) 100%
-        );
-      }
-
-      &--container {
-        position: relative;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-
-    &__capacity {
-      position: absolute;
-      left: 0;
-      top: -0.5em;
-
-      @include screen-above(md) {
-        top: unset;
-        bottom: 0;
-      }
-    }
-
-    &__price {
-      display: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -0.5em;
-
-      @include screen-above(md) {
-        display: block;
-        bottom: 0;
-        left: unset;
-      }
-    }
-
-    &__btn {
-      position: absolute;
-      font-size: 1.5rem;
-      &--purchase {
-        top: -0.5em;
-        right: -0.5em;
-
-        @include screen-above(md) {
-          top: 0;
-          right: 0;
-        }
-      }
-      &--cancel {
-        left: -0.5em;
-        bottom: -0.5em;
-        @include screen-above(md) {
-          left: 0;
-          top: 0;
-        }
-      }
-    }
-
-    &__details {
-      font-weight: bold;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      line-break: none;
-      display: none;
-      text-align: center;
-      @include screen-above(md) {
-        display: block;
-      }
-    }
-
-    &--empty,
-    &--disabled {
-      cursor: initial;
-      #{$container}__icon {
-        color: $bg-secondary !important;
-        background: $bg;
-        border-color: $bg-secondary;
-        background-image: none !important;
-      }
-    }
-
-    &--active {
-      #{$container}__icon {
-        animation: glow 0.5s ease-in-out;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-      }
-    }
-
-    &--shopping {
-      cursor: initial;
-
-      #{$container} {
-        &__price {
-          display: block;
-        }
-      }
-    }
-
-    &:hover {
-      #{$container} {
-        &__icon {
-          color: lighten($secondary, 20%);
-          background-image: linear-gradient(
-            45deg,
-            fade-out($secondary, 0.5) 0%,
-            fade-out($bg-secondary, 0.25) 100%
-          );
-        }
-      }
-    }
 
     @include screen-above(md) {
-      font-size: 1rem;
+      width: 5rem;
+      height: 5rem;
+    }
+    i {
+      font-size: 1.2em;
+      margin: 0 2px 2px 0;
+
+      @include screen-above(sm) {
+        font-size: 1.5em;
+      }
+      @include screen-above(md) {
+        font-size: 2em;
+      }
     }
   }
 
-  @keyframes glow {
-    0% {
-      box-shadow: 0 0 6px 0 $secondary;
-    }
-    100% {
-      box-shadow: 0 0 6px 3px $secondary;
+  &__btn {
+    &--cancel {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform: translate(-25%, 25%);
     }
   }
+
+  &__price {
+    display: none;
+    transform: scale(0.75);
+
+    &--affordable {
+      display: flex;
+    }
+
+    @include screen-above(sm) {
+      display: flex;
+    }
+    @include screen-above(md) {
+      transform: none;
+    }
+  }
+
+  &__details {
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-break: none;
+    display: none;
+    text-align: center;
+    @include screen-above(md) {
+      display: block;
+    }
+  }
+
+  &--empty,
+  &--disabled {
+    cursor: initial;
+    #{$container}__icon {
+      color: $bg-secondary !important;
+      background: $bg;
+      border-color: $bg-secondary;
+      background-image: none !important;
+    }
+  }
+
+  &--active {
+    #{$container}__icon {
+      animation: glow 0.5s ease-in-out;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+  }
+
+  &--shopping {
+    cursor: initial;
+  }
+
+  .v-badge__badge {
+    display: none;
+
+    @include screen-above(sm) {
+      display: block;
+    }
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 6px 0 $secondary;
+  }
+  100% {
+    box-shadow: 0 0 6px 3px $secondary;
+  }
+}
 </style>

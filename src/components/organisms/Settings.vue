@@ -1,8 +1,10 @@
 <template>
-  <Btn v-bind="buttonAttrs" v-b-modal="`${id}-settings`" />
+  <v-btn v-bind="buttonAttrs" @click="settingsModal?.open()">
+    {{ buttonAttrs.text }}
+  </v-btn>
   <SettingsModal
-    :id="`${id}-settings`"
     :game="game"
+    ref="settingsModal"
     @open="handleOpen"
     @close="handleClose"
     @update="handleUpdate"
@@ -10,53 +12,53 @@
 </template>
 
 <script>
-  import Btn from '@/components/atoms/Btn.vue'
-  import GameController from '@/model/2048/GameController'
-  import SettingsModal from '@/components/molecules/SettingsModal.vue'
+import GameController from "@/model/2048/GameController";
+import SettingsModal from '@/components/molecules/SettingsModal.vue'
 
-  import { computed } from 'vue'
+import { computed, ref } from "vue";
 
-  export default {
-    components: { Btn, SettingsModal },
-    props: {
-      id: { type: String, default: 'main-game' },
-      buttonOptions: {
-        type: Object,
-        default: () => ({}),
-      },
-      game: {
-        type: GameController,
-        required: true,
-      },
+export default {
+  components: { SettingsModal },
+  props: {
+    id: { type: String, default: "main-game" },
+    buttonOptions: {
+      type: Object,
+      default: () => ({}),
     },
-    emits: ['open', 'update', 'close'],
-    setup(props, context) {
-      const buttonAttrs = computed(() => ({
-        theme: 'plain',
-        isIcon: true,
-        icon: 'gears',
-        outlined: true,
-        ...props.buttonOptions,
-      }))
-
-      const handleOpen = (evt) => {
-        context.emit('open', evt)
-      }
-
-      const handleClose = (evt) => {
-        context.emit('close', evt)
-      }
-
-      const handleUpdate = (data) => {
-        context.emit('update', data)
-      }
-
-      return {
-        buttonAttrs,
-        handleOpen,
-        handleClose,
-        handleUpdate,
-      }
+    game: {
+      type: GameController,
+      required: true,
     },
-  }
+  },
+  emits: ["open", "update", "close"],
+  setup(props, context) {
+    const buttonAttrs = computed(() => ({
+      variant: "plain",
+      prependIcon: "fas fa-fw fa-gears",
+      ...props.buttonOptions,
+    }));
+
+    const settingsModal = ref();
+
+    const handleOpen = (evt) => {
+      context.emit("open", evt);
+    };
+
+    const handleClose = (evt) => {
+      context.emit("close", evt);
+    };
+
+    const handleUpdate = (data) => {
+      context.emit("update", data);
+    };
+
+    return {
+      buttonAttrs,
+      settingsModal,
+      handleOpen,
+      handleClose,
+      handleUpdate,
+    };
+  },
+};
 </script>

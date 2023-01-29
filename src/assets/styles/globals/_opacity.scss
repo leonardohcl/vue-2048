@@ -1,0 +1,5 @@
+@each $key, $value in ("0": 0, "25":.25, "50":.5, "75":.75, "100":1){
+    .opacity--#{$key}{
+        opacity: $value;
+    }
+}

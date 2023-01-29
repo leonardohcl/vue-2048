@@ -1,138 +1,139 @@
 <template>
-  <b-modal
-    :id="id"
-    ref="modal"
-    v-model="isOpen"
-    centered
-    title="Settings"
-    size="sm"
-    class="settings-modal"
-    @show="handleOpenModal"
-    @hidden="close"
-  >
-    <form @submit.prevent="updateSettings">
-      <b class="settings-modal--section-title">Board</b>
-      <b-form-group label="Width" :lable-for="`${id}--width`" label-cols-md="3">
-        <b-form-spinbutton
+  <v-dialog v-model="isOpen" class="settings-modal" max-width="300">
+    <v-card
+      tag="form"
+      prepend-icon="fas fa-fw fa-cogs"
+      title="Settings"
+      @submit.prevent="updateSettings"
+    >
+      <v-card-text>
+        <b class="settings-modal--section-title">Board</b>
+        <v-slider
+          class="settings-modal__slider"
+          color="primary"
+          label="width"
+          min="3"
+          max="8"
+          step="1"
           v-model="width"
-          :id="`${id}--width`"
-          max="8"
-          min="3"
+          show-ticks="always"
+          :ticks="[3, 4, 5, 6, 7, 8]"
         />
-      </b-form-group>
-      <b-form-group
-        label="Height"
-        :lable-for="`${id}--height`"
-        label-cols-md="3"
-      >
-        <b-form-spinbutton
+        <v-slider
+          class="settings-modal__slider"
+          color="primary"
+          label="height"
+          min="3"
+          max="8"
+          step="1"
           v-model="height"
-          :id="`${id}--height`"
-          max="8"
-          min="3"
+          show-ticks="always"
+          :ticks="[3, 4, 5, 6, 7, 8]"
         />
-      </b-form-group>
-      <hr />
-      <b class="settings-modal--section-title">Gameplay</b>
-      <b-form-group>
-        <b-form-checkbox v-model="allowUndo" switch>
-          Undo move is {{ allowUndo ? 'enabled' : 'disabled' }}
-        </b-form-checkbox>
-      </b-form-group>
-      <b-form-group
-        label="Undos allowed"
-        :lable-for="`${id}--undo-history-size`"
-        label-cols-md
-        v-if="allowUndo"
-      >
-        <b-form-spinbutton
-          v-model="undoHistorySize"
-          :id="`${id}--undo-history-size`"
-          max="5"
-          min="1"
+        <hr class="mb-4 opacity--50" />
+        <b class="settings-modal--section-title">Gameplay</b>
+        <v-switch
+          :label="`undo ${allowUndo ? 'enabled' : 'disabled'}`"
+          color="primary"
+          v-model="allowUndo"
+          hide-details
         />
-      </b-form-group>
-      <button type="submit" hidden/>
-    </form>
+        <v-slide-x-reverse-transition>
+          <v-slider
+            v-if="allowUndo"
+            class="settings-modal__slider"
+            color="primary"
+            label="undos"
+            min="1"
+            max="5"
+            step="1"
+            v-model="undoHistorySize"
+            show-ticks="always"
+            :ticks="[1, 2, 3, 4, 5]"
+          />
+        </v-slide-x-reverse-transition>
+        <small
+          v-if="!game.gameOver"
+          class="d-inline-block text-warning font-italic w-100 text-right"
+          >Saving changes will start a new game!</small
+        >
 
-    <template v-slot:modal-footer>
-      <Btn text="Cancel" outlined @click="isOpen = false" />
-      <Btn text="Save" @click="updateSettings" v-b-tooltip.hover title="Saving changes will start a new game" />
-      <br>
-      <small class="d-md-none font-italic">Saving changes will start a new game</small>
-    </template>
-  </b-modal>
+        <button type="submit" hidden />
+      </v-card-text>
+
+      <v-card-actions class="justify-end">
+        <v-btn @click="close" color="error" prepend-icon="fas fa-fw fa-times"
+          >Cancel</v-btn
+        >
+        <v-btn
+          @click="updateSettings"
+          color="success"
+          prepend-icon="fas fa-fw fa-save"
+          >Save</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
-  import GameController from '@/model/2048/GameController'
-  import { BFormGroup, BFormSpinbutton, BFormCheckbox } from 'bootstrap-vue'
-  import Btn from '@/components/atoms/Btn'
-  import { ref } from 'vue'
+import GameController from "@/model/2048/GameController";
+import { ref } from "vue";
+import useDialogCommands from "@/mixins/dialogCommands";
 
-  export default {
-    components: { BFormGroup, BFormSpinbutton, BFormCheckbox, Btn },
-    props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      game: {
-        type: GameController,
-        required: true,
-      },
+export default {
+  props: {
+    game: {
+      type: GameController,
+      required: true,
     },
-    emits: ['open', 'update', 'close'],
-    setup(props, context) {
-      const width = ref(4)
-      const height = ref(4)
-      const allowUndo = ref(true)
-      const undoHistorySize = ref(2)
-      const isOpen = ref(false)
+  },
+  emits: ["open", "update", "close"],
+  setup(props, context) {
+    const width = ref(4);
+    const height = ref(4);
+    const allowUndo = ref(true);
+    const undoHistorySize = ref(2);
 
-      const close = (evt) => {
-        context.emit('close', evt)
-      }
+    const updateSettings = () => {
+      context.emit("update", {
+        width: width.value,
+        height: height.value,
+        historySize: allowUndo.value ? undoHistorySize.value : 0,
+      });
+    };
 
-      const updateSettings = () => {
-        context.emit('update', {
-          width: width.value,
-          height: height.value,
-          historySize: allowUndo.value ? undoHistorySize.value : 0,
-        })
-        isOpen.value = false
-      }
+    const handleOpenModal = (evt) => {
+      width.value = props.game.width;
+      height.value = props.game.height;
+      allowUndo.value = props.game.historySize > 0;
+      undoHistorySize.value = props.game.historySize;
+    };
 
-      const handleOpenModal = (evt) => {
-        context.emit('open', evt)
-
-        width.value = props.game.width
-        height.value = props.game.height
-        allowUndo.value = props.game.historySize > 0
-        undoHistorySize.value = props.game.historySize
-      }
-
-      return {
-        isOpen,
-        width,
-        height,
-        allowUndo,
-        undoHistorySize,
-        close,
-        updateSettings,
-        handleOpenModal,
-      }
-    },
-  }
+    return {
+      width,
+      height,
+      allowUndo,
+      undoHistorySize,
+      updateSettings,
+      handleOpenModal,
+      ...useDialogCommands(context),
+    };
+  },
+};
 </script>
 
 <style lang="scss">
-  .settings-modal {
-    &--section-title {
-      font-size: 1.1rem;
-      display: inline-block;
-      font-weight: bold;
-      margin-bottom: $default-spacing * 0.25;
-    }
+.settings-modal {
+  &--section-title {
+    font-size: 1.1rem;
+    display: inline-block;
+    font-weight: bold;
+    margin-bottom: $default-spacing * 0.25;
   }
+
+  &__slider {
+    grid-template-columns: minmax(0, 33%) minmax(0, 1fr) max-content !important;
+  }
+}
 </style>

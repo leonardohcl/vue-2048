@@ -82,11 +82,11 @@ export default {
       state: IMemoryCard,
       {
         save,
-        gameMode = 'regular',
+        gameMode = GameMode.Regular,
       }: { save: SaveFile | RoguelikeSaveFile; gameMode: GameMode }
     ) {
       const memoryFile =
-        gameMode === 'regular'
+        gameMode === GameMode.Regular
           ? (state[gameMode] as IDefaultMemoryCard<SaveFile>)
           : (state[gameMode] as IDefaultMemoryCard<RoguelikeSaveFile>)
       const idx = memoryFile.savedGames.findIndex(
@@ -97,7 +97,7 @@ export default {
     },
     [SAVE_LAST_GAME_MUTATION](
       state: IMemoryCard,
-      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
     ) {
       const memoryFile = state[gameMode]
       memoryFile.lastGame = save
@@ -106,14 +106,14 @@ export default {
   actions: {
     [ADD_GAME_ACTION](
       context: { commit: Function },
-      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
     ) {
       context.commit(ADD_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
     },
     [SAVE_LAST_GAME_ACTION](
       context: { commit: Function },
-      { save, gameMode = 'regular' }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
     ) {
       context.commit(SAVE_LAST_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
@@ -121,10 +121,10 @@ export default {
   },
   getters: {
     saves(state: IMemoryCard) {
-      return (gameMode: GameMode = 'regular') => state[gameMode].savedGames
+      return (gameMode: GameMode = GameMode.Regular) => state[gameMode].savedGames
     },
     lastGame(state: IMemoryCard) {
-      return (gameMode: GameMode = 'regular') => state[gameMode].lastGame
+      return (gameMode: GameMode = GameMode.Regular) => state[gameMode].lastGame
     },
   },
 }

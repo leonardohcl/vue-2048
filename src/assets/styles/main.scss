@@ -1,10 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 @import "base";
 @import "globals";
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+@import "vuetify";
 
 * {
     box-sizing: border-box;
+}
 
+html {
+    overflow: auto !important;
 }
 
 body {

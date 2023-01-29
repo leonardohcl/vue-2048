@@ -44,11 +44,10 @@ $block-colors: (
 
 $grid-breakpoints: (
   "xs": 0,
-  "sm": 576px,
-  "md": 768px,
-  "lg": 992px,
-  "xl": 1200px,
-  "xxl": 1400px,
+  "sm": 600px,
+  "md": 960px,
+  "lg": 1264px,
+  "xl": 1904px,
 );
 
 $grid-gutter-width: $default-spacing;

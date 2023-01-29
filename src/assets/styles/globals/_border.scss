@@ -1,0 +1,6 @@
+@each $key,
+$value in $themes {
+    .border--#{$key} {
+        border-color: $value
+    }
+}

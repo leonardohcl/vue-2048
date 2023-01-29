@@ -1,91 +1,107 @@
 <template>
-  <Btn
+  <v-btn
     v-if="useSubmit"
-    :text="submitText"
-    size="sm"
-    theme="secondary"
-    icon="award"
-    outlined
+    size="small"
+    variant="text"
+    color="secondary"
+    prepend-icon="fas fa-fw fa-award"
     :disabled="disabled"
-    @click="$emit('submitScore')"
+    @click="saveScoreModal?.open"
+  >
+    {{ submitText }}
+  </v-btn>
+  <SaveScoreModal
+    :id="`${id}-new-highscore`"
+    :entry="entry"
+    @submit="saveScore"
+    ref="saveScoreModal"
   />
-  <SaveScoreModal :id="`${id}-new-highscore`" :entry="entry" />
 </template>
 
 <script>
-  import Btn from '@/components/atoms/Btn.vue'
-  import SaveScoreModal from '@/components/molecules/SaveScoreModal.vue'
-  import GameController from '@/model/2048/GameController'
-  import { ref, computed } from 'vue'
-  import { useStore } from 'vuex'
+import SaveScoreModal from "@/components/molecules/SaveScoreModal.vue";
+import GameController from "@/model/2048/GameController";
+import { ref, computed } from "vue";
+import { useStore } from "vuex";
+import { ADD_SCORE_ACTION } from "@/store/ranking";
 
-  export default {
-    components: { SaveScoreModal, Btn },
-    props: {
-      id: {
-        type: String,
-        default: 'main-game',
-      },
-      rankingId: {
-        type: String,
-        required: true,
-      },
-      game: {
-        type: GameController,
-        required: true,
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
-      useSubmit: {
-        type: Boolean,
-        default: false,
-      },
-      submitText: {
-        type: String,
-        default: 'Submit Score',
-      },
+export default {
+  components: { SaveScoreModal },
+  props: {
+    id: {
+      type: String,
+      default: "main-game",
     },
-    emits: ['submitScore'],
-    methods: {
-      saveScore(entry) {
-        if (entry) this.entry = entry
-        if (this.isRankingWorthy(entry.score))
-          this.$bvModal.show(`${this.id}-new-highscore`)
-      },
+    rankingId: {
+      type: String,
+      required: true,
     },
-    setup(props) {
-      const entry = ref(
-        GameController.getRankingEntry({
-          rankingId: props.rankingId,
-          game: props.game,
-        })
-      )
+    game: {
+      type: GameController,
+      required: true,
+    },
+    getEntry: {
+      type: Function,
+      default: GameController.getRankingEntry,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    useSubmit: {
+      type: Boolean,
+      default: false,
+    },
+    submitText: {
+      type: String,
+      default: "Submit Score",
+    },
+  },
+  emits: ['save'],
+  setup(props, context) {
+    const saveScoreModal = ref();
 
-      const store = useStore()
-
-      const ranking = computed(() => store.getters.ranking(props.rankingId))
-
-      const highScores = computed(() => {
-        if (ranking.value.length > 0)
-          return {
-            first: ranking.value[0].score,
-            last: ranking.value[ranking.value.length - 1].score,
-            count: ranking.value.length,
-          }
-
-        return {
-          first: 0,
-          last: 0,
-          count: 0,
-        }
+    const entry = computed(() =>
+      props.getEntry({
+        id: props.rankingId,
+        game: props.game,
       })
+    );
 
-      const isRankingWorthy = (score) =>
-        highScores.value.count < 10 || score > highScores.value.last
+    const store = useStore();
 
-      return { entry, isRankingWorthy }
-    },
-  }
+    const ranking = computed(() => store.getters.ranking(props.rankingId));
+
+    const highScores = computed(() => {
+      if (ranking.value.length > 0)
+        return {
+          first: ranking.value[0].score,
+          last: ranking.value[ranking.value.length - 1].score,
+          count: ranking.value.length,
+        };
+
+      return {
+        first: 0,
+        last: 0,
+        count: 0,
+      };
+    });
+
+    const isRankingWorthy = (score) =>
+      highScores.value.count < 10 || score > highScores.value.last;
+
+    const saveScore = (entry) => {
+      if (!isRankingWorthy(entry.score)) return;
+      store.dispatch(ADD_SCORE_ACTION, entry);
+      context.emit("save")
+    };
+
+    return {
+      entry,
+      saveScoreModal,
+      isRankingWorthy,
+      saveScore,
+    };
+  },
+};
 </script>

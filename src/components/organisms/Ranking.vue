@@ -1,53 +1,52 @@
 <template>
   <div class="ranking">
-    <Btn v-bind="buttonAttrs" v-b-modal="`${id}-ranking`" />
+    <v-btn v-bind="buttonAttrs" @click="rankingModal.open()" />
 
     <RankingModal
-      :id="`${id}-ranking`"
       :ranking-id="rankingId"
       :with-board="withBoard"
       :with-run="withRun"
+      ref="rankingModal"
     />
   </div>
 </template>
 
 <script>
-  import RankingModal from '@/components/molecules/RankingModal.vue'
-  import Btn from '@/components/atoms/Btn.vue'
+import RankingModal from "@/components/molecules/RankingModal.vue";
 
-  import { computed } from 'vue'
+import { computed, ref } from "vue";
 
-  export default {
-    components: { RankingModal, Btn },
-    props: {
-      rankingId: { type: String, required: true },
-      id: { type: String, default: 'main-game' },
-      buttonOptions: {
-        type: Object,
-        default: () => ({}),
-      },
-      withRun: {
-        type: Boolean,
-        default: false,
-      },
-      withBoard: {
-        type: Boolean,
-        default: false,
-      },
+export default {
+  components: { RankingModal },
+  props: {
+    rankingId: { type: String, required: true },
+    buttonOptions: {
+      type: Object,
+      default: () => ({}),
     },
-    setup(props) {
-      const buttonAttrs = computed(() => ({
-        theme: 'plain',
-        isIcon: true,
-        icon: 'ranking-star',
-        outlined: true,
-        ...props.buttonOptions,
-      }))
-
-      return {
-        buttonAttrs,
-      }
+    withRun: {
+      type: Boolean,
+      default: false,
     },
-  }
+    withBoard: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup(props) {
+    const buttonAttrs = computed(() => ({
+      variant: "plain",
+      prependIcon: "fas fa-fw fa-ranking-star",
+      ...props.buttonOptions,
+    }));
+
+    const rankingModal = ref();
+
+    return {
+      buttonAttrs,
+      rankingModal,
+    };
+  },
+};
 </script>
 

@@ -37,7 +37,7 @@ export default class Inventory implements IInventory {
     {
       id: 'breakBlock',
       name: 'Break Block',
-      icon: 'hammer',
+      icon: 'fas fa-hammer',
       max: 3,
       blocksRequired: 1,
       price: 40,
@@ -46,7 +46,7 @@ export default class Inventory implements IInventory {
     {
       id: 'upgradeBlock',
       name: 'Upgrade Block',
-      icon: 'square-plus',
+      icon: 'fas fa-square-plus',
       max: 2,
       blocksRequired: 1,
       price: 240,
@@ -55,7 +55,7 @@ export default class Inventory implements IInventory {
     {
       id: 'shrinkBlock',
       name: 'Shrink Block',
-      icon: 'square-minus',
+      icon: 'fas fa-square-minus',
       max: 5,
       blocksRequired: 1,
       price: 80,
@@ -64,7 +64,7 @@ export default class Inventory implements IInventory {
     {
       id: 'moveBlock',
       name: 'Move Block',
-      icon: 'hand',
+      icon: 'fas fa-hand',
       max: 3,
       blocksRequired: 2,
       price: 400,

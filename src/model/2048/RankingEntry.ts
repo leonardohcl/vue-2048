@@ -38,4 +38,17 @@ export default class RankingEntry implements IRankingEntry {
     this.width = width
     this.height = height
   }
+
+  static getMock(): RankingEntry {
+    return new RankingEntry({
+      id: 'mock',
+      name: 'mock player',
+      block: Math.pow(2, Math.round(Math.random() * 12)),
+      score: Math.round(Math.random() * 20000),
+      moves: Math.round(Math.random() * 250),
+      undos: Math.round(Math.random() * 10),
+      width: 3 + Math.round(Math.random() * 5),
+      height: 3 + Math.round(Math.random() * 5),
+    })
+  }
 }

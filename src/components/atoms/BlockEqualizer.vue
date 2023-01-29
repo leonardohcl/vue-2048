@@ -1,21 +1,19 @@
 <template>
   <div class="block-equalizer">
-    <Btn
+    <v-btn
       v-if="allowDecrease"
-      is-icon
-      outlined
-      :theme="theme"
-      icon="fa-regular fa-minus-square"
+      class="pa-0 mr-2"
+      v-bind="btnOptions"
+      prepend-icon="fa-fw far fa-minus-square"
       :disabled="disabled || current <= min"
       @click="$emit('decrease')"
-    />
-  <Square :value="current" inline/>
-    <Btn
+      />
+      <Square :value="current" inline />
+      <v-btn
       v-if="allowIncrease"
-      is-icon
-      outlined
-      :theme="theme"
-      icon="fa-regular fa-plus-square"
+      class="pa-0 ml-2"
+      v-bind="btnOptions"
+      prepend-icon="fa-fw far fa-plus-square"
       :disabled="disabled || current >= max"
       @click="$emit('increase')"
     />
@@ -23,47 +21,34 @@
 </template>
 
 <script>
-  import Btn from '@/components/atoms/Btn.vue'
-  import Square from '@/components/atoms/Square.vue'
+import Square from "@/components/atoms/Square.vue";
 
-  export default {
-    components: { Btn,Square },
-    emits: ['increase', 'decrease'],
-    props: {
-      current: { type: Number, required: true },
-      max: { type: Number },
-      theme: { type: String, default: 'primary' },
-      allowDecrease: { type: Boolean, default: true },
-      allowIncrease: { type: Boolean, default: true },
-      disabled: { type: Boolean, default: false },
+export default {
+  components: { Square },
+  emits: ["increase", "decrease"],
+  props: {
+    current: { type: Number, required: true },
+    max: { type: Number },
+    color: { type: String, default: "primary" },
+    allowDecrease: { type: Boolean, default: true },
+    allowIncrease: { type: Boolean, default: true },
+    disabled: { type: Boolean, default: false },
+  },
+  computed: {
+    btnOptions() {
+      return {
+        variant: 'text',
+        color: this.color,
+        size: "small",
+      };
     },
-  }
+  },
+};
 </script>
 
 <style lang="scss">
-  .block-equalizer {
-    display: flex;
-    align-items: center;
-
-    .btn {
-      height: 1.3em !important;
-      width: 1.5em !important;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    &__bars {
-      display: flex;
-      gap: 3px;
-      width: 100%;
-      align-items: center;
-    }
-
-    &__bar {
-      flex: 1;
-      height: 1.3em;
-      background-color: $bg-secondary;
-    }
-  }
+.block-equalizer {
+  display: flex;
+  align-items: center;
+}
 </style>

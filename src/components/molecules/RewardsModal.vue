@@ -1,72 +1,74 @@
 <template>
-  <b-modal
-    :id="id"
-    v-model="isOpen"
-    centered
-    title="Rewards"
-    size="sm"
-    class="rewards-modal"
-    hide-footer
-  >
-    <div class="rewards-modal__block-list">
-      <div
-        class="rewards-modal__block"
-        v-for="square in rewards.squares"
-        :key="square.block"
-      >
-        <Square inline :value="square.block" />
-        <span class="small ml-2">
-          ({{ square.value }} <FontAwesomeIcon icon="coins" />)
-        </span>
-        <span class="ml-2"
-          >x {{ square.count }} = {{ square.coinsEarned }}
-          <FontAwesomeIcon icon="coins"
-        /></span>
-      </div>
-    </div>
-    <div class="rewards-modal__total">
-      <div class="badge badge-warning badge-pill">
-        + {{ rewards.totalEarned }} <FontAwesomeIcon icon="coins" />
-      </div>
-    </div>
-  </b-modal>
+  <v-dialog v-model="isOpen" max-width="300" class="rewards-modal">
+    <v-card title="Rewards" prepend-icon="fas fa-fw fa-gem">
+      <v-card-text>
+        <div class="rewards-modal__block-list">
+          <div
+            class="rewards-modal__block"
+            v-for="square in rewards.squares"
+            :key="square.block"
+          >
+            <Square inline :value="square.block" />
+            <span class="small ml-2">
+              ({{ square.value }} <v-icon icon="fas fa-fw fa-coins" />)
+            </span>
+            <span class="ml-2"
+              >x {{ square.count }} = {{ square.coinsEarned }}
+              <v-icon icon="fas fa-fw fa-coins"
+            /></span>
+          </div>
+        </div>
+        <div class="rewards-modal__total">
+          <div class="badge badge-warning badge-pill">
+            + {{ rewards.totalEarned }}
+            <v-icon icon="fas fa-fw fa-coins" size="x-small"/>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
-<script lang="ts">
-  import Square from '@/components/atoms/Square.vue'
-  import GameRewards from '@/model/roguelike/GameRewards'
+<script>
+import Square from "@/components/atoms/Square.vue";
+import GameRewards from "@/model/roguelike/GameRewards";
+import useDialogCommands from "@/mixins/dialogCommands";
 
-  export default {
-    components: { Square },
-    props: {
-      id: {
-        type: String,
-        required: true,
-      },
-      rewards: {
-        type: GameRewards,
-        required: true,
-      },
+export default {
+  components: { Square },
+  props: {
+    rewards: {
+      type: [GameRewards, Object],
+      required: true,
     },
-  }
+  },
+  setup() {
+    return { ...useDialogCommands() };
+  },
+};
 </script>
 
 <style lang="scss">
-  .rewards-modal {
-    &__block {
-      display: flex;
-      align-items: center;
-    }
+.rewards-modal {
 
-    &__block-list {
-      display: flex;
-      flex-direction: column;
-      gap: $default-spacing * 0.5;
-    }
-
-    &__total {
-      text-align: right;
-      font-size: 1.5rem;
-    }
+  .fa-coins{
+    font-size: .8em;
   }
+
+  &__block {
+    display: flex;
+    align-items: center;
+  }
+
+  &__block-list {
+    display: flex;
+    flex-direction: column;
+    gap: $default-spacing * 0.5;
+  }
+
+  &__total {
+    text-align: right;
+    font-size: 1.5rem;
+  }
+}
 </style>

@@ -1,38 +1,38 @@
 <template>
   <div class="game-controls">
     <div class="game-controls--callout">Select your next movement:</div>
-    <Btn
+    <v-btn
       class="game-controls__button"
-      size="sm"
-      @click="sendCommand('left')"
+      v-bind="buttonParams"
       :disabled="!canMove('left')"
+      @click="sendCommand('left')"
     >
       LEFT
-    </Btn>
-    <Btn
+    </v-btn>
+    <v-btn
       class="game-controls__button"
-      size="sm"
-      @click="sendCommand('up')"
+      v-bind="buttonParams"
       :disabled="!canMove('up')"
+      @click="sendCommand('up')"
     >
       UP
-    </Btn>
-    <Btn
+    </v-btn>
+    <v-btn
       class="game-controls__button"
-      size="sm"
-      @click="sendCommand('down')"
+      v-bind="buttonParams"
       :disabled="!canMove('down')"
+      @click="sendCommand('down')"
     >
       DOWN
-    </Btn>
-    <Btn
+    </v-btn>
+    <v-btn
       class="game-controls__button"
-      size="sm"
-      @click="sendCommand('right')"
+      v-bind="buttonParams"
       :disabled="!canMove('right')"
+      @click="sendCommand('right')"
     >
       RIGHT
-    </Btn>
+    </v-btn>
     <div class="game-controls--callout">
       <small> *You can also use the arrow keys or swipe the board </small>
     </div>
@@ -40,50 +40,54 @@
 </template>
 
 <script>
-  import Btn from '@/components/atoms/Btn.vue'
-  import GameController from '@/model/2048/GameController'
+import GameController from "@/model/2048/GameController";
+import { computed } from "@vue/reactivity";
 
-  export default {
-    components: { Btn },
-    emits: ['command'],
-    props: {
-      game: {
-        type: GameController,
-        required: true,
-      },
+export default {
+  emits: ["command"],
+  props: {
+    game: {
+      type: GameController,
+      required: true,
     },
-    setup(props, context) {
-      const sendCommand = (dir) => {
-        context.emit('command', dir)
-      }
-
-      const canMove = (dir) => {
-        if (props.game.paused) return false
-        if (props.game.gameOver) return false
-        return dir ? props.game.canMove[dir] : true
-      }
-
-      return { sendCommand, canMove }
+    buttonOptions: {
+      type: Object,
+      default: () => ({}),
     },
-  }
+  },
+  setup(props, context) {
+    const sendCommand = (dir) => {
+      context.emit("command", dir);
+    };
+
+    const buttonParams = computed(() => ({
+      variant: "flat",
+      size: "small",
+      ...props.buttonOptions,
+    }));
+
+    const canMove = (dir) => {
+      if (props.game.paused) return false;
+      if (props.game.gameOver) return false;
+      return dir ? props.game.canMove[dir] : true;
+    };
+
+    return { buttonParams, sendCommand, canMove };
+  },
+};
 </script>
 
 <style lang="scss">
-  .game-controls {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+.game-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.5rem;
 
-    &--callout {
-      font-weight: 300;
-      width: 100%;
-      margin: 0.5rem 0;
-    }
-
-    &__button {
-      &:not(:last-child) {
-        margin-right: 0.5rem;
-      }
-    }
+  &--callout {
+    font-weight: 300;
+    width: 100%;
+    margin: 0.5rem 0;
   }
+}
 </style>
