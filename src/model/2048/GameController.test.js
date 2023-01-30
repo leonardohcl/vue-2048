@@ -7,6 +7,13 @@ import GameProgress from './interfaces/GameProgress'
 import GameState from './interfaces/GameState'
 import GameSettings from './interfaces/GameSettings'
 
+const moveBoardInCircle = async (game) => {
+  await game.move(Direction.Up)
+  await game.move(Direction.Right)
+  await game.move(Direction.Down)
+  await game.move(Direction.Left)
+}
+
 describe('GameController.ts', () => {
   test('must create game correctly', () => {
     const game = new GameController()
@@ -129,28 +136,36 @@ describe('GameController.ts', () => {
     expect(save.settings).toEqual(new GameSettings(MOCK_GAME))
   })
 
-  test('must load game correctly', async () => {
-    const game = new GameController(3, 3, 2, 0)
-    game.start()
+  describe('must load game correctly', () => {
 
-    const originalGame = deepCopy(game)
-    const save = GameController.getSaveFile('test', game)
+    test('regular load', async () => {
+      const game = new GameController()
+      game.start()
 
-    await game.move(Direction.Up)
-    await game.move(Direction.Right)
-    await game.move(Direction.Down)
-    await game.move(Direction.Left)
-    
-    game.loadSaveFile(save)
-    
-    expect(deepCopy(game)).toEqual(deepCopy(originalGame))
-    
-    await game.move(Direction.Up)
-    await game.move(Direction.Right)
-    await game.move(Direction.Down)
-    await game.move(Direction.Left)  
-    await game.undo()
+      
+      await moveBoardInCircle(game)
+      const save = GameController.getSaveFile('test', game)
 
-    expect(deepCopy(game)).toEqual(deepCopy(originalGame))
+      const loadedGame = new GameController()
+      loadedGame.loadSaveFile(save)
+
+      expect(deepCopy(loadedGame)).toEqual(deepCopy(game))
+    })
+
+    test('load save from after undo', async () => {
+      const game = new GameController()
+
+      game.start()
+      await moveBoardInCircle(game)
+      await game.undo()
+
+      const save = GameController.getSaveFile('test', game)
+
+      const loadedGame = new GameController()
+
+      loadedGame.loadSaveFile(save)
+      
+      expect(deepCopy(loadedGame)).toEqual(deepCopy(game))
+    })
   })
 })

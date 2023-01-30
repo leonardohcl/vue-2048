@@ -19,6 +19,19 @@ export default class Board implements IBoard {
     if (preset) this.loadPreset(preset)
   }
 
+  toString() {
+    const highestValue = this.highestValue
+    let maxSize = highestValue < 10 ? 1 : highestValue < 100 ? 2 : highestValue < 1000 ? 3 : 4
+    const board = this.flat
+    const rows = []
+    for (let row = 0; row < this.height; row++) {
+      const rowStart = row * this.width, rowEnd = rowStart + this.width
+      const rowText = board.slice(rowStart, rowEnd).map(x => `${x}`.padStart(5).slice(-maxSize))
+      rows.push(rowText)
+    }
+    return rows.join("\n")
+  }
+
   get emptySquares() {
     return this.squares.filter((square) => square.isEmpty === true)
   }

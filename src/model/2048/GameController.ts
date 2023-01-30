@@ -1,5 +1,4 @@
 import Board from './Board'
-import { orderBy } from 'lodash'
 import SaveFile from './SaveFile'
 import { deepCopy } from '../../utils/copy'
 import GameSettings from './interfaces/GameSettings'
@@ -9,7 +8,15 @@ import Direction from './Direction'
 import IBoard from './interfaces/Board'
 import RankingEntry from './RankingEntry'
 import Game from './Game'
-import ISquare from './interfaces/Square'
+import { onUpdateSquareFn } from './interfaces/Game'
+
+const rememberMoves: onUpdateSquareFn = (sqr, { nextRow, nextCol }) => {
+  sqr.setMove({
+    vertical: sqr.row - nextRow,
+    horizontal: sqr.col - nextCol,
+    reverse: false,
+  })
+}
 
 export default class GameController extends Game {
   undos = 0
@@ -36,15 +43,8 @@ export default class GameController extends Game {
     return this.board.highestValue
   }
 
-  #onUpdateSquare(sqr: ISquare, { nextRow, nextCol }: { nextRow: number, nextCol: number }) {
-    sqr.setMove({
-      vertical: sqr.row - nextRow,
-      horizontal: sqr.col - nextCol,
-      reverse: false,
-    })
-  }
 
-  getNextBoard(dir: Direction, onUpdateSquare = this.#onUpdateSquare) {
+  getNextBoard(dir: Direction, onUpdateSquare: onUpdateSquareFn = rememberMoves) {
     return super.getNextBoard(dir, onUpdateSquare)
   }
 
@@ -170,8 +170,7 @@ export default class GameController extends Game {
     return new Promise<{ success: boolean, pointsGained: number }>(resolve => {
       setTimeout(() => {
 
-        this.addToHistory(this.board, pointsGained
-          )
+        this.addToHistory(this.board, pointsGained)
         this.score += pointsGained
         this.moves++
 

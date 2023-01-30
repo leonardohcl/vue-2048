@@ -71,7 +71,7 @@ export default class Game implements IGame {
     }
 
     updateMoveValidation(dir: Direction) {
-        const { nextBoard } = this.getNextBoard(dir)
+        const { nextBoard } = this.getNextBoard(dir, () => {})
         this.canMove[dir] =
             nextBoard.filledSquares.length != this.board.filledSquares.length ||
             nextBoard.filledSquares.some((sqr) => {
