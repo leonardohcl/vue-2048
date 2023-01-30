@@ -1,6 +1,7 @@
 import Square from "./Square";
+import sleep from '../../utils/sleep'
 
-describe('Square.js', () => {
+describe('Square.ts', () => {
     test('must be created with correct position and value', () => {
         const sqr = new Square(1, 2)
         expect(sqr.value).toBe(0)
@@ -30,25 +31,30 @@ describe('Square.js', () => {
     test('must set next move correctly', () => {
         const sqr = new Square(0, 0)
         expect(sqr.nextMove).toEqual({
-            spawn: false,
-            reverse:false,
+            reverse: false,
             vertical: 0,
             horizontal: 0,
         })
-        sqr.setMove({vertical: 3, horizontal: 1})
+        sqr.setMove({ vertical: 3, horizontal: 1 })
         expect(sqr.nextMove).toEqual({
-            spawn: false,
-            reverse:false,
+            reverse: false,
             vertical: 3,
             horizontal: 1,
         })
+
+    })
+
+    test('must set spawn correctly', async () => {
+        const sqr = new Square(0, 0)
         sqr.setSpawn()
-        expect(sqr.nextMove).toEqual({
-            spawn: true,
-            reverse:false,
-            vertical: 3,
-            horizontal: 1,
-        })
+        expect(sqr.isSpawn).toEqual(true)
+        
+        sqr.isSpawn = false
+        sqr.setSpawn(500)
+        expect(sqr.isSpawn).toEqual(true)
+        await sleep(500)
+        expect(sqr.isSpawn).toEqual(false)
+
     })
 
     test('must generate identical clone with no object reference', () => {
@@ -62,6 +68,6 @@ describe('Square.js', () => {
         expect(sqr.value).toBe(0)
         expect(clone.value).toBe(2)
     })
-    
+
 
 })

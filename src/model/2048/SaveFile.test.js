@@ -17,7 +17,7 @@ const MOCK_SETTINGS = new GameSettings(MOCK_GAME)
 const MOCK_STATE = new GameState(MOCK_GAME)
 const MOCK_PROGRESS = new GameProgress(MOCK_GAME)
 
-describe('SaveFile.js', () => {
+describe('SaveFile.ts', () => {
   test('must create save correctly', () => {
     const save = new SaveFile(
       MOCK_FILENAME,

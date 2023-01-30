@@ -11,11 +11,11 @@ export default class Board implements IBoard {
   constructor(width: number, height: number, preset?: number[]) {
     this.width = width
     this.height = height
-    this.squares = new Array(this.width * this.height).fill(0).map((_, ind) => {
-      const row = Math.floor(ind / this.width) % this.height,
-        col = ind % this.width
+    this.squares = new Array(this.width * this.height).fill(0).map((_, idx) => {
+      const { row, col } = this.getCoordFromIdx(idx)
       return new Square(row, col)
-    })
+    }
+    )
     if (preset) this.loadPreset(preset)
   }
 
@@ -35,6 +35,12 @@ export default class Board implements IBoard {
 
   get flat() {
     return this.squares.map((sqr) => sqr.value)
+  }
+
+  getCoordFromIdx(idx: number) {
+    const row = Math.floor(idx / this.width) % this.height,
+      col = idx % this.width
+    return { row, col }
   }
 
   loadPreset(preset: number[]) {
