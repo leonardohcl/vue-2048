@@ -27,14 +27,15 @@
         :time-to-idle="1000"
         @idle="saveCurrentGame"
         @move="saveCurrentGame"
-        @new-game="game.start()"
-        @restart="game.start()"
+        @new-game="handleNewGame"
+        @restart="handleNewGame"
+        @win="handleGameOver"
         @game-over="handleGameOver"
         @set-endless="game.activateEndless()"
       />
     </div>
   </PageContainer>
-  
+
   <HighScoreManager
     :game="game"
     :ranking-id="rankingId"
@@ -46,9 +47,9 @@
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import Game from "@/components/organisms/Game.vue";
 import Ranking from "@/components/organisms/Ranking.vue";
-import Settings from '@/components/organisms/Settings.vue'
+import Settings from "@/components/organisms/Settings.vue";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
-import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
+import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
 import GameController from "@/model/2048/GameController";
 import { defineComponent } from "vue";
 
@@ -70,7 +71,7 @@ export default defineComponent({
   setup() {
     const store = useStore();
 
-    const highScoreManager = ref(null);
+    const highScoreManager = ref();
 
     const game = ref(
       new GameController({
@@ -103,6 +104,11 @@ export default defineComponent({
       game.value.updateSettings(newSettings);
     };
 
+    const handleNewGame = () => {
+      game.value.start();
+      game.value.loadBoardPreset([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1024,1024,])
+    };
+
     const handleSaveGame = (slot) => {
       const save = GameController.getSaveFile(slot.filename, game.value);
       store.dispatch(ADD_GAME_ACTION, { save });
@@ -113,13 +119,7 @@ export default defineComponent({
     };
 
     const handleGameOver = () => {
-      if (highScoreManager.value) {
-        const highscoreEntry = GameController.getRankingEntry({
-          id: rankingId.value,
-          game: game.value,
-        });
-        highScoreManager.value.saveScore(highscoreEntry);
-      }
+      highScoreManager.value?.triggerDialog()
     };
 
     const route = useRoute();
@@ -143,6 +143,7 @@ export default defineComponent({
       handleSettingsOpen,
       handleSettingsClose,
       handleSettingsUpdate,
+      handleNewGame,
       handleGameOver,
       handleSaveGame,
       handleLoadGame,

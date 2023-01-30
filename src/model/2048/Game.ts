@@ -136,6 +136,7 @@ export default class Game implements IGame {
         this.clearBoard()
         this.spawnBlock(this.board)
         this.spawnBlock(this.board)
+        this.updateValidMoves()
     }
 
 }

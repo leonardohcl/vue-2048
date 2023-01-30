@@ -57,7 +57,7 @@ export default {
       default: "Submit Score",
     },
   },
-  emits: ['save'],
+  emits: ["save"],
   setup(props, context) {
     const saveScoreModal = ref();
 
@@ -87,20 +87,25 @@ export default {
       };
     });
 
-    const isRankingWorthy = (score) =>
+    const isRankingWorthy = (score = entry.score || 0) =>
       highScores.value.count < 10 || score > highScores.value.last;
 
-    const saveScore = (entry) => {
-      if (!isRankingWorthy(entry.score)) return;
-      store.dispatch(ADD_SCORE_ACTION, entry);
-      context.emit("save")
+    const saveScore = (rankingEntry) => {
+      if (!isRankingWorthy(rankingEntry.score)) return;
+      store.dispatch(ADD_SCORE_ACTION, rankingEntry);
+      context.emit("save");
     };
+
+    const triggerDialog = () => {
+      saveScoreModal.value?.open()
+    }
 
     return {
       entry,
       saveScoreModal,
-      isRankingWorthy,
       saveScore,
+      triggerDialog,
+      isRankingWorthy,
     };
   },
 };

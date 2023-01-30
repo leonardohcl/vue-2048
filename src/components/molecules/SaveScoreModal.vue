@@ -51,8 +51,6 @@
 import { ref } from "vue";
 import Square from "@/components/atoms/Square.vue";
 import DataChip from "@/components/atoms/DataChip.vue";
-import { ADD_SCORE_ACTION } from "@/store/ranking";
-import { useStore } from "vuex";
 import RoguelikeRankingEntry from "@/model/roguelike/RankingEntry";
 import RankinEntry from "@/model/2048/RankingEntry";
 import useDialogCommands from "@/mixins/dialogCommands";
@@ -65,15 +63,14 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  emits: ["submit"],
+  setup(props, context) {
     const username = ref("");
-
-    const store = useStore();
 
     const { isOpen, open, close } = useDialogCommands();
 
     const saveScore = () => {
-      store.dispatch(ADD_SCORE_ACTION, {
+      context.emit("submit", {
         ...props.entry,
         name: username.value,
       });
