@@ -65,46 +65,40 @@ import PurchaseButton from "./PurchaseButton.vue";
 import Square from "./Square.vue";
 import { computed, defineComponent } from "vue";
 import Item from "@/model/Game Utils/Item";
-import { useStore } from "vuex";
 
 export default defineComponent({
   components: { Square, PurchaseButton },
   props: {
     item: { type: Item, required: true },
+    availableCoins: { type: Number, default: 0 },
     active: { type: Boolean, default: false },
     allowUse: { type: Boolean, default: false },
     allowPurchase: { type: Boolean, default: false },
     tag: { type: String, default: "div" },
   },
   emits: ["purchase", "use", "cancel"],
-  setup({ item, active, allowUse }, { emit }) {
-    const store = useStore();
+  setup(props, { emit }) {
+    const isFull = computed(() => props.item.amount >= props.item.maxAmount);
 
-    const currentCoins = computed(() => store.getters.currentCoins);
-
-    const isFull = computed(() => item.amount >= item.maxAmount);
-
-    const canAfford = computed(
-      () =>
-        item.amount < item.maxAmount && currentCoins.value >= item.currentPrice
-    );
+    const canAfford = computed(() => {
+      return props.item.amount < props.item.maxAmount && props.availableCoins >= props.item.currentPrice;
+    });
 
     const handlePurchase = () => {
-      if (canAfford.value) emit("purchase", item);
+      if (canAfford.value) emit("purchase", props.item);
     };
 
     const handleUse = () => {
-      if (item.amount > 0 && allowUse) emit("use", item);
+      if (props.item.amount > 0 && props.allowUse) emit("use", props.item);
     };
 
     const handleCancel = () => {
-      if (active) emit("cancel", item);
+      if (props.active) emit("cancel", props.item);
     };
 
     return {
       isFull,
       canAfford,
-      currentCoins,
       handleUse,
       handleCancel,
       handlePurchase,

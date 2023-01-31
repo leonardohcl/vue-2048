@@ -90,7 +90,15 @@
               Best:
               <Square class="mx-2" :value="progress.highestBlock" inline />
             </div>
-            <div>Best Score: {{ progress.bestScore }}</div>
+            <div>
+              Best Score: {{ progress.bestScore }}
+              <DataChip
+                :value="progress.bestRun"
+                text="Run"
+                theme="run"
+                :chip-options="{ variant: 'tonal', size: 'x-small' }"
+              />
+            </div>
             <HighScoreManager
               ref="highscoreManager"
               :ranking-id="rankingId"
@@ -107,6 +115,7 @@
         <UpgradeShop
           :game="game"
           :allow-shopping="allowUpgradeShopping"
+          :inventory="inventory"
           @upgrade="handlePurchaseUpgrade"
         />
       </div>
@@ -119,7 +128,6 @@
 <script lang="ts">
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import GameController from "@/model/2048/GameController";
-import useInventoryHandler from "@/views/Roguelike/handlers/inventory";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
 import Ranking from "@/components/organisms/Ranking.vue";

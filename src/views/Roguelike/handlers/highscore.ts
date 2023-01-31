@@ -52,12 +52,13 @@ export default function useHighscoreHandler(game: GameController): IHighscoreHan
     const updateBest = () => {
         if (!externalHandlers.progress) return
 
-        const progress = externalHandlers.progress.progress
-        const progressUpdate: { bestScore?: number, highestBlock?: number } = {}
+        const { progress } = externalHandlers.progress
+        const progressUpdate: { bestScore?: number, highestBlock?: number, bestRun?: number } = {}
 
         if (game.score > progress.bestScore) {
             haveSubmited.value = false;
             progressUpdate.bestScore = game.score;
+            progressUpdate.bestRun = progress.run
         }
 
         if (game.board.highestBlock > progress.highestBlock) {

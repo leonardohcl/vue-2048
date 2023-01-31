@@ -17,6 +17,7 @@ export interface IItemConfig {
 }
 
 export interface IItem {
+    id: string,
     baseValue: number
     amount: number
     maxAmount: number

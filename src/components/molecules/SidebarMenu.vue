@@ -12,6 +12,7 @@
         v-for="item in items"
         :key="item.id"
         :item="item"
+        :available-coins="availableCoins"
         :allow-use="allowUse"
         :allow-purchase="allowPurchase"
         :active="item === activeItem"
@@ -26,7 +27,8 @@
 <script lang="ts">
 import SidebarItem from "@/components/atoms/SidebarItem.vue";
 import Item from "@/model/Game Utils/Item";
-import { defineComponent, PropType } from "@vue/runtime-core";
+import Inventory from "@/model/roguelike/Inventory";
+import { defineComponent, computed, PropType } from "@vue/runtime-core";
 
 export default defineComponent({
   components: { SidebarItem },
@@ -36,7 +38,8 @@ export default defineComponent({
       type: Array as PropType<Array<Item>>,
       default: () => new Array<Item>(),
     },
-    activeItem: null,
+    inventory: { type: Inventory, default: () => null },
+    activeItem: { type: Item, required: false },
     allowUse: { type: Boolean, default: false },
     allowPurchase: { type: Boolean, default: false },
     titleTag: { type: String, default: "h3" },
@@ -44,6 +47,8 @@ export default defineComponent({
   },
   emits: ["purchase", "use", "cancel"],
   setup(props, { emit }) {
+    const availableCoins = computed(() => props.inventory?.wallet.coins ?? 0);
+
     const handlePurchase = (item: Item) => {
       emit("purchase", item);
     };
@@ -56,6 +61,7 @@ export default defineComponent({
     };
 
     return {
+      availableCoins,
       handleUse,
       handleCancel,
       handlePurchase,

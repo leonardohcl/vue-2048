@@ -2,6 +2,7 @@ import GameController from "@/model/2048/GameController";
 import Square from "@/model/2048/Square";
 import ConsumableItem from "@/model/Game Utils/ConsumableItem";
 import Inventory, { IBag, Bag, IWallet, Wallet } from "@/model/roguelike/Inventory";
+import RoguelikeSaveFile from "@/model/roguelike/RogueSaveFile";
 import { ref, computed, reactive, ComputedRef, Ref } from "vue";
 import IHandler from "./model/Handler";
 import HandlerCallback from "./model/HandlerCallback";
@@ -121,7 +122,7 @@ export default function useInventoryHandler(
         }
     };
 
-    const registerHandlers = ({ state, upgrade, reward }: IHandlerSuite) => {
+    const registerHandlers = ({ state, upgrade, reward, memory }: IHandlerSuite) => {
         if (state && !externalHandlers.state) {
             state.callback.set("end", () => { setUsing(false) })
             state.callback.set("startOver", reset)
@@ -134,6 +135,12 @@ export default function useInventoryHandler(
         if (reward && !externalHandlers.reward) {
             reward.callback.set("reward", ({ reward }) => { updateCoins(reward) })
             externalHandlers.reward = reward
+        }
+        if (memory && !externalHandlers.memory) {
+            memory.callback.set("load", ({ slot }) => {
+                const savedInventory = (slot as RoguelikeSaveFile).inventory || new Inventory()
+                setWallet({ coins: savedInventory.wallet?.coins ?? 0 })
+            })
         }
     }
 

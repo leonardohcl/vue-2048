@@ -7,6 +7,7 @@
     :active-item="inventory.activeItem"
     :allow-purchase="allowShopping"
     :allow-use="allowUse"
+    :inventory="inventory"
     @use="handleUse"
     @cancel="handleCancel"
     @purchase="handlePurchase"

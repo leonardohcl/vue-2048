@@ -1,13 +1,13 @@
 import GameController from "@/model/2048/GameController";
 import RoguelikeSaveFile from "@/model/roguelike/RogueSaveFile";
-import { useStore } from "vuex";
 import { computed, reactive } from "vue";
 import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from "@/store/memory-card";
-import { SET_COINS } from "@/store/wallet";
 import GameMode from "@/model/GameMode";
 import HandlerCallback from "./model/HandlerCallback";
 import IHandler from "./model/Handler";
 import HandlerSuite, { IHandlerSuite } from "./model/HandlerSuite";
+import { useStore } from "vuex";
+import Inventory from "@/model/roguelike/Inventory";
 
 type CallbackAction = "save" | "load"
 
@@ -20,9 +20,12 @@ export interface IMemoryHandler extends IHandler {
 }
 
 export default function useMemoryHandler(game: GameController): IMemoryHandler {
-
     const store = useStore()
-    const currentCoins = computed(() => store.getters.currentCoins);
+
+    const currentCoins = computed(() => {
+        const inventory = externalHandlers.inventory?.inventory ?? new Inventory()
+        return inventory.wallet.coins
+    });
 
     const callback = new HandlerCallback<CallbackAction>()
     const externalHandlers = reactive<any>(new HandlerSuite())
@@ -40,7 +43,7 @@ export default function useMemoryHandler(game: GameController): IMemoryHandler {
 
         const inventory = externalHandlers.inventory?.inventory
         if (inventory) {
-            save.inventory = { ...inventory, wallet: { coins: currentCoins.value } }
+            save.inventory = inventory
         }
 
         return new RoguelikeSaveFile(
@@ -76,16 +79,14 @@ export default function useMemoryHandler(game: GameController): IMemoryHandler {
         })
 
         externalHandlers.inventory?.setBag(slot.inventory.bag)
-
-        store.commit(SET_COINS, slot.inventory.wallet.coins || 0);
-        callback.run("load")
+        callback.run("load", { slot })
     };
 
     const registerHandlers = ({ progress, inventory, state, upgrade }: IHandlerSuite) => {
         if (progress && !externalHandlers.progress) externalHandlers.progress = progress
         if (inventory && !externalHandlers.inventory) {
+            inventory.callback.set("purchase", saveCurrent)
             inventory.callback.set("consume", saveCurrent)
-            inventory.callback.set("use", saveCurrent)
             externalHandlers.inventory = inventory
         }
         if (state && !externalHandlers.state) {

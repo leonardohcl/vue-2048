@@ -4,6 +4,7 @@
     title="Upgrades"
     :items="upgrades"
     :allow-purchase="allowShopping"
+    :inventory="inventory"
     @purchase="handlePurchase"
   />
 </template>
@@ -15,6 +16,7 @@ import { computed, defineComponent, reactive } from "vue";
 import UPGRADES from "./Upgrades";
 import GameSettings from "@/model/2048/interfaces/GameSettings";
 import Item from "@/model/Game Utils/Item";
+import Inventory from "@/model/roguelike/Inventory";
 
 export default defineComponent({
   components: { SidebarMenu },
@@ -23,6 +25,7 @@ export default defineComponent({
       type: GameController,
       required: true,
     },
+    inventory: { type: Inventory, required: true },
     allowShopping: {
       type: Boolean,
       default: false,
@@ -35,7 +38,7 @@ export default defineComponent({
       const gameSettings = new GameSettings(game);
 
       return available.map((upgrade) => {
-        upgrade.setCurrentValue(gameSettings[upgrade.id]);
+        upgrade.setCurrentValue(gameSettings[upgrade.id] || 0);
         return upgrade;
       });
     });

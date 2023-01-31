@@ -1,6 +1,4 @@
 import GameController from "@/model/2048/GameController";
-import { SET_COINS } from "@/store/wallet";
-import { useStore } from "vuex";
 import IHandler from "./model/Handler";
 import HandlerCallback from "./model/HandlerCallback";
 
@@ -18,8 +16,6 @@ export interface IStateHandler extends IHandler {
 }
 
 export default function useStateHandler(game: GameController): IStateHandler {
-    const store = useStore()
-
     const callback = new HandlerCallback<CallbackAction>()
 
     const startRun = () => {
@@ -53,9 +49,7 @@ export default function useStateHandler(game: GameController): IStateHandler {
             historySize: 0,
             winningBlock: 64,
         });
-
-        store.commit(SET_COINS, 0);
-
+        
         callback.run("startOver")
     };
 

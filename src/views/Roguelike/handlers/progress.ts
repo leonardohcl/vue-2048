@@ -36,6 +36,7 @@ export default function useProgressHandler(): IProgressHandler {
         run = progress.run,
         score = progress.score,
         undos = progress.undos,
+        bestRun = progress.bestRun
     }: IRoguelikeGameProgress) => {
         progress.bestScore = bestScore
         progress.highestBlock = highestBlock
@@ -43,6 +44,7 @@ export default function useProgressHandler(): IProgressHandler {
         progress.run = run
         progress.score = score
         progress.undos = undos
+        progress.bestRun = bestRun
         callback.run("update")
     }
 
