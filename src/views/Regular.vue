@@ -106,7 +106,6 @@ export default defineComponent({
 
     const handleNewGame = () => {
       game.value.start();
-      game.value.loadBoardPreset([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1024,1024,])
     };
 
     const handleSaveGame = (slot) => {

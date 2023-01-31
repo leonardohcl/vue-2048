@@ -43,7 +43,6 @@ export default class GameController extends Game {
     return this.board.highestValue
   }
 
-
   getNextBoard(dir: Direction, onUpdateSquare: onUpdateSquareFn = rememberMoves) {
     return super.getNextBoard(dir, onUpdateSquare)
   }

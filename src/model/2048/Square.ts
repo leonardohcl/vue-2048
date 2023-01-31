@@ -2,12 +2,13 @@ import LooseObject from '@/utils/LooseObject'
 import ISquare, { ISquareMove } from './interfaces/Square'
 
 export default class Square implements ISquare {
-  willMerge = true
+  canMerge = true
 
   value = 0
   row = 0
   col = 0
   isSpawn = false
+  isMerged = false
 
   nextMove = {
     reverse: false,
@@ -37,7 +38,7 @@ export default class Square implements ISquare {
 
   clone() {
     const copy = new Square(this.row, this.col, this.value)
-    copy.willMerge = this.willMerge
+    copy.canMerge = this.canMerge
     copy.isSpawn = this.isSpawn
     copy.nextMove = { ...this.nextMove }
     return copy
@@ -61,7 +62,7 @@ export default class Square implements ISquare {
 
   static fromObject(obj: ISquare) {
     const sqr = new Square(obj.row ?? 0, obj.col ?? 0, obj.value)
-    sqr.willMerge = obj.willMerge
+    sqr.canMerge = obj.canMerge
     sqr.isSpawn = obj.isSpawn
     sqr.setMove(obj.nextMove)
     return sqr

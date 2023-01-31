@@ -9,7 +9,7 @@ export default interface ISquare {
   col: number
   value: number
   isSpawn: boolean
-  willMerge: boolean
+  canMerge: boolean
   nextMove: ISquareMove
 
   setMove: (move: ISquareMove) => void

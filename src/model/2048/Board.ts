@@ -98,7 +98,7 @@ export default class Board implements IBoard {
       selectedNeighbor = null
     while (neighbor != null) {
       if (neighbor.value == sqr?.value) {
-        if (neighbor.willMerge) {
+        if (neighbor.canMerge) {
           selectedNeighbor = neighbor
         }
         break
@@ -118,7 +118,7 @@ export default class Board implements IBoard {
     const sqr = this.getSquare(row, col)
     if (sqr) {
       if (sqr.value == val) {
-        sqr.willMerge = false
+        sqr.canMerge = false
         sqr.setValue(sqr.value + val)
         return sqr.value
       } else {
