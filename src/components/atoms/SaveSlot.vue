@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import DataChip from "@/components/atoms/DataChip.vue";
+import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 import SaveFile from "@/model/2048/SaveFile";
 import RoguelikeSaveFile from "@/model/roguelike/RogueSaveFile";
 import Square from "@/components/atoms/Square.vue";

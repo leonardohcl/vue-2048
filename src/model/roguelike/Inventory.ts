@@ -1,74 +1,42 @@
-import BreakBlock from '../items/BreakBlock'
-import { IItem } from '../items/Item'
-import MoveBlock from '../items/MoveBlock'
-import ShrinkBlock from '../items/ShrinkBlock'
-import UpgradeBlock from '../items/UpgradeBlock'
+import ConsumableItem from "../Game Utils/ConsumableItem"
 
-export interface IIventoryItem {
-  id: string
-  name: string
-  icon: string
-  max: number
-  blocksRequired: number
-  price: number
-  type: IItem
-}
-
-export interface IInventory {
-  coins: number
+export interface IBag {
   breakBlock: number
   upgradeBlock: number
   shrinkBlock: number
   moveBlock: number
 }
 
-export default class Inventory implements IInventory {
+export class Bag implements IBag {
+  [key: string]: number
   breakBlock = 0
   upgradeBlock = 0
   shrinkBlock = 0
   moveBlock = 0
-  coins = 0
 
-  /**
-   * These prices take in consideration an average of 20 coins
-   * per run in the early game and 40 coins in the late game
-   **/
-  static availableItems: IIventoryItem[] = [
-    {
-      id: 'breakBlock',
-      name: 'Break Block',
-      icon: 'fas fa-hammer',
-      max: 3,
-      blocksRequired: 1,
-      price: 40,
-      type: new BreakBlock(),
-    },
-    {
-      id: 'upgradeBlock',
-      name: 'Upgrade Block',
-      icon: 'fas fa-square-plus',
-      max: 2,
-      blocksRequired: 1,
-      price: 240,
-      type: new UpgradeBlock(),
-    },
-    {
-      id: 'shrinkBlock',
-      name: 'Shrink Block',
-      icon: 'fas fa-square-minus',
-      max: 5,
-      blocksRequired: 1,
-      price: 80,
-      type: new ShrinkBlock(),
-    },
-    {
-      id: 'moveBlock',
-      name: 'Move Block',
-      icon: 'fas fa-hand',
-      max: 3,
-      blocksRequired: 2,
-      price: 400,
-      type: new MoveBlock(),
-    },
-  ]
+  constructor({
+    breakBlock = 0,
+    upgradeBlock = 0,
+    shrinkBlock = 0,
+    moveBlock = 0 }: IBag = {
+      breakBlock: 0,
+      upgradeBlock: 0,
+      shrinkBlock: 0,
+      moveBlock: 0
+    }) {
+    this.breakBlock = breakBlock
+    this.upgradeBlock = upgradeBlock
+    this.shrinkBlock = shrinkBlock
+    this.moveBlock = moveBlock
+  }
+}
+
+export interface IInventory {
+  bag: Bag
+  activeItem?: ConsumableItem
+}
+
+export default class Inventory implements IInventory {
+  bag = new Bag()
+  activeItem?: ConsumableItem
 }

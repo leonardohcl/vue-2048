@@ -6,15 +6,7 @@
 
 <script>
 import { computed } from "vue";
-const THEMES = {
-  default: { variant: "outlined", size: "small" },
-  score: { variant: "tonal" },
-  run: { color: "light-green", prependIcon: "fas fa-fw fa-person-running" },
-  moves: { prependIcon: "fas fa-fw fa-up-down-left-right" },
-  undos: { prependIcon: "fas fa-fw fa-rotate-left" },
-  board: { color: "primary", prependIcon: "fas fa-fw fa-table-cells" },
-  coins: { color: "warning", appendIcon: "fas fa-fw fa-coins" },
-};
+import THEMES from "./themes.json"
 
 export default {
   props: {

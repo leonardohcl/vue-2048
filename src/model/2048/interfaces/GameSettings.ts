@@ -7,6 +7,7 @@ export interface IGameSettings {
 }
 
 export default class GameSettings implements IGameSettings {
+  [key: string]: number
   width = 0
   height = 0
   historySize = 0

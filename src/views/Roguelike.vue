@@ -7,31 +7,19 @@
   >
     <div class="roguelike__game">
       <div class="roguelike__sidebar--left roguelike__sidebar">
-        <h3
-          class="
-            roguelike__sidebar--title
-            text-center text-secondary
-            font-weight-bold
-          "
-        >
-          Items
-        </h3>
-        <Inventory
+        <InventoryManager
           :inventory="inventory"
-          :active-item="activeItem.id"
-          :allow-shopping="allowShopping"
-          @purchase="handlePurchase"
-          @cancel="handleCancelItem"
+          :allow-shopping="allowItemShopping"
+          :allow-use="allowItemUse"
           @use="handleUseItem"
+          @cancel="handleCancelItem"
+          @purchase="handlePurchaseItem"
         />
       </div>
       <div class="roguelike__center">
         <div class="roguelike__status">
           <div
-            class="
-              roguelike__status--entry roguelike__status--full-width-entry
-              pa-0
-            "
+            class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
           >
             <Ranking :ranking-id="rankingId" with-run with-board />
 
@@ -83,7 +71,7 @@
           :time-to-idle="1000"
           :emit-moves-interval="15"
           :allow-endless="false"
-          :allow-square-selection="allowSquareSelection"
+          :allow-square-selection="allowItemSquareUpdate"
           disable-pause-screen
           restart-text="Give Up"
           @move="saveCurrentGame"
@@ -92,14 +80,11 @@
           @restart="handleRestart"
           @win="handleRoundOver"
           @game-over="handleRoundOver"
-          @square-selected="handleSquareSelected"
+          @square-selected="handleItemUpdateSquares"
         />
         <div class="roguelike__status">
           <div
-            class="
-              roguelike__status--entry roguelike__status--full-width-entry
-              justify-content-between
-            "
+            class="roguelike__status--entry roguelike__status--full-width-entry justify-content-between"
           >
             <div class="d-flex align-center">
               Best:
@@ -119,19 +104,10 @@
         </div>
       </div>
       <div class="roguelike__sidebar--right roguelike__sidebar">
-        <h3
-          class="
-            roguelike__sidebar--title
-            text-center text-secondary
-            font-weight-bold
-          "
-        >
-          Upgrades
-        </h3>
         <UpgradeShop
           :game="game"
-          :allow-shopping="allowShopping"
-          @upgrade="handleUpgrade"
+          :allow-shopping="allowUpgradeShopping"
+          @upgrade="handlePurchaseUpgrade"
         />
       </div>
     </div>
@@ -143,17 +119,18 @@
 <script>
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import GameController from "@/model/2048/GameController";
-import InventoryTracker from "@/model/roguelike/Inventory";
+import Inventory, { Bag } from "@/model/roguelike/Inventory";
+import useInventoryHandling from "@/mixins/inventoryHandling";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
 import Ranking from "@/components/organisms/Ranking.vue";
-import Item from "@/model/items/Item";
 import Game from "@/components/organisms/Game.vue";
 import Square from "@/components/atoms/Square.vue";
-import UpgradeShop from "@/components/organisms/UpgradeShop.vue";
-import Inventory from "@/components/organisms/Inventory.vue";
+import UpgradeShop from "@/components/organisms/UpgradeShop/UpgradeShop.vue";
+import useUpgradeHandling from "@/mixins/upgradeHandling";
+import InventoryManager from "@/components/organisms/InventoryManager/InventoryManager.vue";
 import RewardsManager from "@/components/organisms/RewardsManager.vue";
-import DataChip from "@/components/atoms/DataChip.vue";
+import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 import { reactive, ref, computed } from "vue";
 import { useStore } from "vuex";
 import { SET_COINS, UPDATE_BALANCE } from "@/store/wallet";
@@ -167,7 +144,7 @@ export default {
     Game,
     Square,
     UpgradeShop,
-    Inventory,
+    InventoryManager,
     RewardsManager,
     MemoryManager,
     Ranking,
@@ -176,17 +153,27 @@ export default {
   },
   setup() {
     const store = useStore();
-
     const currentCoins = computed(() => store.getters.currentCoins);
 
     const rankingId = "roguelike";
 
+    // refs
     const rewardsManager = ref();
-
     const highscoreManager = ref();
 
+    // flags
     const ignoreRewards = ref(false);
 
+    // trackers
+    const history = reactive({
+      run: 0,
+      bestScore: 0,
+      highestBlock: 0,
+    });
+
+    const inventory = ref(new Inventory());
+
+    // game
     const game = ref(
       new GameController({
         width: 3,
@@ -197,56 +184,27 @@ export default {
       })
     );
 
-    const allowShopping = ref(true);
+    // mixins
+    const inventoryHandling = useInventoryHandling(game.value, inventory.value);
+    const { setUsingItem } = inventoryHandling;
 
-    const history = reactive({
-      run: 0,
-      bestScore: 0,
-      highestBlock: 0,
-    });
-
-    const inventory = ref(new InventoryTracker());
-
-    const allowSquareSelection = ref(false);
-
-    const activeItem = reactive({
-      id: "",
-      blocksRequired: 0,
-      selectedSquares: [],
-      type: null,
-    });
+    const upgradeHandling = useUpgradeHandling(game.value);
 
     const startRun = () => {
-      allowShopping.value = false;
       ignoreRewards.value = false;
       history.run++;
       game.value.start();
     };
 
     const endRun = () => {
-      allowShopping.value = true;
       ignoreRewards.value = false;
-      setUsingItemState(false);
+      setUsingItem(false);
     };
 
     const getLoot = () => {
       if (history.run === 0) return;
       if (rewardsManager.value && !ignoreRewards.value)
         rewardsManager.value.lootRewards();
-    };
-
-    const setUsingItemState = (isUsing) => {
-      if (isUsing) {
-        game.value.paused = true;
-        allowSquareSelection.value = true;
-      } else {
-        activeItem.id = "";
-        allowSquareSelection.value = false;
-        game.value.paused = false;
-        game.value.cleanCustomStates();
-        activeItem.selectedSquares = [];
-        activeItem.blocksRequired = 0;
-      }
     };
 
     const updateBestPerformance = () => {
@@ -298,13 +256,18 @@ export default {
       });
     };
 
+    const handlePurchaseUpgrade = ({ price, upgrade }) => {
+      upgradeHandling.handlePurchaseUpgrade({ price, upgrade });
+      saveCurrentGame();
+    };
+
     const handleLoadGame = (slot) => {
       ignoreRewards.value = true;
       game.value.loadSaveFile(slot);
       history.run = slot.progress.run || 0;
       history.highestBlock = slot.progress.highestValue;
       history.bestScore = slot.progress.bestScore;
-      inventory.value = slot.inventory;
+      inventory.value.bag = new Bag(slot.inventory.bag);
       store.commit(SET_COINS, slot.inventory.coins || 0);
     };
 
@@ -313,53 +276,6 @@ export default {
       if (!ignoreRewards.value) getLoot();
       updateBestPerformance();
       saveCurrentGame();
-    };
-
-    const handleUpgrade = ({ price, upgrade }) => {
-      game.value.updateSettings(upgrade);
-      store.commit(UPDATE_BALANCE, -price);
-      saveCurrentGame();
-    };
-
-    const handlePurchase = (itemId, price) => {
-      store.commit(UPDATE_BALANCE, -price);
-      inventory.value[itemId]
-        ? inventory.value[itemId]++
-        : (inventory.value[itemId] = 1);
-
-      saveCurrentGame();
-    };
-
-    const handleUseItem = (item) => {
-      if (!inventory.value[item.id]) return;
-      activeItem.id = item.id;
-      activeItem.blocksRequired = item.blocksRequired;
-      activeItem.type = item.type;
-      Item.prepare(item.type, game.value);
-      setUsingItemState(true);
-    };
-
-    const handleCancelItem = () => {
-      setUsingItemState(false);
-    };
-
-    const handleSquareSelected = (sqr) => {
-      if (!activeItem.id) return;
-      if (sqr.customStates.selected || !sqr.customStates.selectable) return;
-      activeItem.selectedSquares.push(sqr);
-      sqr.customStates.selected = true;
-
-      if (activeItem.selectedSquares.length >= activeItem.blocksRequired) {
-        const itemId = activeItem.id;
-        const success = Item.apply(
-          activeItem.type,
-          game.value,
-          activeItem.selectedSquares
-        );
-        if (!success) return (activeItem.selectedSquares = []);
-        inventory.value[itemId]--;
-        setUsingItemState(false);
-      }
     };
 
     const handleReward = (amount) => {
@@ -376,7 +292,7 @@ export default {
 
       store.commit(SET_COINS, 0);
 
-      inventory.value = new InventoryTracker();
+      inventory.value = new Inventory();
 
       history.run = 0;
       history.bestScore = 0;
@@ -422,28 +338,23 @@ export default {
       history,
       rankingId,
       inventory,
-      activeItem,
       currentCoins,
-      allowShopping,
       rewardsManager,
       isRankingWorthy,
       highscoreManager,
       haveSubmitedScore,
-      allowSquareSelection,
       handleNewGame,
       handleRestart,
       handleRoundOver,
       handleReward,
-      handleUpgrade,
-      handlePurchase,
-      handleSquareSelected,
-      handleUseItem,
       handleSaveGame,
       handleLoadGame,
       handleStartOver,
-      handleCancelItem,
       saveCurrentGame,
       getScore,
+      ...inventoryHandling,
+      handlePurchaseUpgrade,
+      allowUpgradeShopping: upgradeHandling.allowUpgradeShopping,
     };
   },
 };
@@ -487,9 +398,7 @@ export default {
   }
 
   &__sidebar {
-    $sidebar-container: &;
-    padding: $default-spacing * 0.25;
-    flex-basis: 10%;
+    display: flex;
     z-index: $hud-z-index + 1;
     position: absolute;
     top: 6rem + $default-spacing;
@@ -500,35 +409,23 @@ export default {
       top: unset;
     }
 
-    @include screen-above(md) {
-      flex-basis: 25%;
-      padding: $default-spacing * 0.5 $default-spacing * 0.25;
-      max-width: 300px;
-    }
-
-    &--title {
-      display: none;
-      margin-bottom: $default-spacing;
-      @include screen-above(md) {
-        display: block;
-      }
-    }
-
     &--left {
       position: absolute;
       transform: translateX(-50%);
       left: 0;
-    }
 
+      @include screen-above(sm){
+        justify-content: flex-end;
+      }
+    }
+    
     &--right {
       position: absolute;
       right: 0;
       transform: translateX(50%);
-    }
-
-    @include screen-above(md) {
-      border: solid 3px $bg-secondary;
-      border-radius: $border-radius;
+      @include screen-above(sm){
+        justify-content: flex-start;
+      }
     }
   }
 }

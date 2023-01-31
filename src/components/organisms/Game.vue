@@ -86,7 +86,7 @@ import GameControls from "@/components/molecules/GameControls.vue";
 import Board from "@/components/molecules/Board.vue";
 import { computed, watch, ref } from "vue";
 import { useStore } from "vuex";
-import { useGameCommands } from "@/mixins/gameCommands";
+import { useGameCommands } from "@/mixins/boardCommands";
 
 export default {
   components: { Board, GameControls },
@@ -139,6 +139,7 @@ export default {
     "newGame",
     "restart",
     "setEndless",
+    'squareSelected'
   ],
   setup(props, context) {
     const stateTracker = {
@@ -225,7 +226,7 @@ export default {
     });
 
     const handleSquareSelected = (sqr) => {
-      if (props.allowSquareSelection) context.emit("square-selected", sqr);
+      if (props.allowSquareSelection) context.emit("squareSelected", sqr);
     };
 
     return {

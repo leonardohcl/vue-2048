@@ -50,7 +50,7 @@
 <script>
 import { ref } from "vue";
 import Square from "@/components/atoms/Square.vue";
-import DataChip from "@/components/atoms/DataChip.vue";
+import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 import RoguelikeRankingEntry from "@/model/roguelike/RankingEntry";
 import RankinEntry from "@/model/2048/RankingEntry";
 import useDialogCommands from "@/mixins/dialogCommands";

@@ -1,7 +1,7 @@
 import Board from './Board'
 import SaveFile from './SaveFile'
 import { deepCopy } from '../../utils/copy'
-import GameSettings from './interfaces/GameSettings'
+import GameSettings, { IGameSettings } from './interfaces/GameSettings'
 import GameState from './interfaces/GameState'
 import GameProgress from './interfaces/GameProgress'
 import Direction from './Direction'
@@ -95,7 +95,7 @@ export default class GameController extends Game {
     this.updateGameState()
   }
 
-  updateSettings(newSettings: GameSettings) {
+  updateSettings(newSettings: IGameSettings) {
     this.score = 0
     this.history = []
     this.winner = false

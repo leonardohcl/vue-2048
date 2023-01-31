@@ -65,7 +65,7 @@
 
 <script>
 import Square from "@/components/atoms/Square.vue";
-import DataChip from "@/components/atoms/DataChip.vue";
+import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 
 import RankingEntry from "@/model/2048/RankingEntry";
 export default {

@@ -38,6 +38,7 @@
         default: false,
       },
     },
+    emits: ["squareSelected"],
     setup(props, context) {
       const boardStyle = computed(() => {
         const { width, height } = props.board
@@ -53,7 +54,7 @@
       })
 
       const handleSquareClick = (sqr) => {
-        context.emit('square-selected', sqr)
+        context.emit('squareSelected', sqr)
       }
 
       return {
