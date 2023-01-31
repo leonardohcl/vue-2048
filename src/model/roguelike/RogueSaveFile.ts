@@ -2,14 +2,14 @@ import { IGameProgress } from '../2048/interfaces/GameProgress'
 import GameSettings, { IGameSettings } from '../2048/interfaces/GameSettings'
 import GameState, { IGameState } from '../2048/interfaces/GameState'
 import SaveFile, { ISaveFile } from '../2048/SaveFile'
-import RogueGameProgress, {
-  IRogueGameProgress,
+import RoguelikeGameProgress, {
+  IRoguelikeGameProgress,
 } from './interfaces/GameProgress'
 import Inventory, { IInventory } from './Inventory'
 
 export interface IRoguelikeSaveFile extends ISaveFile {
   inventory: Inventory
-  progress: IRogueGameProgress
+  progress: IRoguelikeGameProgress
 }
 
 export default class RoguelikeSaveFile
@@ -17,17 +17,17 @@ export default class RoguelikeSaveFile
   implements IRoguelikeSaveFile
 {
   inventory = new Inventory()
-  progress: RogueGameProgress
+  progress: RoguelikeGameProgress
 
   constructor(
     filename: string,
     settings: IGameSettings,
     state: IGameState,
-    progress: IGameProgress | IRogueGameProgress,
+    progress: IGameProgress | IRoguelikeGameProgress,
     inventory: IInventory
   ) {
     super(filename, settings, state, progress)
-    this.progress = new RogueGameProgress({ run: 0, bestScore: 0, ...progress })
+    this.progress = new RoguelikeGameProgress({ run: 0, bestScore: 0, ...progress })
     this.inventory = inventory
   }
 
@@ -38,7 +38,7 @@ export default class RoguelikeSaveFile
       obj.filename || '',
       obj.settings || new GameSettings(),
       obj.state || new GameState(),
-      obj.progress || new RogueGameProgress(),
+      obj.progress || new RoguelikeGameProgress(),
       obj.inventory || new Inventory()
     )
   }

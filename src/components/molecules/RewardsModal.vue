@@ -29,7 +29,7 @@
   </v-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import Square from "@/components/atoms/Square.vue";
 import GameRewards from "@/model/roguelike/GameRewards";
 import useDialogCommands from "@/mixins/dialogCommands";
@@ -38,7 +38,7 @@ export default {
   components: { Square },
   props: {
     rewards: {
-      type: [GameRewards, Object],
+      type: GameRewards,
       required: true,
     },
   },

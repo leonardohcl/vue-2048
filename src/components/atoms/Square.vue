@@ -85,6 +85,11 @@ export default {
           alreadySpawned.value = true;
         }, 200);
       }
+      if (!props.canMerge) {
+        setTimeout(() => {
+          alreadyMerged.value = true;
+        }, 200);
+      }
 
       return {
         [`square__block--${props.value}`]: true,

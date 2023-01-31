@@ -88,7 +88,9 @@ export default {
     });
 
     const isRankingWorthy = (score = entry.score || 0) =>
-      highScores.value.count < 10 || score > highScores.value.last;
+      score
+        ? highScores.value.count < 10 || score > highScores.value.last
+        : false;
 
     const saveScore = (rankingEntry) => {
       if (!isRankingWorthy(rankingEntry.score)) return;
@@ -97,8 +99,8 @@ export default {
     };
 
     const triggerDialog = () => {
-      saveScoreModal.value?.open()
-    }
+      saveScoreModal.value?.open();
+    };
 
     return {
       entry,

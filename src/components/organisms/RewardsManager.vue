@@ -2,13 +2,13 @@
   <RewardsModal :rewards="rewards" ref="rewardsModal" />
 </template>
 
-<script>
+<script lang="ts">
 import GameRewards from "@/model/roguelike/GameRewards";
 import GameController from "@/model/2048/GameController";
 import RewardsModal from "@/components/molecules/RewardsModal.vue";
-import { ref } from "vue";
+import { ref, defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   components: { RewardsModal },
   props: {
     game: {
@@ -17,21 +17,21 @@ export default {
     },
   },
   emits: ["loot"],
-  setup(props,context) {
-    const rewards = ref({});
+  setup(props, context) {
+    const rewards = ref(new GameRewards(props.game));
     const rewardsModal = ref();
 
     const getRewards = () => {
-      rewards.value = new GameRewards(props.game);
+      return new GameRewards(props.game);
     };
 
     const lootRewards = () => {
-      getRewards();
+      rewards.value = getRewards();
       rewardsModal.value?.open();
       context.emit("loot", rewards.value.totalEarned);
     };
 
     return { rewards, rewardsModal, getRewards, lootRewards };
   },
-};
+});
 </script>

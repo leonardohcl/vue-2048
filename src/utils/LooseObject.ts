@@ -1,3 +1,3 @@
-export default interface LooseObject {
-  [key: string]: any
+export default interface LooseObject<T = any> {
+  [key: string]: T
 }

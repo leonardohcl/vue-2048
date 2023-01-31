@@ -1,6 +1,6 @@
 import { ref, watch, SetupContext } from "vue";
 
-export default function useDialogCommands(context: SetupContext | undefined) {
+export default function useDialogCommands(context?: SetupContext) {
     const isOpen = ref(false);
 
     watch(isOpen, newValue => {

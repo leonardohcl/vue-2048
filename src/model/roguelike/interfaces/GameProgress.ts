@@ -2,34 +2,26 @@ import GameProgress, {
   IGameProgress,
 } from '@/model/2048/interfaces/GameProgress'
 
-export interface IRogueGameProgress extends IGameProgress {
-  bestScore: number
-  run: number
+export interface IRoguelikeGameProgress extends IGameProgress {
+  bestScore?: number
+  run?: number
 }
 
-export default class RogueGameProgress implements IRogueGameProgress {
-  score = 0
-  undos = 0
-  moves = 0
-  highestValue = 0
-  run = 0
-  bestScore = 0
+export default class RoguelikeGameProgress implements IRoguelikeGameProgress {
+  score
+  undos
+  moves
+  highestBlock
+  run
+  bestScore
 
   constructor(
-    gameProgress: IRogueGameProgress = {
-      bestScore: 0,
-      score: 0,
-      undos: 0,
-      moves: 0,
-      highestValue: 0,
-      run: 0,
-    }
-  ) {
-    this.score = gameProgress.score
-    this.undos = gameProgress.undos
-    this.moves = gameProgress.moves
-    this.highestValue = gameProgress.highestValue
-    this.run = gameProgress.run
-    this.bestScore = gameProgress.bestScore
+    { bestScore = 0, score = 0, undos = 0, moves = 0, highestBlock = 0, run = 0 }: IRoguelikeGameProgress = {}) {
+    this.score = score
+    this.undos = undos
+    this.moves = moves
+    this.highestBlock = highestBlock
+    this.run = run
+    this.bestScore = bestScore
   }
 }

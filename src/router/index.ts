@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Regular from '@/views/Regular.vue'
-import Roguelike from '@/views/Roguelike.vue'
+import Roguelike from '@/views/Roguelike/Roguelike.vue'
 
 const routes = [
   {

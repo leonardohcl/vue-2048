@@ -1,29 +1,24 @@
 import GameController from '../GameController'
 
 export interface IGameProgress {
-  score: number
-  undos: number
-  moves: number
-  highestValue: number
+  score?: number
+  undos?: number
+  moves?: number
+  highestBlock?: number
 }
 
 export default class GameProgress implements GameProgress {
-  score = 0
-  undos = 0
-  moves = 0
-  highestValue = 0
+  score
+  undos
+  moves
+  highestBlock
 
   constructor(
-    game: GameController | IGameProgress = {
-      score: 0,
-      undos: 0,
-      moves: 0,
-      highestValue: 0,
-    }
+    { score = 0, undos = 0, moves = 0, highestBlock = 0 }: GameController | IGameProgress = {}
   ) {
-    this.score = game.score
-    this.undos = game.undos
-    this.moves = game.moves
-    this.highestValue = game.highestValue
+    this.score = score
+    this.undos = undos
+    this.moves = moves
+    this.highestBlock = highestBlock
   }
 }

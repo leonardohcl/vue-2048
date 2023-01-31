@@ -20,7 +20,7 @@ export default class Board implements IBoard {
   }
 
   toString() {
-    const highestValue = this.highestValue
+    const highestValue = this.highestBlock
     let maxSize = highestValue < 10 ? 1 : highestValue < 100 ? 2 : highestValue < 1000 ? 3 : 4
     const board = this.flat
     const rows = []
@@ -40,7 +40,7 @@ export default class Board implements IBoard {
     return this.squares.filter((square) => square.isEmpty === false)
   }
 
-  get highestValue() {
+  get highestBlock() {
     const orderedList = orderBy(this.filledSquares, 'value', 'desc')
 
     return orderedList.length ? orderedList[0].value : 0

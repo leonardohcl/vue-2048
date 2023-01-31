@@ -39,8 +39,8 @@ export default class GameController extends Game {
     this.updateDelay = updateDelay
   }
 
-  get highestValue() {
-    return this.board.highestValue
+  get highestBlock() {
+    return this.board.highestBlock
   }
 
   getNextBoard(dir: Direction, onUpdateSquare: onUpdateSquareFn = rememberMoves) {
@@ -71,7 +71,7 @@ export default class GameController extends Game {
       score: game.score,
       height: game.height,
       width: game.width,
-      block: game.highestValue,
+      block: game.highestBlock,
       moves: game.moves,
       undos: game.undos,
     })
@@ -101,10 +101,10 @@ export default class GameController extends Game {
     this.gameOver = true
     this.isWaintingUpdate = false
     const settings = { ...new GameSettings(this), ...newSettings }
-    this.width = settings.width
-    this.height = settings.height
-    this.historySize = settings.historySize
-    this.winningBlock = settings.winningBlock
+    this.width = settings.width || 4
+    this.height = settings.height || 4
+    this.historySize = settings.historySize || 0
+    this.winningBlock = settings.winningBlock || 2048
     this.clearBoard()
   }
 

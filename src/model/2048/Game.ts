@@ -109,7 +109,7 @@ export default class Game implements IGame {
 
 
     isWinner() {
-        return this.board.highestValue >= this.winningBlock
+        return this.board.highestBlock >= this.winningBlock
     }
 
     isGameOver() {
