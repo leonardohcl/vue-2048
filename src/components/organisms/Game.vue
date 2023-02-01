@@ -61,6 +61,20 @@
               offset-x="50"
             />
           </v-slide-y-reverse-transition>
+          <v-scroll-y-reverse-transition group>
+            <span
+              class="game__animated-point"
+              v-for="entry in animatedPoints"
+              :key="entry.id"
+              :style="{
+                transition: `${
+                  pointAnimationDuration / 2
+                }ms cubic-bezier(.15,.75,0,1)`,
+              }"
+            >
+              {{ entry.points }}
+            </span>
+          </v-scroll-y-reverse-transition>
         </span>
       </div>
     </div>
@@ -108,6 +122,10 @@ export default {
       type: Number,
       default: 0,
     },
+    pointAnimationDuration: {
+      type: Number,
+      default: 750,
+    },
     allowEndless: {
       type: Boolean,
       default: true,
@@ -139,7 +157,7 @@ export default {
     "newGame",
     "restart",
     "setEndless",
-    'squareSelected'
+    "squareSelected",
   ],
   setup(props, context) {
     const stateTracker = {
@@ -196,6 +214,20 @@ export default {
       }
     };
 
+    const animatedPoints = ref([]);
+
+    const animatePoints = (dir, success, points) => {
+      if (!points) return;
+      const id = props.game.moves;
+      animatedPoints.value.push({
+        id,
+        points: points < 0 ? points : "+" + points,
+      });
+      setTimeout(() => {
+        animatedPoints.value.shift();
+      }, props.pointAnimationDuration / 2);
+    };
+
     const trackInvalidMove = (dir, success) => {
       if (!success) {
         invalidMove.value = dir;
@@ -206,13 +238,14 @@ export default {
     const moveCallbacks = [trackInvalidMove];
     if (props.emitMovesInterval) moveCallbacks.push(trackMove);
     if (props.timeToIdle) moveCallbacks.push(resetIdle);
+    if (props.pointAnimationDuration) moveCallbacks.push(animatePoints);
 
     const { move, undo } = useGameCommands(
       props.game,
       "#touchArea",
       moveCallbacks.length > 0
-        ? (dir, success) => {
-            moveCallbacks.forEach((fn) => fn(dir, success));
+        ? (dir, success, pointsGained) => {
+            moveCallbacks.forEach((fn) => fn(dir, success, pointsGained));
           }
         : null
     );
@@ -235,6 +268,7 @@ export default {
       highScores,
       newHighscore,
       boardClasses,
+      animatedPoints,
       handleSquareSelected,
     };
   },
@@ -368,6 +402,20 @@ $container-padding: $default-spacing * 0.5;
 
   &__command-listener {
     display: none;
+  }
+
+  &__animated-point {
+    display: none;
+    position: absolute;
+    font-size: 0.8em;
+    right: 0;
+    bottom: 90%;
+    opacity: 0.75;
+    font-weight: 500;
+
+    @include screen-above(sm) {
+      display: initial;
+    }
   }
 
   @include screen-above(md) {

@@ -79,7 +79,7 @@ export default class GameController extends Game {
 
   loadSaveFile(save: SaveFile) {
     this.updateSettings(save.settings)
-    this.score = save.progress.score ?? 0 
+    this.score = save.progress.score ?? 0
     this.moves = save.progress.moves ?? 0
     this.undos = save.progress.undos ?? 0
 
@@ -147,13 +147,13 @@ export default class GameController extends Game {
     this.board = board
     this.updateValidMoves()
 
-    return new Promise<void>((resolve) => {
+    return new Promise<{ success: boolean, pointsLost: number }>((resolve) => {
       setTimeout(() => {
         this.board.filledSquares.forEach((sqr) =>
           sqr.setMove({ reverse: false, horizontal: 0, vertical: 0 })
         )
         this.isWaintingUpdate = false
-        resolve()
+        resolve({ success: true, pointsLost: pointsGained })
       }, this.updateDelay)
     })
   }
@@ -188,14 +188,13 @@ export default class GameController extends Game {
   }
 
   async undo() {
-    if (this.isWaintingUpdate) return false
+    if (this.isWaintingUpdate) return { success: false, pointsLost: 0 }
     const previousState = this.history.pop()
-    if (!previousState) return
+    if (!previousState) return { success: false, pointsLost: 0 }
     this.moves--
     this.undos++
     this.isWaintingUpdate = true
-    await this.revertBoard(previousState.board, previousState.pointsGained)
-    return true
+    return await this.revertBoard(previousState.board, previousState.pointsGained)
   }
 
   start() {
