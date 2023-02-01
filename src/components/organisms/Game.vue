@@ -48,19 +48,20 @@
         </v-btn>
       </div>
       <div class="game__hud--score">
+        <v-scroll-y-reverse-transition>
+          <v-chip
+            v-if="newHighscore"
+            class="game__hud--new-highscore"
+            size="x-small"
+            color="error"
+            variant="flat"
+          >
+            New Best!
+          </v-chip>
+        </v-scroll-y-reverse-transition>
         Score:
         <span class="points">
           {{ game.score }}
-          <v-slide-y-reverse-transition>
-            <v-badge
-              v-if="newHighscore"
-              color="error"
-              content="New Best!"
-              floating
-              offset-y="-23"
-              offset-x="50"
-            />
-          </v-slide-y-reverse-transition>
           <v-scroll-y-reverse-transition group>
             <span
               v-for="idx in 3"
@@ -231,7 +232,7 @@ export default {
       if (animatedPoints.value.length > 3) animatedPoints.value.shift();
       else if (animatedPoints.value.length < 3) animatedPoints.value.unshift(0);
       setTimeout(() => {
-        remove(animatedPoints.value, p => p.id === point.id)
+        remove(animatedPoints.value, (p) => p.id === point.id);
         if (animatedPoints.value.length < 3) animatedPoints.value.unshift(0);
       }, props.pointAnimationDuration / 2);
     };
