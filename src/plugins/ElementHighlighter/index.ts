@@ -1,4 +1,4 @@
-import { App, createApp, inject, provide, createVNode } from 'vue'
+import { App, createApp, inject } from 'vue'
 import HighlighterApp from './app.vue'
 
 export interface IElementHighlighterOptions {
