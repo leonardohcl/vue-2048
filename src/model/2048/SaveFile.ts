@@ -47,9 +47,9 @@ export default class SaveFile implements ISaveFile {
   getGame() {
     const game = new GameController()
     game.updateSettings(this.settings)
-    game.score = this.progress.score
-    game.moves = this.progress.moves
-    game.undos = this.progress.undos
+    game.score = this.progress?.score ?? 0
+    game.moves = this.progress?.moves ?? 0
+    game.undos = this.progress?.undos ?? 0
 
     game.loadBoardObject(this.state.board)
     game.history = this.state.history.map((entry) => {

@@ -30,7 +30,10 @@
 import HighlighterConfig, {
   IHighlighterConfig,
 } from "./model/HighlighterConfig";
-import HighlighterMemory from "./model/HighlighterMemory";
+import HighlighterMemory, {
+  HighlighterEntry,
+  IHighlighterEntry,
+} from "./model/HighlighterMemory";
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 
 export default {
@@ -82,12 +85,14 @@ export default {
       })
     );
 
-    const memory = reactive(new HighlighterMemory({
+    const memory = reactive(
+      new HighlighterMemory({
         selector: "body",
         padding: 0,
         bgColor: config.bgColor,
         bgOpacity: config.bgOpacity,
-      }));
+      })
+    );
 
     const getPageSize = () => ({
       height: Math.max(
@@ -160,14 +165,20 @@ export default {
         padding = 0,
         bgColor = config.bgColor,
         bgOpacity = config.bgOpacity,
-      } = {}
+      }: IHighlighterEntry = {}
     ) => {
       if (!selector) return;
 
       const el = document.querySelector(selector);
       if (!el) return;
 
-      memory.lastHighlight = { selector, padding, bgColor, bgOpacity };
+      memory.lastHighlight = new HighlighterEntry({
+        selector,
+        transitionDuration,
+        padding,
+        bgColor,
+        bgOpacity,
+      });
 
       const haveUpdated = updateTransition(transitionDuration);
 
@@ -214,9 +225,9 @@ export default {
     const setConfig = ({
       resizeStagger = config.resizeStagger,
       transitionDuration = config.transitionDuration,
-      bgCallback = config.bgCallback,
       bgColor = config.bgColor,
       bgOpacity = config.bgOpacity,
+      bgCallback = config.bgCallback,
     }: IHighlighterConfig = {}) => {
       config.resizeStagger = resizeStagger;
       config.transitionDuration = transitionDuration;

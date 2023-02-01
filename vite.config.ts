@@ -5,7 +5,6 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "https://leonardohcl.github.io/vue-2048",
   plugins: [
     vue(),
     vuetify()
