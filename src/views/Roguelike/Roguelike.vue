@@ -84,18 +84,30 @@
         />
         <div class="roguelike__status">
           <div
-            class="roguelike__status--entry roguelike__status--full-width-entry justify-content-between"
+            class="roguelike__status--entry roguelike__status--full-width-entry roguelike__best"
           >
-            <div class="d-flex align-center">
-              Best:
-              <Square class="mx-2" :value="progress.highestBlock" inline />
-            </div>
-            <div>
-              Best Score: {{ progress.bestScore }}
+            <div class="roguelike__best--data">
+              <b>Your best:</b>
               <DataChip
-                :value="progress.bestRun"
-                text="Run"
+                :value="bestRun.run"
                 theme="run"
+                :chip-options="{ variant: 'tonal', size: 'x-small' }"
+              />
+              <Square class="mx-2" :value="bestRun.highestBlock" inline />
+
+              <DataChip
+                :value="bestRun.score"
+                theme="score"
+                :chip-options="{ variant: 'tonal' }"
+              />
+              <DataChip
+                :value="bestRun.moves"
+                theme="moves"
+                :chip-options="{ variant: 'tonal', size: 'x-small' }"
+              />
+              <DataChip
+                :value="bestRun.undos"
+                theme="undos"
                 :chip-options="{ variant: 'tonal', size: 'x-small' }"
               />
             </div>
@@ -206,6 +218,7 @@ export default defineComponent({
     const { handleSave, handleLoad, saveCurrent } = handlers.memory;
 
     const {
+      bestRun,
       haveSubmitedScore,
       isRankingWorthy,
       highscoreManager,
@@ -233,6 +246,7 @@ export default defineComponent({
       handleGameOver,
       handleStartOver,
       // Highscore
+      bestRun,
       isRankingWorthy,
       highscoreManager,
       haveSubmitedScore,
@@ -326,6 +340,19 @@ export default defineComponent({
       @include screen-above(sm) {
         justify-content: flex-start;
       }
+    }
+  }
+
+  &__best {
+    display: flex;
+    flex-direction: column;
+    gap: $default-spacing * 0.5;
+    &--data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $default-spacing * 0.5;
+      width: 100%;
     }
   }
 }

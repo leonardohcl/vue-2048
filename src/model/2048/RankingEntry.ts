@@ -7,6 +7,7 @@ export interface IRankingEntry {
   undos: number
   width: number
   height: number
+  run?: number
 }
 
 export default class RankingEntry implements IRankingEntry {

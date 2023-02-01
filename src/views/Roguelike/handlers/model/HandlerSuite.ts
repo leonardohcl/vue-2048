@@ -25,7 +25,6 @@ export default class HandlerSuite implements IHandlerSuite {
     reward?: IRewardHandler
     state?: IStateHandler
     upgrade?: IUpgradeHandler
-
 }
 
 export class GameHandlerSuite extends HandlerSuite {
@@ -42,7 +41,7 @@ export class GameHandlerSuite extends HandlerSuite {
         this.highscore = useHighscoreHandler(game)
         this.inventory = useInventoryHandler(game)
         this.memory = useMemoryHandler(game)
-        this.progress = useProgressHandler()
+        this.progress = useProgressHandler(game)
         this.reward = useRewardHandler()
         this.state = useStateHandler(game)
         this.upgrade = useUpgradeHandler(game)

@@ -22,23 +22,21 @@ export interface IMemoryHandler extends IHandler {
 export default function useMemoryHandler(game: GameController): IMemoryHandler {
     const store = useStore()
 
-    const currentCoins = computed(() => {
-        const inventory = externalHandlers.inventory?.inventory ?? new Inventory()
-        return inventory.wallet.coins
-    });
-
     const callback = new HandlerCallback<CallbackAction>()
-    const externalHandlers = reactive<any>(new HandlerSuite())
+    const externalHandlers = new HandlerSuite()
 
     const getCurrentSaveFile = (filename: string) => {
         const save = GameController.getSaveFile(filename, game) as RoguelikeSaveFile;
 
-        const progress = externalHandlers.progress?.progress
+        const { progress } = externalHandlers.progress ?? {}
         if (progress) {
-            save.progress.run = progress.run;
-            save.progress.score = progress.score;
-            save.progress.bestScore = progress.bestScore;
-            save.progress.highestBlock = progress.highestBlock;
+            save.progress.run = progress.run
+        }
+
+        const { bestRun } = externalHandlers.highscore ?? {}
+
+        if (bestRun) {
+            save.bestRun = bestRun
         }
 
         const inventory = externalHandlers.inventory?.inventory
@@ -51,7 +49,8 @@ export default function useMemoryHandler(game: GameController): IMemoryHandler {
             save.settings,
             save.state,
             save.progress,
-            save.inventory
+            save.inventory,
+            save.bestRun
         );
     };
 
@@ -72,18 +71,17 @@ export default function useMemoryHandler(game: GameController): IMemoryHandler {
 
     const handleLoad = (slot: RoguelikeSaveFile) => {
         game.loadSaveFile(slot);
-        externalHandlers.progress?.update({
-            run: slot.progress.run || 0,
-            highestBlock: slot.progress.highestBlock,
-            bestScore: slot.progress.bestScore
-        })
+
+        externalHandlers.progress?.update(slot.progress)
+        externalHandlers.highscore?.updateBest(slot.bestRun)
 
         externalHandlers.inventory?.setBag(slot.inventory.bag)
         callback.run("load", { slot })
     };
 
-    const registerHandlers = ({ progress, inventory, state, upgrade }: IHandlerSuite) => {
+    const registerHandlers = ({ progress, inventory, state, upgrade, highscore }: IHandlerSuite) => {
         if (progress && !externalHandlers.progress) externalHandlers.progress = progress
+        if (highscore && !externalHandlers.highscore) externalHandlers.highscore = highscore
         if (inventory && !externalHandlers.inventory) {
             inventory.callback.set("purchase", saveCurrent)
             inventory.callback.set("consume", saveCurrent)

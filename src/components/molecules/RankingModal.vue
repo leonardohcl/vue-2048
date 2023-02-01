@@ -21,13 +21,13 @@
   </v-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import RankingEntry from "@/components/atoms/RankingEntry.vue";
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, defineComponent } from "vue";
 import useDialogCommands from "@/mixins/dialogCommands";
 
-export default {
+export default defineComponent({
   components: { RankingEntry },
   props: {
     rankingId: { type: String, required: true },
@@ -47,7 +47,7 @@ export default {
 
     return { ranking, ...useDialogCommands() };
   },
-};
+});
 </script>
 
 <style lang="scss">

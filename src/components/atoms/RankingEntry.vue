@@ -41,7 +41,7 @@
         {{ entry.width }}x{{ entry.height }}
       </DataChip>
       <DataChip
-        v-if="withRun"
+        v-if="withRun && isRoguelike"
         class="ranking-entry__data ranking-entry__run"
         theme="run"
       >
@@ -52,10 +52,7 @@
         <span class="d-none d-sm-inline font-weight-bold mr-1">Moves:</span>
         {{ entry.moves }}
       </DataChip>
-      <DataChip
-        class="ranking-entry__data ranking-entry__undos"
-        theme="undos"
-      >
+      <DataChip class="ranking-entry__data ranking-entry__undos" theme="undos">
         <span class="d-none d-sm-inline font-weight-bold mr-1">Undos:</span>
         {{ entry.undos }}
       </DataChip>
@@ -63,17 +60,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, computed, PropType } from "vue";
 import Square from "@/components/atoms/Square.vue";
 import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 
-import RankingEntry from "@/model/2048/RankingEntry";
-export default {
+import { IRankingEntry } from "@/model/2048/RankingEntry";
+import { IRoguelikeRankingEntry } from "@/model/roguelike/RankingEntry";
+
+type RankingEntryVariation = IRankingEntry | IRoguelikeRankingEntry;
+
+export default defineComponent({
   components: { Square, DataChip },
   props: {
     entry: {
-      type: [RankingEntry, Object],
-      default: () => new RankingEntry({ id: "", name: "" }),
+      type: Object as PropType<RankingEntryVariation>,
+      required: true,
     },
     position: {
       type: Number,
@@ -88,7 +90,11 @@ export default {
       default: false,
     },
   },
-};
+  setup(props) {
+    const isRoguelike = computed(() => props.entry.run != undefined);
+    return { isRoguelike };
+  },
+});
 </script>
 
 <style lang="scss">

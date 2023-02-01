@@ -1,3 +1,4 @@
+import GameController from "@/model/2048/GameController";
 import RoguelikeGameProgress, { IRoguelikeGameProgress } from "@/model/roguelike/interfaces/GameProgress";
 import { reactive } from "vue"
 import IHandler from "./model/Handler";
@@ -7,44 +8,29 @@ import HandlerSuite, { IHandlerSuite } from "./model/HandlerSuite";
 type CallbackAction = "update"
 
 export interface IProgressHandler extends IHandler {
-    progress: RoguelikeGameProgress
+    progress: { run: number }
     callback: HandlerCallback<CallbackAction>
     reset: () => void,
     update: (data: IRoguelikeGameProgress) => void
 }
 
-export default function useProgressHandler(): IProgressHandler {
-    const progress = reactive(new RoguelikeGameProgress());
+export default function useProgressHandler(game: GameController): IProgressHandler {
+    const progress = reactive({
+        run: 0,
+    });
 
     const callback = new HandlerCallback<CallbackAction>()
 
     const externalHandlers = reactive(new HandlerSuite())
 
     const reset = () => {
-        progress.bestScore = 0
-        progress.highestBlock = 0
-        progress.moves = 0
         progress.run = 0
-        progress.score = 0
-        progress.undos = 0
     }
 
     const update = ({
-        bestScore = progress.bestScore,
-        highestBlock = progress.highestBlock,
-        moves = progress.moves,
         run = progress.run,
-        score = progress.score,
-        undos = progress.undos,
-        bestRun = progress.bestRun
     }: IRoguelikeGameProgress) => {
-        progress.bestScore = bestScore
-        progress.highestBlock = highestBlock
-        progress.moves = moves
         progress.run = run
-        progress.score = score
-        progress.undos = undos
-        progress.bestRun = bestRun
         callback.run("update")
     }
 

@@ -1,8 +1,12 @@
 import { createStore } from 'vuex'
-import ranking from './ranking'
-import memoryCard from './memory-card'
+import ranking, { IRanking } from './ranking'
+import memoryCard, { IMemoryCard } from './memory-card'
 
-export default createStore({
+export interface IStore {
+  memoryCard: IMemoryCard, ranking: IRanking
+}
+
+export default createStore<IStore>({
   modules: {
     memoryCard,
     ranking,

@@ -16,7 +16,7 @@
     </span>
     <div class="save-slot--details" v-if="save.isEmpty">EMPTY SLOT</div>
     <div class="save-slot--details" v-else>
-      <Square inline :value="save.progress.highestValue" />
+      <Square inline :value="save.progress.highestBlock" />
       <div class="save-slot--currency">
         <DataChip
           theme="score"
@@ -31,7 +31,7 @@
         <DataChip
           v-if="save.inventory"
           theme="coins"
-          :value="save.inventory.coins"
+          :value="save.inventory.wallet.coins"
         />
       </div>
       <span class="save-slot--shape">

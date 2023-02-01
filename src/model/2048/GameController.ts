@@ -79,9 +79,9 @@ export default class GameController extends Game {
 
   loadSaveFile(save: SaveFile) {
     this.updateSettings(save.settings)
-    this.score = save.progress.score
-    this.moves = save.progress.moves
-    this.undos = save.progress.undos
+    this.score = save.progress.score ?? 0 
+    this.moves = save.progress.moves ?? 0
+    this.undos = save.progress.undos ?? 0
 
     this.loadBoardObject(save.state.board)
     this.history = save.state.history.map((entry) => {

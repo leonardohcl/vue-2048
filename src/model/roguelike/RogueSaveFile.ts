@@ -10,6 +10,7 @@ import Inventory, { IInventory } from './Inventory'
 export interface IRoguelikeSaveFile extends ISaveFile {
   inventory: Inventory
   progress: IRoguelikeGameProgress
+  bestRun: IRoguelikeGameProgress
 }
 
 export default class RoguelikeSaveFile
@@ -18,17 +19,20 @@ export default class RoguelikeSaveFile
 {
   inventory = new Inventory()
   progress: RoguelikeGameProgress
+  bestRun
 
   constructor(
     filename: string,
     settings: IGameSettings,
     state: IGameState,
     progress: IGameProgress | IRoguelikeGameProgress,
-    inventory: IInventory
+    inventory: IInventory,
+    bestRun: IRoguelikeGameProgress
   ) {
     super(filename, settings, state, progress)
-    this.progress = new RoguelikeGameProgress({ run: 0, bestScore: 0, ...progress })
+    this.progress = new RoguelikeGameProgress({ run: 0, ...progress })
     this.inventory = inventory
+    this.bestRun = bestRun
   }
 
   static fromString(str: string) {
@@ -39,7 +43,8 @@ export default class RoguelikeSaveFile
       obj.settings || new GameSettings(),
       obj.state || new GameState(),
       obj.progress || new RoguelikeGameProgress(),
-      obj.inventory || new Inventory()
+      obj.inventory || new Inventory(),
+      obj.bestRun || new GameState(),
     )
   }
 }

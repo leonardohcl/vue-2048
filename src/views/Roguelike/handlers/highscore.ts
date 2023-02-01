@@ -1,38 +1,43 @@
 import HighScoreManagerVue from "@/components/organisms/HighScoreManager.vue";
 import GameController from "@/model/2048/GameController";
+import RoguelikeGameProgress, { IRoguelikeGameProgress } from "@/model/roguelike/interfaces/GameProgress";
 import RoguelikeRankingEntry from "@/model/roguelike/RankingEntry";
 import { ref, computed, reactive, ComputedRef, Ref } from 'vue'
 import IHandler from "./model/Handler";
 import HandlerCallback from "./model/HandlerCallback";
 import HandlerSuite, { IHandlerSuite } from "./model/HandlerSuite";
 
-type CallbackAction = "update"
+type CallbackAction = "update" | "newBest"
 
 export interface IHighscoreHandler extends IHandler {
-    isRankingWorthy: ComputedRef<boolean>
-    highscoreManager: Ref<any> | undefined
-    haveSubmitedScore: Ref<boolean>
-    updateBest: () => void
+    bestRun: RoguelikeGameProgress
+    isRankingWorthy: ComputedRef
+    highscoreManager: Ref
+    haveSubmitedScore: Ref
+    checkNewBest: () => void
+    updateBest: (data: IRoguelikeGameProgress) => void
     getRankingEntry: ({ id, game }: { id: string; game: GameController }) => RoguelikeRankingEntry
 }
 
 export default function useHighscoreHandler(game: GameController): IHighscoreHandler {
 
     const highscoreManager = ref<typeof HighScoreManagerVue>();
+    const bestRun = reactive(new RoguelikeGameProgress())
+
     const haveSubmited = ref(false);
 
     const externalHandlers = reactive(new HandlerSuite())
 
     const callback = new HandlerCallback<CallbackAction>()
 
-    const isRankingWorthy = computed<boolean>(() => {
-        const progress = externalHandlers.progress?.progress
+    const isRankingWorthy = computed(() => {
+        const { progress } = externalHandlers.progress ?? {}
         if (progress)
-            return highscoreManager.value?.isRankingWorthy(progress.bestScore);
+            return highscoreManager.value?.isRankingWorthy(bestRun.score);
+        return false
     });
 
     const getRankingEntry = ({ id, game }: { id: string; game: GameController }) => {
-        const progress = externalHandlers.progress?.progress
 
         const entry = GameController.getRankingEntry({
             id,
@@ -40,49 +45,63 @@ export default function useHighscoreHandler(game: GameController): IHighscoreHan
             name: "",
         }) as RoguelikeRankingEntry;
 
-        if (progress) {
-            entry.score = progress.bestScore;
-            entry.block = progress.highestBlock;
-            entry.run = progress.run;
-        }
+        entry.score = bestRun.score;
+        entry.block = bestRun.highestBlock;
+        entry.run = bestRun.run;
+        entry.moves = bestRun.moves;
+        entry.undos = bestRun.undos;
 
         return entry;
     };
 
-    const updateBest = () => {
-        if (!externalHandlers.progress) return
+    const checkNewBest = () => {
+        const { progress } = externalHandlers.progress ?? {}
 
-        const { progress } = externalHandlers.progress
-        const progressUpdate: { bestScore?: number, highestBlock?: number, bestRun?: number } = {}
-
-        if (game.score > progress.bestScore) {
+        if (game.score > bestRun.score) {
             haveSubmited.value = false;
-            progressUpdate.bestScore = game.score;
-            progressUpdate.bestRun = progress.run
-        }
 
-        if (game.board.highestBlock > progress.highestBlock) {
-            haveSubmited.value = false;
-            progressUpdate.highestBlock = game.board.highestBlock;
-        }
+            bestRun.run = progress?.run ?? -1
+            bestRun.highestBlock = game.highestBlock
+            bestRun.moves = game.highestBlock
+            bestRun.score = game.score
+            bestRun.undos = game.undos
 
-        externalHandlers.progress.update(progressUpdate)
+            callback.run("newBest")
+        }
     };
+
+    const updateBest = ({
+        run = bestRun.run,
+        moves = bestRun.moves,
+        score = bestRun.score,
+        undos = bestRun.undos,
+        highestBlock = bestRun.highestBlock
+    }: IRoguelikeGameProgress = {}) => {
+        bestRun.run = run
+        bestRun.moves = moves
+        bestRun.score = score
+        bestRun.undos = undos
+        bestRun.highestBlock = highestBlock
+
+        callback.run("update")
+    }
 
     const registerHandlers = ({ progress, state }: IHandlerSuite) => {
         if (progress && !externalHandlers.progress) externalHandlers.progress = progress
         if (state && !externalHandlers.state) {
-            state.callback.set("gameOver", updateBest)
+            state.callback.set("gameOver", checkNewBest)
             externalHandlers.state = state
         }
     }
 
     return {
+        bestRun,
         isRankingWorthy,
         highscoreManager,
         haveSubmitedScore: haveSubmited,
         callback,
         updateBest,
+        checkNewBest,
         getRankingEntry,
         registerHandlers
     }
