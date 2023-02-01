@@ -76,9 +76,9 @@
   </v-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import GameController from "@/model/2048/GameController";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import useDialogCommands from "@/mixins/dialogCommands";
 
 export default {
@@ -95,29 +95,39 @@ export default {
     const allowUndo = ref(true);
     const undoHistorySize = ref(2);
 
+    const { open, close, isOpen } = useDialogCommands(context);
+
     const updateSettings = () => {
       context.emit("update", {
         width: width.value,
         height: height.value,
         historySize: allowUndo.value ? undoHistorySize.value : 0,
       });
+      close();
     };
 
-    const handleOpenModal = (evt) => {
+    const handleOpenModal = () => {
       width.value = props.game.width;
       height.value = props.game.height;
       allowUndo.value = props.game.historySize > 0;
       undoHistorySize.value = props.game.historySize;
     };
 
+    watch(isOpen, (open) => {
+      console.log(open)
+      if (open) handleOpenModal();
+    });
+
     return {
+      isOpen,
       width,
       height,
       allowUndo,
       undoHistorySize,
+      open,
+      close,
       updateSettings,
       handleOpenModal,
-      ...useDialogCommands(context),
     };
   },
 };

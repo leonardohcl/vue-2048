@@ -50,10 +50,24 @@ export default class Board implements IBoard {
     return this.squares.map((sqr) => sqr.value)
   }
 
+  isValidCoords(row:number, col:number){
+    if(row < 0 || col < 0) return false
+    if(row >= this.height) return false
+    if(col >= this.width) return false
+    return true
+  }
+
   getCoordFromIdx(idx: number) {
     const row = Math.floor(idx / this.width) % this.height,
-      col = idx % this.width
+    col = idx % this.width
     return { row, col }
+  }
+  
+  getIdxFromCoord(row: number, col: number) {
+    if(!this.isValidCoords(row,col)) return -1
+    const rowIdx = row * this.height
+    const colIdx = col % this.width
+    return rowIdx + colIdx
   }
 
   loadPreset(preset: number[]) {
@@ -76,10 +90,12 @@ export default class Board implements IBoard {
   }
 
   getSquare(row: number, col: number) {
-    return this.squares.find((sqr) => sqr.row == row && sqr.col == col)
+    const idx = this.getIdxFromCoord(row, col)
+    return this.squares[idx]
   }
 
   getSquareNeighbor(row: number, col: number, dir: Direction) {
+    if(!this.isValidCoords(row,col)) return
     switch (dir) {
       case Direction.Right:
         return this.getSquare(row, col + 1)
@@ -94,24 +110,23 @@ export default class Board implements IBoard {
 
   getSquareValidMovement(row: number, col: number, dir: Direction) {
     const sqr = this.getSquare(row, col)
+    if (!sqr) return [undefined, undefined]
     let neighbor = this.getSquareNeighbor(row, col, dir),
       selectedNeighbor = null
-    while (neighbor != null) {
-      if (neighbor.value == sqr?.value) {
+    while (neighbor) {
+      if (neighbor.value === sqr.value) {
         if (neighbor.canMerge) {
           selectedNeighbor = neighbor
         }
         break
-      } else if (neighbor.value == 0) {
+      } else if (neighbor.isEmpty) {
         selectedNeighbor = neighbor
       } else {
         break
       }
       neighbor = this.getSquareNeighbor(neighbor.row, neighbor.col, dir)
     }
-    return selectedNeighbor
-      ? [selectedNeighbor.row, selectedNeighbor.col]
-      : [null, null]
+    return [selectedNeighbor?.row, selectedNeighbor?.col]
   }
 
   updateSquare(row: number, col: number, val: number) {

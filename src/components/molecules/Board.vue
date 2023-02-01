@@ -3,6 +3,7 @@
     <Square
       v-for="sqr in board.squares"
       :key="sqr.id"
+      :id="sqr.id"
       :transition-duration="transitionDuration"
       :gap="gap"
       :inline="inline"

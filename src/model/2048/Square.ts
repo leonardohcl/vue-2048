@@ -25,7 +25,7 @@ export default class Square implements ISquare {
   }
 
   get id() {
-    return `s${this.row}x${this.col}-${this.value}`
+    return `s${this.row}x${this.col}`
   }
 
   get isEmpty() {

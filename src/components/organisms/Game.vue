@@ -63,16 +63,14 @@
           </v-slide-y-reverse-transition>
           <v-scroll-y-reverse-transition group>
             <span
+              v-for="idx in 3"
+              :key="animatedPoints[idx]?.id ?? -idx"
+              v-show="animatedPoints[idx]"
               class="game__animated-point"
-              v-for="entry in animatedPoints"
-              :key="entry.id"
-              :style="{
-                transition: `${
-                  pointAnimationDuration / 2
-                }ms cubic-bezier(.15,.75,0,1)`,
-              }"
+              :id="animatedPoints[idx]?.id ?? -idx"
+              :style="animatedPointsStyle"
             >
-              {{ entry.points }}
+              {{ animatedPoints[idx]?.points }}
             </span>
           </v-scroll-y-reverse-transition>
         </span>
@@ -101,6 +99,7 @@ import Board from "@/components/molecules/Board.vue";
 import { computed, watch, ref } from "vue";
 import { useStore } from "vuex";
 import { useGameCommands } from "@/mixins/boardCommands";
+import { remove } from "lodash";
 
 export default {
   components: { Board, GameControls },
@@ -214,17 +213,26 @@ export default {
       }
     };
 
-    const animatedPoints = ref([]);
+    const animatedPoints = ref(new Array(3).fill(0));
+    const animatedPointsStyle = computed(() => ({
+      transition: `${
+        props.pointAnimationDuration / 2
+      }ms cubic-bezier(.15,.75,0,1)`,
+    }));
 
     const animatePoints = (dir, success, points) => {
       if (!points) return;
       const id = props.game.moves;
-      animatedPoints.value.push({
+      const point = {
         id,
         points: points < 0 ? points : "+" + points,
-      });
+      };
+      animatedPoints.value.push(point);
+      if (animatedPoints.value.length > 3) animatedPoints.value.shift();
+      else if (animatedPoints.value.length < 3) animatedPoints.value.unshift(0);
       setTimeout(() => {
-        animatedPoints.value.shift();
+        remove(animatedPoints.value, p => p.id === point.id)
+        if (animatedPoints.value.length < 3) animatedPoints.value.unshift(0);
       }, props.pointAnimationDuration / 2);
     };
 
@@ -269,6 +277,7 @@ export default {
       newHighscore,
       boardClasses,
       animatedPoints,
+      animatedPointsStyle,
       handleSquareSelected,
     };
   },

@@ -60,7 +60,7 @@ export default class Game implements IGame {
                 sqr.col,
                 dir
             )
-            if (nextRow !== null && nextCol !== null) {
+            if (nextRow !== undefined && nextCol !== undefined) {
                 nextBoard.updateSquare(sqr.row, sqr.col, 0)
                 pointsGained += nextBoard.updateSquare(nextRow, nextCol, sqr.value)
                 onUpdateSquare(sqr, { nextRow, nextCol })

@@ -1,5 +1,5 @@
 <template>
-  <div class="square" :class="squareClasses" @click="$emit('click')">
+  <div class="square" :id="id" :class="squareClasses" @click="$emit('click')">
     <div
       class="square__block"
       :class="blockClasses"
@@ -17,6 +17,7 @@ import { computed, ref } from "vue";
 export default {
   name: "Square",
   props: {
+    id: { type: String, default: '' },
     value: { type: Number, required: true },
     nextMove: {
       type: Object,
