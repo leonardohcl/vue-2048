@@ -1,10 +1,10 @@
 <template>
   <div class="square" :id="id" :class="squareClasses" @click="$emit('click')">
     <div
+      v-show="value"
       class="square__block"
       :class="blockClasses"
       :style="blockStyles"
-      v-if="value"
     >
       {{ value }}
     </div>
@@ -17,7 +17,7 @@ import { computed, ref } from "vue";
 export default {
   name: "Square",
   props: {
-    id: { type: String, default: '' },
+    id: { type: String, default: "" },
     value: { type: Number, required: true },
     nextMove: {
       type: Object,

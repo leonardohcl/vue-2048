@@ -3,11 +3,13 @@ export interface IHighlighterConfig {
     transitionDuration?: number,
     bgColor?: string,
     bgOpacity?: number,
+    dialogsAllowed?: number
     bgCallback?: (evt: MouseEvent) => void,
 }
 
 export default class HighlighterConfig implements IHighlighterConfig {
     resizeStagger
+    dialogsAllowed
     transitionDuration
     bgCallback
     bgColor
@@ -18,12 +20,14 @@ export default class HighlighterConfig implements IHighlighterConfig {
         transitionDuration = 200,
         bgColor = 'black',
         bgOpacity = 0.75,
+        dialogsAllowed = 0,
         bgCallback,
     }: IHighlighterConfig = {}) {
+        this.dialogsAllowed = dialogsAllowed
         this.resizeStagger = resizeStagger;
         this.transitionDuration = transitionDuration;
         this.bgCallback = bgCallback;
         this.bgColor = bgColor;
-        this.bgOpacity = bgOpacity;
+        this.bgOpacity = bgOpacity;        
     };
 }

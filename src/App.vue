@@ -29,11 +29,8 @@ export default defineComponent({
 
       const highlighter = elementHighlighter.value;
 
-      const highlight = highlighter.highlight;
-
-      const dissmiss = highlighter.dismiss;
-
-      const setConfig = highlighter.setConfig
+      const { highlight, dismiss, setConfig, addText, clearText, removeText } =
+        highlighter;
 
       const setBackgroundCallback = (bgCallback: (evt: MouseEvent) => void) => {
         setConfig({ bgCallback });
@@ -41,8 +38,11 @@ export default defineComponent({
 
       return provide<HighlighterFunctions>(Highlighter, {
         highlight,
-        dissmiss,
+        dismiss,
+        addText,
+        clearText,
         setConfig,
+        removeText,
         setBackgroundCallback,
       });
     });

@@ -1,6 +1,6 @@
 <template>
-  <Transition name="fade">
-    <div class="element-highlighter" :style="containerStyle" v-if="display">
+  <v-fade-transition>
+    <div v-if="display" class="element-highlighter" :style="containerStyle">
       <div
         class="element-highlighter__background element-highlighter__top"
         :style="topStyle"
@@ -21,9 +21,29 @@
         :style="rightStyle"
         @click="handleBackgroudClick"
       />
-      <div class="element-highlighter__window" :style="windowStyle" />
+      <div class="element-highlighter__window" :style="windowStyle">
+        <v-fade-transition>
+          <div
+            v-if="dialogs.length"
+            class="element-highlighter__dialog-container"
+            :class="dialogContainerClasses"
+            :style="dialogContainerStyles"
+          >
+            <v-scroll-y-reverse-transition group>
+              <DialogBox
+                v-for="dialog in dialogs"
+                :key="dialog.id"
+                class="element-highlighter__dialog"
+                :dialog="dialog.config"
+                :actions="dialog.actions"
+                :style="dialog.style"
+              />
+            </v-scroll-y-reverse-transition>
+          </div>
+        </v-fade-transition>
+      </div>
     </div>
-  </Transition>
+  </v-fade-transition>
 </template>
 
 <script lang="ts">
@@ -35,10 +55,18 @@ import HighlighterMemory, {
   IHighlighterEntry,
 } from "./model/HighlighterMemory";
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import HighlightDialog, {
+  IHighlightDialog,
+  IHighlightDialogPosition,
+} from "./model/HighlighterDialog";
+import DialogBox from "@/components/atoms/DialogBox/DialogBox.vue";
+import LooseObject from "@/utils/LooseObject";
+import useDialogHandler from "./handlers/dialog";
 
 export default {
   setup() {
     const display = ref(false);
+
     const leftStyle = reactive({
       width: "0",
       transition: "",
@@ -82,6 +110,7 @@ export default {
         bgCallback: undefined,
         bgColor: "black",
         bgOpacity: 0.75,
+        dialogsAllowed: 0,
       })
     );
 
@@ -93,6 +122,18 @@ export default {
         bgOpacity: config.bgOpacity,
       })
     );
+
+    // dialog handler
+    const {
+      dialogs,
+      dialogContainerStyles,
+      dialogContainerClasses,
+      addText,
+      clearText,
+      removeText,
+      controlDialogs,
+      setDialogPosition,
+    } = useDialogHandler(config);
 
     const getPageSize = () => ({
       height: Math.max(
@@ -118,9 +159,7 @@ export default {
       const transition = properties
         .map((prop) => `${prop} ${duration}ms`)
         .join(", ");
-
       if (containerStyle.transition === transition) return false;
-
       containerStyle.animationDuration = `${duration}ms`;
       containerStyle.transition = transition;
       windowStyle.transition = transition;
@@ -128,7 +167,6 @@ export default {
       rightStyle.transition = transition;
       bottomStyle.transition = transition;
       topStyle.transition = transition;
-
       return true;
     };
 
@@ -141,15 +179,12 @@ export default {
     } = {}) => {
       containerStyle.width = `${page.width}px`;
       containerStyle.height = `${page.height}px`;
-
       windowStyle.width = `${el.width + 2 * padding}px`;
       windowStyle.height = `${el.height + 2 * padding}px`;
-
       leftStyle.width = `${el.left - padding}px`;
       rightStyle.width = `${page.width - el.left - el.width - padding}px`;
       topStyle.height = `${el.top - padding}px`;
       bottomStyle.height = `${page.height - el.top - el.height - padding}px`;
-
       const styles = [leftStyle, rightStyle, topStyle, bottomStyle];
       styles.forEach((style) => {
         style.opacity = bgOpacity;
@@ -168,10 +203,8 @@ export default {
       }: IHighlighterEntry = {}
     ) => {
       if (!selector) return;
-
       const el = document.querySelector(selector);
       if (!el) return;
-
       memory.lastHighlight = new HighlighterEntry({
         selector,
         transitionDuration,
@@ -179,22 +212,17 @@ export default {
         bgColor,
         bgOpacity,
       });
-
       const haveUpdated = updateTransition(transitionDuration);
-
       const previousDisplayValue = display.value;
       display.value = shouldDisplay;
-
       if (haveUpdated || previousDisplayValue != display.value)
         await nextTick();
-
       updateStyles({
         el: el.getBoundingClientRect(),
         padding,
         bgColor,
         bgOpacity,
       });
-
       return new Promise<void>((resolve) =>
         setTimeout(async () => {
           resolve();
@@ -206,15 +234,12 @@ export default {
       transitionDuration = config.transitionDuration,
     } = {}) => {
       if (!display.value) return;
-
       const haveUpdated = updateTransition(transitionDuration);
       if (haveUpdated) await nextTick();
-
       updateStyles();
-
+      clearText();
       display.value = false;
       await nextTick();
-
       return new Promise<void>((resolve) =>
         setTimeout(async () => {
           resolve();
@@ -228,12 +253,16 @@ export default {
       bgColor = config.bgColor,
       bgOpacity = config.bgOpacity,
       bgCallback = config.bgCallback,
+      dialogsAllowed = config.dialogsAllowed,
     }: IHighlighterConfig = {}) => {
       config.resizeStagger = resizeStagger;
       config.transitionDuration = transitionDuration;
       config.bgCallback = bgCallback;
       config.bgColor = bgColor;
       config.bgOpacity = bgOpacity;
+      config.dialogsAllowed = dialogsAllowed;
+
+      controlDialogs();
     };
 
     const handleBackgroudClick = (evt: MouseEvent) => {
@@ -261,6 +290,8 @@ export default {
       window.removeEventListener("resize", refreshPosition);
     });
 
+    setDialogPosition({ vertical: "top-inset", horizontal: "right" });
+
     return {
       display,
       leftStyle,
@@ -269,17 +300,24 @@ export default {
       bottomStyle,
       windowStyle,
       containerStyle,
+      dialogContainerClasses,
+      dialogContainerStyles,
       config,
+      dialogs,
+      addText,
       highlight,
       dismiss,
+      clearText,
+      removeText,
       setConfig,
       handleBackgroudClick,
     };
   },
+  components: { DialogBox },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .element-highlighter {
   position: absolute;
   z-index: $hud-z-index + 1;
@@ -297,7 +335,73 @@ export default {
   }
 
   &__window {
+    position: relative;
     pointer-events: none;
+  }
+
+  &__dialog {
+    width: max-content;
+    &-container {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      z-index: $hud-z-index + 2;
+      gap: $default-spacing * 0.25;
+      padding: $default-spacing * 0.5;
+      pointer-events: all;
+
+      &--h {
+        &-left {
+          right: 100%;
+          align-items: flex-end;
+
+          &-inset {
+            left: 0;
+          }
+        }
+
+        &-center {
+          display: flex;
+          align-items: center;
+          right: 0;
+          left: 0;
+        }
+
+        &-right {
+          left: 100%;
+
+          &-inset {
+            right: 0;
+            align-items: flex-end;
+          }
+        }
+      }
+
+      &--v {
+        &-top {
+          bottom: 100%;
+
+          &-inset {
+            top: 0;
+          }
+        }
+
+        &-center {
+          display: flex;
+          justify-content: center;
+          top: 0;
+          bottom: 0;
+        }
+
+        &-bottom {
+          top: 100%;
+
+          &-inset {
+            bottom: 0;
+          }
+        }
+      }
+    }
   }
 
   &__left {

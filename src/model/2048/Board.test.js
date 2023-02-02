@@ -35,11 +35,11 @@ describe('Board.ts', () => {
     })
   })
 
-  test('must get highest value correctly', () => {
+  test('must get highest block correctly', () => {
     const board = new Board(4, 4)
-    expect(board.highestValue).toBe(0)
+    expect(board.highestBlock).toBe(0)
     const withPreset = new Board(4, 4, preset)
-    expect(withPreset.highestValue).toBe(4)
+    expect(withPreset.highestBlock).toBe(4)
   })
 
   test('must get square correctly', () => {
@@ -88,10 +88,10 @@ describe('Board.ts', () => {
     expect(board.getSquareValidMovement(3, 3, Direction.Left)).toEqual([3, 0])
 
     // Can't move
-    expect(board.getSquareValidMovement(0, 0, Direction.Up)).toEqual([null, null])
-    expect(board.getSquareValidMovement(3, 3, Direction.Right)).toEqual([null, null])
-    expect(board.getSquareValidMovement(3, 3, Direction.Down)).toEqual([null, null])
-    expect(board.getSquareValidMovement(0, 0, Direction.Left)).toEqual([null, null])
+    expect(board.getSquareValidMovement(0, 0, Direction.Up)).toEqual([undefined, undefined])
+    expect(board.getSquareValidMovement(3, 3, Direction.Right)).toEqual([undefined, undefined])
+    expect(board.getSquareValidMovement(3, 3, Direction.Down)).toEqual([undefined, undefined])
+    expect(board.getSquareValidMovement(0, 0, Direction.Left)).toEqual([undefined, undefined])
 
     // will merge
     board.loadPreset([0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0])
