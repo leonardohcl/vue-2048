@@ -15,3 +15,5 @@ app.use(vuetify)
 
 import '@/assets/styles/main.scss'
 app.mount('#app')
+
+export default app
