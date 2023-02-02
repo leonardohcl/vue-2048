@@ -50,22 +50,31 @@ export default class Board implements IBoard {
     return this.squares.map((sqr) => sqr.value)
   }
 
-  isValidCoords(row:number, col:number){
-    if(row < 0 || col < 0) return false
-    if(row >= this.height) return false
-    if(col >= this.width) return false
+  get length() {
+    return this.width * this.height
+  }
+
+  isValidCoords(row: number, col: number) {
+    if (row < 0 || col < 0) return false
+    if (row >= this.height) return false
+    if (col >= this.width) return false
     return true
   }
 
+  isValidIdx(idx: number) {
+    return idx >= 0 && idx < this.length
+  }
+
   getCoordFromIdx(idx: number) {
+    if (!this.isValidIdx(idx)) return { row: -1, col: -1 }
     const row = Math.floor(idx / this.width) % this.height,
-    col = idx % this.width
+      col = idx % this.width
     return { row, col }
   }
-  
+
   getIdxFromCoord(row: number, col: number) {
-    if(!this.isValidCoords(row,col)) return -1
-    const rowIdx = row * this.height
+    if (!this.isValidCoords(row, col)) return -1
+    const rowIdx = row * this.width
     const colIdx = col % this.width
     return rowIdx + colIdx
   }
@@ -95,7 +104,7 @@ export default class Board implements IBoard {
   }
 
   getSquareNeighbor(row: number, col: number, dir: Direction) {
-    if(!this.isValidCoords(row,col)) return
+    if (!this.isValidCoords(row, col)) return
     switch (dir) {
       case Direction.Right:
         return this.getSquare(row, col + 1)

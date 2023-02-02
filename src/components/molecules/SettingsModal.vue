@@ -114,7 +114,6 @@ export default {
     };
 
     watch(isOpen, (open) => {
-      console.log(open)
       if (open) handleOpenModal();
     });
 

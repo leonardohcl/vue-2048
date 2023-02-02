@@ -31,8 +31,42 @@ describe('Board.ts', () => {
     expect(board.emptySquares.length).toBe(16)
     board.loadPreset(preset)
     preset.forEach((val, idx) => {
-      expect(board.squares[idx].value).toBe(val)
+      expect(board.squares[idx].value).toEqual(val)
     })
+  })
+
+  test('must parse coordinates to index correctly', () => {
+    const squareBoard = new Board(5,5)
+    expect(squareBoard.getCoordFromIdx(17)).toEqual({row:3 ,col:2})
+    expect(squareBoard.getCoordFromIdx(24)).toEqual({row:4 ,col:4})
+    expect(squareBoard.getCoordFromIdx(4)).toEqual({row:0 ,col:4})
+    expect(squareBoard.getCoordFromIdx(11)).toEqual({row:2 ,col:1})
+    expect(squareBoard.getCoordFromIdx(33)).toEqual({row:-1 ,col:-1})
+    
+    const rectangleBoard = new Board(5,6)
+    expect(rectangleBoard.getCoordFromIdx(17)).toEqual({row:3 ,col:2})
+    expect(rectangleBoard.getCoordFromIdx(24)).toEqual({row:4 ,col:4})
+    expect(rectangleBoard.getCoordFromIdx(4)).toEqual({row:0 ,col:4})
+    expect(rectangleBoard.getCoordFromIdx(11)).toEqual({row:2 ,col:1})
+    expect(rectangleBoard.getCoordFromIdx(25)).toEqual({row:5 ,col:0})
+    expect(rectangleBoard.getCoordFromIdx(33)).toEqual({row:-1 ,col:-1})
+  })
+
+  test('must parse index to coordinates correctly', () => {
+    const squareBoard = new Board(5,5)
+    expect(squareBoard.getIdxFromCoord(3,2)).toEqual(17)
+    expect(squareBoard.getIdxFromCoord(4,4)).toEqual(24)
+    expect(squareBoard.getIdxFromCoord(0,4)).toEqual(4)
+    expect(squareBoard.getIdxFromCoord(2,1)).toEqual(11)
+    expect(squareBoard.getIdxFromCoord(5,0)).toEqual(-1)
+
+    const rectangleBoard = new Board(5,6)
+    expect(rectangleBoard.getIdxFromCoord(3,2)).toEqual(17)
+    expect(rectangleBoard.getIdxFromCoord(4,4)).toEqual(24)
+    expect(rectangleBoard.getIdxFromCoord(0,4)).toEqual(4)
+    expect(rectangleBoard.getIdxFromCoord(2,1)).toEqual(11)
+    expect(rectangleBoard.getIdxFromCoord(5,0)).toEqual(25)
+    expect(rectangleBoard.getIdxFromCoord(5,6)).toEqual(-1)
   })
 
   test('must get highest block correctly', () => {
