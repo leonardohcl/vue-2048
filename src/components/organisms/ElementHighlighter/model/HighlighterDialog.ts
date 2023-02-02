@@ -12,7 +12,7 @@ export interface IHighlightDialog {
     content: string,
     title?: string,
     subtitle?: string,
-    config: IDialogBoxConfig
+    config?: IDialogBoxConfig
     actions?: IDialogBoxAction[]
     append?: boolean
     style?: LooseObject<string | number>

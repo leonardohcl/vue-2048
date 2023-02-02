@@ -29,16 +29,18 @@
             :class="dialogContainerClasses"
             :style="dialogContainerStyles"
           >
-            <v-scroll-y-reverse-transition group>
-              <DialogBox
-                v-for="dialog in dialogs"
-                :key="dialog.id"
-                class="element-highlighter__dialog"
-                :dialog="dialog.config"
-                :actions="dialog.actions"
-                :style="dialog.style"
-              />
-            </v-scroll-y-reverse-transition>
+            <div class="element-highlighter__dialog-container--content">
+              <v-scroll-y-reverse-transition group>
+                <DialogBox
+                  v-for="dialog in dialogs"
+                  :key="dialog.id"
+                  class="element-highlighter__dialog"
+                  :dialog="dialog.config"
+                  :actions="dialog.actions"
+                  :style="dialog.style"
+                />
+              </v-scroll-y-reverse-transition>
+            </div>
           </div>
         </v-fade-transition>
       </div>
@@ -55,12 +57,7 @@ import HighlighterMemory, {
   IHighlighterEntry,
 } from "./model/HighlighterMemory";
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
-import HighlightDialog, {
-  IHighlightDialog,
-  IHighlightDialogPosition,
-} from "./model/HighlighterDialog";
 import DialogBox from "@/components/atoms/DialogBox/DialogBox.vue";
-import LooseObject from "@/utils/LooseObject";
 import useDialogHandler from "./handlers/dialog";
 
 export default {
@@ -105,11 +102,11 @@ export default {
 
     const config = reactive(
       new HighlighterConfig({
-        resizeStagger: 250,
+        resizeStagger: 500,
         transitionDuration: 200,
         bgCallback: undefined,
         bgColor: "black",
-        bgOpacity: 0.75,
+        bgOpacity: 0.9,
         dialogsAllowed: 0,
       })
     );
@@ -136,17 +133,21 @@ export default {
     } = useDialogHandler(config);
 
     const getPageSize = () => ({
+      viewHeight: Math.min(
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      ),
+      viewWidth: Math.min(
+        document.body.clientWidth,
+        document.documentElement.clientWidth
+      ),
       height: Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
         document.body.offsetHeight,
         document.documentElement.offsetHeight,
         document.body.clientHeight,
         document.documentElement.clientHeight
       ),
       width: Math.max(
-        document.body.scrollWidth,
-        document.documentElement.scrollWidth,
         document.body.offsetWidth,
         document.documentElement.offsetWidth,
         document.body.clientWidth,
@@ -170,22 +171,103 @@ export default {
       return true;
     };
 
+    const getNamedTopSize = (
+      position: string,
+      padding: number,
+      rect: { height: number },
+      { viewHeight }: { viewHeight: number }
+    ) => {
+      const scrollY = document.documentElement.scrollTop;
+      const scrollBarCorrection = scrollY > 0 ? 16 : 0;
+      if (position === "top") {
+        return `${scrollY}px`;
+      }
+      if (position === "bottom") {
+        return `${
+          viewHeight + scrollY - rect.height - padding - scrollBarCorrection
+        }px`;
+      }
+      if (position === "center") {
+        return `${
+          scrollY -
+          scrollBarCorrection +
+          (viewHeight - rect.height - padding) / 2
+        }px`;
+      }
+
+      return position;
+    };
+
+    const getNamedLeftSize = (
+      position: string,
+      padding: number,
+      rect: { width: number },
+      page: { viewWidth: number }
+    ) => {
+      const scrollX = document.documentElement.scrollLeft;
+      if (position === "left") {
+        return `${scrollX}px`;
+      }
+      if (position === "right") {
+        return `${page.viewWidth + scrollX - rect.width - padding}px`;
+      }
+      if (position === "center") {
+        return `${scrollX + (page.viewWidth - rect.width - padding) / 2}px`;
+      }
+
+      return position;
+    };
+
     const updateStyles = ({
-      page = getPageSize(),
-      el = document.body.getBoundingClientRect(),
+      rect = document.body.getBoundingClientRect(),
       padding = 0,
       bgColor = config.bgColor,
       bgOpacity = config.bgOpacity,
+    }: {
+      rect?: {
+        width: number;
+        height: number;
+        left: number | string;
+        top: number | string;
+      };
+      padding?: number;
+      bgColor?: string;
+      bgOpacity?: number;
     } = {}) => {
+      const page = getPageSize();
       containerStyle.width = `${page.width}px`;
       containerStyle.height = `${page.height}px`;
-      windowStyle.width = `${el.width + 2 * padding}px`;
-      windowStyle.height = `${el.height + 2 * padding}px`;
-      leftStyle.width = `${el.left - padding}px`;
-      rightStyle.width = `${page.width - el.left - el.width - padding}px`;
-      topStyle.height = `${el.top - padding}px`;
-      bottomStyle.height = `${page.height - el.top - el.height - padding}px`;
+
+      windowStyle.width = `${rect.width + 2 * padding}px`;
+      windowStyle.height = `${rect.height + 2 * padding}px`;
+
+      if (typeof rect.left === "string") {
+        const leftSize = getNamedLeftSize(rect.left, padding, rect, page);
+        leftStyle.width = leftSize;
+        rightStyle.width = `calc(${
+          page.width - rect.width - padding
+        }px - ${leftSize})`;
+      } else {
+        leftStyle.width = `${rect.left - padding}px`;
+        rightStyle.width = `${page.width - rect.left - rect.width - padding}px`;
+      }
+
+      if (typeof rect.top === "string") {
+        const topSize = getNamedTopSize(rect.top, padding, rect, page);
+
+        topStyle.height = topSize;
+        bottomStyle.height = `calc(${
+          page.height - rect.height - padding
+        }px - ${topSize})`;
+      } else {
+        topStyle.height = `${rect.top - padding}px`;
+        bottomStyle.height = `${
+          page.height - rect.top - rect.height - padding
+        }px`;
+      }
+
       const styles = [leftStyle, rightStyle, topStyle, bottomStyle];
+
       styles.forEach((style) => {
         style.opacity = bgOpacity;
         style.backgroundColor = bgColor;
@@ -193,7 +275,7 @@ export default {
     };
 
     const highlight = async (
-      selector: string,
+      selector: string | { x: number | string; y: number | string },
       {
         transitionDuration = config.transitionDuration,
         shouldDisplay = true,
@@ -203,8 +285,26 @@ export default {
       }: IHighlighterEntry = {}
     ) => {
       if (!selector) return;
-      const el = document.querySelector(selector);
-      if (!el) return;
+      let rect: {
+        width: number;
+        height: number;
+        left: number | string;
+        top: number | string;
+      } = {
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0,
+      };
+      if (typeof selector === "string") {
+        const el = document.querySelector(selector as string);
+        if (!el) return;
+        const { width, height, top, left } = el.getBoundingClientRect();
+        rect = { width, height, top, left };
+      } else {
+        rect = { width: 0, height: 0, top: selector.y, left: selector.x };
+      }
+
       memory.lastHighlight = new HighlighterEntry({
         selector,
         transitionDuration,
@@ -212,13 +312,15 @@ export default {
         bgColor,
         bgOpacity,
       });
+      memory.shouldDisplay = shouldDisplay
+
       const haveUpdated = updateTransition(transitionDuration);
       const previousDisplayValue = display.value;
       display.value = shouldDisplay;
       if (haveUpdated || previousDisplayValue != display.value)
         await nextTick();
       updateStyles({
-        el: el.getBoundingClientRect(),
+        rect,
         padding,
         bgColor,
         bgOpacity,
@@ -272,9 +374,10 @@ export default {
     const refreshPosition = () => {
       clearTimeout(memory.refreshTimeout);
       memory.refreshTimeout = setTimeout(() => {
+        console.log(memory)
         highlight(memory.lastHighlight.selector, {
-          transitionDuration: 0,
-          shouldDisplay: display.value,
+          transitionDuration: 200,
+          shouldDisplay: memory.shouldDisplay,
           padding: memory.lastHighlight.padding,
           bgColor: memory.lastHighlight.bgColor,
           bgOpacity: memory.lastHighlight.bgOpacity,
@@ -284,10 +387,12 @@ export default {
 
     onMounted(() => {
       window.addEventListener("resize", refreshPosition);
+      window.addEventListener("scroll", refreshPosition);
     });
 
     onBeforeUnmount(() => {
       window.removeEventListener("resize", refreshPosition);
+      window.removeEventListener("scroll", refreshPosition);
     });
 
     setDialogPosition({ vertical: "top-inset", horizontal: "right" });
@@ -341,14 +446,21 @@ export default {
 
   &__dialog {
     width: max-content;
+    height: max-content;
     &-container {
-      display: flex;
-      flex-direction: column;
       position: absolute;
       z-index: $hud-z-index + 2;
-      gap: $default-spacing * 0.25;
-      padding: $default-spacing * 0.5;
       pointer-events: all;
+      overflow: visible;
+
+      &--content {
+        display: flex;
+        flex-direction: column;
+        align-items: inherit;
+        justify-content: inherit;
+        gap: $default-spacing * 0.25;
+        padding: $default-spacing * 0.5;
+      }
 
       &--h {
         &-left {
@@ -363,8 +475,7 @@ export default {
         &-center {
           display: flex;
           align-items: center;
-          right: 0;
-          left: 0;
+          width: 100%;
         }
 
         &-right {
@@ -389,8 +500,7 @@ export default {
         &-center {
           display: flex;
           justify-content: center;
-          top: 0;
-          bottom: 0;
+          height: 100%;
         }
 
         &-bottom {
