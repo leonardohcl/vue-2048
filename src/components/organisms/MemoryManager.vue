@@ -46,7 +46,7 @@ export default {
     },
     closeOnLoad: { type: Boolean, default: false },
     closeOnSave: { type: Boolean, default: false },
-    gameMode: { type: String, default: GameMode.Regular },
+    gameMode: { type: String, default: GameMode.Standard },
   },
   emits: ["save", "load"],
   setup(props, context) {

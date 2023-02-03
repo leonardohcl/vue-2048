@@ -1,5 +1,5 @@
 <template>
-  <PageContainer class="regular" navigate-to="/">
+  <div class="regular">
     <div class="regular__container">
       <div class="regular__hud">
         <div class="regular__hud--left">
@@ -33,14 +33,13 @@
         @game-over="handleGameOver"
         @set-endless="game.activateEndless()"
       />
+      <HighScoreManager
+        :game="game"
+        :ranking-id="rankingId"
+        ref="highScoreManager"
+      />
     </div>
-  </PageContainer>
-
-  <HighScoreManager
-    :game="game"
-    :ranking-id="rankingId"
-    ref="highScoreManager"
-  />
+  </div>
 </template>
 
 <script>
@@ -118,7 +117,7 @@ export default defineComponent({
     };
 
     const handleGameOver = () => {
-      highScoreManager.value?.triggerDialog()
+      highScoreManager.value?.triggerDialog();
     };
 
     const route = useRoute();
@@ -154,6 +153,14 @@ export default defineComponent({
 
 <style lang="scss">
 .regular {
+  display: flex;
+  justify-content: center;
+  &__container {
+    flex-basis: 100%;
+    min-width: 200px;
+    max-width: 450px;
+  }
+
   &__hud {
     display: flex;
     justify-content: space-between;

@@ -1,17 +1,7 @@
 <template>
-  <PageContainer
-    class="home"
-    :subtitle="gameMode === 'roguelike' ? 'Roguelike' : ''"
-    :subtitleOptions="{
-      color: theme,
-      style:
-        gameMode === 'roguelike'
-          ? { transform: 'scale(1.5) translateY(-10px)' }
-          : null,
-    }"
-  >
+  <div class="home">
     <div class="home__hud">
-      <v-btn-toggle v-model="gameMode" class="w-100 d-flex">
+      <v-btn-toggle v-model="gameMode" class="w-100 d-flex" mandatory>
         <v-btn
           v-for="mode in gameModes"
           :key="mode.value"
@@ -60,16 +50,17 @@
         @load="(slot) => handleLoad(slot.filename)"
       />
     </div>
-  </PageContainer>
+  </div>
 </template>
 
 <script>
+import GameMode from "@/model/GameMode"
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 export default {
   components: {
@@ -79,15 +70,17 @@ export default {
   setup() {
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
 
     const gameModes = [
-      { text: "Default", value: "regular" },
-      { text: "Roguelike", value: "roguelike" },
+      { text: "Standard", value:  GameMode.Standard},
+      { text: "Roguelike", value: GameMode.Roguelike },
     ];
-    const gameMode = ref("regular");
+
+    const gameMode = ref(route.meta.previousGameMode || GameMode.Standard);
 
     const theme = computed(() =>
-      gameMode.value === "roguelike" ? "secondary" : "primary"
+      gameMode.value === GameMode.Standard ? "primary" : "secondary"
     );
 
     const lastGame = computed(() => store.getters.lastGame(gameMode.value));
@@ -106,17 +99,18 @@ export default {
 
 <style lang="scss">
 .home {
-  .page__title {
-    font-size: 5rem;
-  }
+  width: 100%;
+  display: flex;
+  justify-content: center;
 
   &__hud {
-    width: 100%;
+    flex-basis: 100%;
     min-width: 200px;
     max-width: 400px;
     display: flex;
     flex-direction: column;
     gap: $default-spacing;
+
   }
 }
 </style>

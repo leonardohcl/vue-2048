@@ -10,8 +10,8 @@ export interface IDefaultMemoryCard<Type> {
 }
 
 export interface IMemoryCard {
-  regular: IDefaultMemoryCard<SaveFile>
-  roguelike: IDefaultMemoryCard<RoguelikeSaveFile>
+  [GameMode.Standard]: IDefaultMemoryCard<SaveFile>
+  [GameMode.Roguelike]: IDefaultMemoryCard<RoguelikeSaveFile>
 }
 
 export const ADD_GAME_ACTION = 'ADD GAME ACTION'
@@ -24,11 +24,11 @@ export const SAVE_LAST_GAME_MUTATION = 'SAVE LAST GAME MUTATION'
 
 export default {
   state: {
-    regular: {
+    [GameMode.Standard]: {
       savedGames: [],
       lastGame: null,
     },
-    roguelike: {
+    [GameMode.Roguelike]: {
       savedGames: [],
       lastGame: null,
     },
@@ -40,10 +40,10 @@ export default {
       )
 
       if (regularMemory) {
-        state.regular.lastGame = SaveFile.fromString(
+        state[GameMode.Standard].lastGame = SaveFile.fromString(
           regularMemory.lastGame || ''
         )
-        state.regular.savedGames = (regularMemory.savedGames ?? []).map(
+        state[GameMode.Standard].savedGames = (regularMemory.savedGames ?? []).map(
           (encoded: string) => SaveFile.fromString(encoded)
         )
       }
@@ -53,40 +53,35 @@ export default {
       )
 
       if (roguelikeMemory) {
-        state.roguelike.lastGame = RoguelikeSaveFile.fromString(
+        state[GameMode.Roguelike].lastGame = RoguelikeSaveFile.fromString(
           roguelikeMemory.lastGame || ''
         )
-        state.roguelike.savedGames = (roguelikeMemory.savedGames ?? []).map(
+        state[GameMode.Roguelike].savedGames = (roguelikeMemory.savedGames ?? []).map(
           (encoded: string) => RoguelikeSaveFile.fromString(encoded)
         )
       }
     },
     [SAVE_GAMES_MUTATION](state: IMemoryCard) {
-      const { regular, roguelike } = state
-      localStorage.setItem(
-        LOCAL_STORAGE_KEY,
-        JSON.stringify({
-          lastGame: regular.lastGame ? regular.lastGame.toString() : null,
-          savedGames: regular.savedGames.map((save) => save.toString()),
-        })
-      )
-      localStorage.setItem(
-        `${LOCAL_STORAGE_KEY}_roguelike`,
-        JSON.stringify({
-          lastGame: roguelike.lastGame ? roguelike.lastGame.toString() : null,
-          savedGames: roguelike.savedGames.map((save) => save.toString()),
-        })
-      )
+      const gameModes = [GameMode.Standard, GameMode.Roguelike]
+      gameModes.forEach(mode => {
+        localStorage.setItem(
+          `${LOCAL_STORAGE_KEY}_${mode}`,
+          JSON.stringify({
+            lastGame: state[mode].lastGame?.toString(),
+            savedGames: state[mode].savedGames.map((save) => save.toString()),
+          })
+        )
+      })
     },
     [ADD_GAME_MUTATION](
       state: IMemoryCard,
       {
         save,
-        gameMode = GameMode.Regular,
+        gameMode = GameMode.Standard,
       }: { save: SaveFile | RoguelikeSaveFile; gameMode: GameMode }
     ) {
       const memoryFile =
-        gameMode === GameMode.Regular
+        gameMode === GameMode.Standard
           ? (state[gameMode] as IDefaultMemoryCard<SaveFile>)
           : (state[gameMode] as IDefaultMemoryCard<RoguelikeSaveFile>)
       const idx = memoryFile.savedGames.findIndex(
@@ -97,7 +92,7 @@ export default {
     },
     [SAVE_LAST_GAME_MUTATION](
       state: IMemoryCard,
-      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Standard }: { save: SaveFile; gameMode: GameMode }
     ) {
       const memoryFile = state[gameMode]
       memoryFile.lastGame = save
@@ -106,14 +101,14 @@ export default {
   actions: {
     [ADD_GAME_ACTION](
       context: { commit: Function },
-      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Standard }: { save: SaveFile; gameMode: GameMode }
     ) {
       context.commit(ADD_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
     },
     [SAVE_LAST_GAME_ACTION](
       context: { commit: Function },
-      { save, gameMode = GameMode.Regular }: { save: SaveFile; gameMode: GameMode }
+      { save, gameMode = GameMode.Standard }: { save: SaveFile; gameMode: GameMode }
     ) {
       context.commit(SAVE_LAST_GAME_MUTATION, { save, gameMode })
       context.commit(SAVE_GAMES_MUTATION)
@@ -121,10 +116,10 @@ export default {
   },
   getters: {
     saves(state: IMemoryCard) {
-      return (gameMode: GameMode = GameMode.Regular) => state[gameMode].savedGames
+      return (gameMode: GameMode = GameMode.Standard) => state[gameMode].savedGames
     },
     lastGame(state: IMemoryCard) {
-      return (gameMode: GameMode = GameMode.Regular) => state[gameMode].lastGame
+      return (gameMode: GameMode = GameMode.Standard) => state[gameMode].lastGame
     },
   },
 }

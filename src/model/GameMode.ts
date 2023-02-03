@@ -1,5 +1,5 @@
 const enum GameMode {
-    Regular = 'regular',
+    Standard = 'standard',
     Roguelike = 'roguelike'
 }
 

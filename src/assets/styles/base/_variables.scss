@@ -7,13 +7,16 @@ $bg-secondary: #373f51;
 $primary: #00a7da;
 $secondary: #4361ee;
 $danger: #f72553;
-$warning: #F9CB40;
+$warning: #f9cb40;
 
 $default-spacing: 2rem;
 $border-radius: 0.25rem;
 $square-color: #a9bcd0;
 
 $hud-z-index: 10;
+
+$page-animation-duration: 500ms;
+$page-animation-ease: ease-out;
 
 $themes: (
   "primary": $primary,

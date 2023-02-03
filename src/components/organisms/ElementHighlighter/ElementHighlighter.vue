@@ -59,6 +59,7 @@ import HighlighterMemory, {
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import DialogBox from "@/components/atoms/DialogBox/DialogBox.vue";
 import useDialogHandler from "./handlers/dialog";
+import { getPageSize } from "@/utils/viewport";
 
 export default {
   setup() {
@@ -131,29 +132,6 @@ export default {
       controlDialogs,
       setDialogPosition,
     } = useDialogHandler(config);
-
-    const getPageSize = () => ({
-      viewHeight: Math.min(
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      ),
-      viewWidth: Math.min(
-        document.body.clientWidth,
-        document.documentElement.clientWidth
-      ),
-      height: Math.max(
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      ),
-      width: Math.max(
-        document.body.offsetWidth,
-        document.documentElement.offsetWidth,
-        document.body.clientWidth,
-        document.documentElement.clientWidth
-      ),
-    });
 
     const updateTransition = (duration: number) => {
       const properties = ["width", "height", "background-color", "opacity"];
@@ -374,7 +352,6 @@ export default {
     const refreshPosition = () => {
       clearTimeout(memory.refreshTimeout);
       memory.refreshTimeout = setTimeout(() => {
-        console.log(memory)
         highlight(memory.lastHighlight.selector, {
           transitionDuration: 200,
           shouldDisplay: memory.shouldDisplay,

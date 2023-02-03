@@ -1,140 +1,132 @@
 <template>
-  <PageContainer
-    class="roguelike"
-    subtitle="Roguelike"
-    navigate-to="/"
-    :subtitle-options="{ color: 'secondary', size: 'default' }"
-  >
-    <div class="roguelike__game">
-      <div class="roguelike__sidebar--left roguelike__sidebar">
-        <InventoryManager
-          :inventory="inventory"
-          :allow-shopping="allowItemShopping"
-          :allow-use="allowItemUse"
-          @use="handleUseItem"
-          @cancel="handleCancelItem"
-          @purchase="handlePurchaseItem"
-        />
-      </div>
-      <div class="roguelike__center">
-        <div class="roguelike__status">
-          <div
-            class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
+  <div class="roguelike">
+    <div class="roguelike__sidebar--left roguelike__sidebar">
+      <InventoryManager
+        :inventory="inventory"
+        :allow-shopping="allowItemShopping"
+        :allow-use="allowItemUse"
+        @use="handleUseItem"
+        @cancel="handleCancelItem"
+        @purchase="handlePurchaseItem"
+      />
+    </div>
+    <div class="roguelike__center">
+      <div class="roguelike__status">
+        <div
+          class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
+        >
+          <Ranking :ranking-id="rankingId" with-run with-board />
+
+          <v-btn
+            prepend-icon="fas fa-fw fa-rotate-left"
+            variant="plain"
+            size="small"
+            color="secondary"
+            outlined
+            @click="handleStartOver"
           >
-            <Ranking :ranking-id="rankingId" with-run with-board />
+            Start Over
+          </v-btn>
 
-            <v-btn
-              prepend-icon="fas fa-fw fa-rotate-left"
-              variant="plain"
-              size="small"
-              color="secondary"
-              outlined
-              @click="handleStartOver"
-            >
-              Start Over
-            </v-btn>
-
-            <div>
-              <MemoryManager
-                game-mode="roguelike"
-                close-on-load
-                @save="handleSave"
-                @load="handleLoad"
-              />
-            </div>
-          </div>
-          <div class="roguelike__status--entry">
-            <DataChip
-              prepend-icon="fas fa-fw fa-person-running"
-              size="small"
-              color="light-green"
-              variant="outlined"
-            >
-              <span class="d-none d-md-inline mr-1">Run:</span>
-              {{ progress.run }}
-            </DataChip>
-          </div>
-          <div class="roguelike__status--entry justify-end">
-            <DataChip
-              append-icon="fas fa-fw fa-coins"
-              size="small"
-              color="warning"
-              variant="outlined"
-            >
-              {{ inventory.wallet.coins }}
-            </DataChip>
-          </div>
-        </div>
-        <Game
-          :game="game"
-          :ranking-id="rankingId"
-          :time-to-idle="1000"
-          :emit-moves-interval="15"
-          :allow-endless="false"
-          :allow-square-selection="allowItemSquareUpdate"
-          disable-pause-screen
-          restart-text="Give Up"
-          @move="saveCurrent"
-          @idle="saveCurrent"
-          @new-game="handleNewGame"
-          @restart="handleRestart"
-          @win="handleGameOver"
-          @game-over="handleGameOver"
-          @square-selected="handleItemUpdateSquares"
-        />
-        <div class="roguelike__status">
-          <div
-            class="roguelike__status--entry roguelike__status--full-width-entry roguelike__best"
-          >
-            <div class="roguelike__best--data">
-              <b>Your best:</b>
-              <DataChip
-                :value="bestRun.run"
-                theme="run"
-                :chip-options="{ variant: 'tonal', size: 'x-small' }"
-              />
-              <Square class="mx-2" :value="bestRun.highestBlock" inline />
-
-              <DataChip
-                :value="bestRun.score"
-                theme="score"
-                :chip-options="{ variant: 'tonal' }"
-              />
-              <DataChip
-                :value="bestRun.moves"
-                theme="moves"
-                :chip-options="{ variant: 'tonal', size: 'x-small' }"
-              />
-              <DataChip
-                :value="bestRun.undos"
-                theme="undos"
-                :chip-options="{ variant: 'tonal', size: 'x-small' }"
-              />
-            </div>
-            <HighScoreManager
-              ref="highscoreManager"
-              :ranking-id="rankingId"
-              :game="game"
-              :disabled="!isRankingWorthy || haveSubmitedScore"
-              :get-entry="getRankingEntry"
-              @save="haveSubmitedScore = true"
-              use-submit
+          <div>
+            <MemoryManager
+              game-mode="roguelike"
+              close-on-load
+              @save="handleSave"
+              @load="handleLoad"
             />
           </div>
         </div>
+        <div class="roguelike__status--entry">
+          <DataChip
+            prepend-icon="fas fa-fw fa-person-running"
+            size="small"
+            color="light-green"
+            variant="outlined"
+          >
+            <span class="d-none d-md-inline mr-1">Run:</span>
+            {{ progress.run }}
+          </DataChip>
+        </div>
+        <div class="roguelike__status--entry justify-end">
+          <DataChip
+            append-icon="fas fa-fw fa-coins"
+            size="small"
+            color="warning"
+            variant="outlined"
+          >
+            {{ inventory.wallet.coins }}
+          </DataChip>
+        </div>
       </div>
-      <div class="roguelike__sidebar--right roguelike__sidebar">
-        <UpgradeShop
-          :game="game"
-          :allow-shopping="allowUpgradeShopping"
-          :inventory="inventory"
-          @upgrade="handlePurchaseUpgrade"
-        />
+      <Game
+        :game="game"
+        :ranking-id="rankingId"
+        :time-to-idle="1000"
+        :emit-moves-interval="15"
+        :allow-endless="false"
+        :allow-square-selection="allowItemSquareUpdate"
+        disable-pause-screen
+        restart-text="Give Up"
+        @move="saveCurrent"
+        @idle="saveCurrent"
+        @new-game="handleNewGame"
+        @restart="handleRestart"
+        @win="handleGameOver"
+        @game-over="handleGameOver"
+        @square-selected="handleItemUpdateSquares"
+      />
+      <div class="roguelike__status">
+        <div
+          class="roguelike__status--entry roguelike__status--full-width-entry roguelike__best"
+        >
+          <div class="roguelike__best--data">
+            <b>Your best:</b>
+            <DataChip
+              :value="bestRun.run"
+              theme="run"
+              :chip-options="{ variant: 'tonal', size: 'x-small' }"
+            />
+            <Square class="mx-2" :value="bestRun.highestBlock" inline />
+
+            <DataChip
+              :value="bestRun.score"
+              theme="score"
+              :chip-options="{ variant: 'tonal' }"
+            />
+            <DataChip
+              :value="bestRun.moves"
+              theme="moves"
+              :chip-options="{ variant: 'tonal', size: 'x-small' }"
+            />
+            <DataChip
+              :value="bestRun.undos"
+              theme="undos"
+              :chip-options="{ variant: 'tonal', size: 'x-small' }"
+            />
+          </div>
+          <HighScoreManager
+            ref="highscoreManager"
+            :ranking-id="rankingId"
+            :game="game"
+            :disabled="!isRankingWorthy || haveSubmitedScore"
+            :get-entry="getRankingEntry"
+            @save="haveSubmitedScore = true"
+            use-submit
+          />
+        </div>
       </div>
     </div>
-  </PageContainer>
-
-  <RewardsManager :game="game" ref="rewardsManager" @loot="handleReward" />
+    <div class="roguelike__sidebar--right roguelike__sidebar">
+      <UpgradeShop
+        :game="game"
+        :allow-shopping="allowUpgradeShopping"
+        :inventory="inventory"
+        @upgrade="handlePurchaseUpgrade"
+      />
+    </div>
+    <RewardsManager :game="game" ref="rewardsManager" @loot="handleReward" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -276,7 +268,19 @@ export default defineComponent({
 
 <style lang="scss">
 .roguelike {
-  overflow: hidden;
+  width: 100%;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+
+  @include screen-above(sm) {
+    align-items: stretch;
+  }
+
+  @include screen-above(md) {
+    gap: $default-spacing * 0.5;
+  }
 
   &__status {
     display: grid;
@@ -292,22 +296,6 @@ export default defineComponent({
     &--full-width-entry {
       grid-column: 1/3;
       justify-content: space-between;
-    }
-  }
-
-  &__game {
-    width: 100%;
-    display: flex;
-    position: relative;
-    justify-content: center;
-    align-items: center;
-
-    @include screen-above(sm) {
-      align-items: stretch;
-    }
-
-    @include screen-above(md) {
-      gap: $default-spacing * 0.5;
     }
   }
 
