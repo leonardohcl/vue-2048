@@ -2,7 +2,14 @@ import SaveFile from '@/model/2048/SaveFile'
 import GameMode from '@/model/GameMode'
 import RoguelikeSaveFile from '@/model/roguelike/RogueSaveFile'
 
-const LOCAL_STORAGE_KEY = 'v2048-memory'
+const LOCAL_STORAGE_KEY = (mode: GameMode) => `v2048-memory__${mode}`
+
+const GAME_MODES = [GameMode.Standard, GameMode.Roguelike]
+const GAME_MODE_SAVE_TYPE = {
+  [GameMode.Standard]: SaveFile,
+  [GameMode.Roguelike]: RoguelikeSaveFile,
+}
+
 
 export interface IDefaultMemoryCard<Type> {
   savedGames: Type[]
@@ -35,37 +42,22 @@ export default {
   },
   mutations: {
     [LOAD_GAMES_MUTATION](state: IMemoryCard) {
-      const regularMemory = JSON.parse(
-        localStorage.getItem(LOCAL_STORAGE_KEY) || 'null'
-      )
+      GAME_MODES.forEach(mode => {
+        const memory = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY(mode)) || 'null')
 
-      if (regularMemory) {
-        state[GameMode.Standard].lastGame = SaveFile.fromString(
-          regularMemory.lastGame || ''
+        state[mode].lastGame = GAME_MODE_SAVE_TYPE[mode].fromString(
+          memory?.lastGame ?? ''
         )
-        state[GameMode.Standard].savedGames = (regularMemory.savedGames ?? []).map(
-          (encoded: string) => SaveFile.fromString(encoded)
-        )
-      }
+        state[mode].savedGames = memory?.savedGames?.map(
+          (encoded: string) => GAME_MODE_SAVE_TYPE[mode].fromString(encoded)
+        ) ?? []
 
-      const roguelikeMemory = JSON.parse(
-        localStorage.getItem(`${LOCAL_STORAGE_KEY}_roguelike`) || 'null'
-      )
-
-      if (roguelikeMemory) {
-        state[GameMode.Roguelike].lastGame = RoguelikeSaveFile.fromString(
-          roguelikeMemory.lastGame || ''
-        )
-        state[GameMode.Roguelike].savedGames = (roguelikeMemory.savedGames ?? []).map(
-          (encoded: string) => RoguelikeSaveFile.fromString(encoded)
-        )
-      }
+      })
     },
     [SAVE_GAMES_MUTATION](state: IMemoryCard) {
-      const gameModes = [GameMode.Standard, GameMode.Roguelike]
-      gameModes.forEach(mode => {
+      GAME_MODES.forEach(mode => {
         localStorage.setItem(
-          `${LOCAL_STORAGE_KEY}_${mode}`,
+          LOCAL_STORAGE_KEY(mode),
           JSON.stringify({
             lastGame: state[mode].lastGame?.toString(),
             savedGames: state[mode].savedGames.map((save) => save.toString()),
