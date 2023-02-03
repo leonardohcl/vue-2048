@@ -100,8 +100,10 @@ export default {
 <style lang="scss">
 .home {
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 
   &__hud {
     flex-basis: 100%;

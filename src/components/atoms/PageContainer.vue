@@ -5,9 +5,9 @@
       'page--home-screen': meta.homeScreen,
     }"
   >
-    <div class="page__title--container">
+    <div class="page__title">
       <h1
-        class="page__title"
+        class="page__title--text"
         :class="{
           'page__title--redirect': meta.navigateTo,
         }"
@@ -55,8 +55,8 @@ const handleRedirect = () => {
 
 <style lang="scss">
 .page {
-  width: 100%;
-  max-width: 100%;
+  width: 100vw;
+  height: 100vh;
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -68,33 +68,32 @@ const handleRedirect = () => {
   &--home-screen {
     #{$page-class-prefix} {
       &__title {
-        font-size: 6rem;
-
-        &--container {
-          padding: 8rem 0 4rem;
+        padding: 8rem 0 4rem;
+        &--text {
+          font-size: 6rem;
         }
       }
     }
   }
 
   &__title {
-    position: relative;
-    display: inline-block;
-    align-items: center;
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 0 auto;
     text-align: center;
-    color: $text-color !important;
-    text-decoration: none !important;
-    transition: font-size $page-animation-duration $page-animation-ease;
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    transition: padding $page-animation-duration $page-animation-ease;
 
-    &--container {
-      text-align: center;
-      display: flex;
+    &--text {
+      position: relative;
+      display: inline-block;
       align-items: center;
-      padding: 1rem 0;
-      transition: padding $page-animation-duration $page-animation-ease;
+      font-size: 3rem;
+      font-weight: bold;
+      margin: 0 auto;
+      text-align: center;
+      color: $text-color !important;
+      text-decoration: none !important;
+      transition: font-size $page-animation-duration $page-animation-ease;
     }
 
     &--redirect {
@@ -112,7 +111,7 @@ const handleRedirect = () => {
 
   &__content {
     position: relative;
-    flex: 1 1 auto;
+    flex: 1 1 100%;
     & > * {
       width: 100%;
       flex-shrink: 0;

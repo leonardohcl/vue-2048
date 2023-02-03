@@ -155,6 +155,8 @@ export default defineComponent({
 .regular {
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 100%;
   &__container {
     flex-basis: 100%;
     min-width: 200px;
