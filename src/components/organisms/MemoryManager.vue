@@ -18,7 +18,7 @@
     @selected="handleSelected"
     :close-after-select="closeAfterSelect"
     :mode="mode"
-    :memory-card="memoryCard"
+    :memory-card="game?.memoryCard ?? memoryCard"
     :theme="theme"
     ref="saveModal"
   />
@@ -28,14 +28,12 @@
   import GameMode from '@/model/Game Utils/GameMode'
   import SaveModal from '@/components/molecules/SaveModal.vue'
 
-  import { computed, inject, reactive, ref } from 'vue'
+  import { computed, ref } from 'vue'
   import GameController from '@/model/2048 Standard/GameController'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
-  import { RoguelikeMemoryCard, StandardMemoryCard } from '@/keys'
-  import MemoryCard, { SlotName } from '@/model/Game Utils/MemoryCard'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
-  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
   import LooseObject from '@/utils/LooseObject'
+  import MemoryCard, { SlotName } from '@/model/Game Utils/MemoryCard'
 
   const enum ManagerState {
     Load = 'load',
@@ -59,7 +57,10 @@
       closeOnLoad: { type: Boolean, default: false },
       closeOnSave: { type: Boolean, default: false },
       game: { type: [GameController, RoguelikeGameController] },
-      gameMode: { default: GameMode.Standard },
+      memoryCard: {
+        type: MemoryCard,
+        default: () => new MemoryCard<SaveFile>(GameMode.Standard),
+      },
     },
     emits: ['save', 'load'],
     setup(props, context) {
@@ -81,22 +82,6 @@
 
       const mode = ref<ManagerState>(ManagerState.Load)
 
-      const memoryCards = reactive({
-        [GameMode.Standard]: inject(StandardMemoryCard),
-        [GameMode.Roguelike]: inject(RoguelikeMemoryCard),
-      })
-
-      const memoryCard = computed(() => {
-        const gameMode =
-          props.game != undefined
-            ? props.game instanceof RoguelikeGameController
-              ? GameMode.Roguelike
-              : GameMode.Standard
-            : props.gameMode
-
-          return memoryCards[gameMode] ?? new MemoryCard<RoguelikeSaveFile>(gameMode)
-      })
-
       const closeAfterSelect = computed(() => {
         const flags = {
           load: props.closeOnLoad,
@@ -106,29 +91,19 @@
         return flags[mode.value]
       })
 
-      const handleSelected = ({
-        slotName,
-        slot,
-      }: {
-        slotName: SlotName
-        slot: SaveFile | RoguelikeSaveFile
-      }) => {
-        if (mode.value === ManagerState.Load) handleLoad(slotName, slot)
+      const handleSelected = (slotName: SlotName) => {
+        if (mode.value === ManagerState.Load) handleLoad(slotName)
         else if (mode.value === ManagerState.Save) handleSave(slotName)
         if (closeAfterSelect.value) saveModal.value?.close()
       }
 
-      const handleLoad = (
-        slotName: SlotName,
-        slot: SaveFile | RoguelikeSaveFile
-      ) => {
-        props.game?.load(slot)
-        context.emit('load', { slotName, slot })
+      const handleLoad = (slotName: SlotName) => {
+        props.game?.load(slotName)
+        context.emit('load', slotName)
       }
 
       const handleSave = (slotName: SlotName) => {
-        if (props.game)
-          memoryCard.value.save(props.game.getSaveFile(), slotName)
+        if (props.game) props.game.save(slotName)
         context.emit('save', slotName)
       }
 
@@ -141,7 +116,6 @@
 
       return {
         mode,
-        memoryCard,
         saveModal,
         saveButtonAttrs,
         loadButtonAttrs,

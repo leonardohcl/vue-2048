@@ -37,7 +37,7 @@
       </v-btn>
 
       <MemoryManager
-        :game-mode="gameMode"
+        :memory-card="memoryCard"
         :theme="theme"
         :allow-save="false"
         :load-button-options="{
@@ -58,10 +58,11 @@
   import PageContainer from '@/components/atoms/PageContainer.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
-  import { computed, inject, ref } from 'vue'
+  import { computed,  ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import MemoryCard, { SlotName } from '@/model/Game Utils/MemoryCard'
-  import { RoguelikeMemoryCard, StandardMemoryCard } from '@/keys'
+  import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
+  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
 
   export default {
     components: {
@@ -86,17 +87,18 @@
       )
 
       const memoryCards = {
-        [GameMode.Standard]: inject(StandardMemoryCard),
-        [GameMode.Roguelike]: inject(RoguelikeMemoryCard),
+        [GameMode.Standard]: new MemoryCard<SaveFile>(GameMode.Standard),
+        [GameMode.Roguelike]: new MemoryCard<RoguelikeSaveFile>(
+          GameMode.Roguelike
+        ),
       }
 
-      const memoryCard = computed(
-        () => memoryCards[gameMode.value] ?? new MemoryCard(gameMode.value)
-      )
+      const memoryCard = computed(() => memoryCards[gameMode.value])
 
       const lastGame = computed(() => memoryCard.value.lastGame)
 
-      const handleLoad = ({ slotName }: { slotName: SlotName }) => {
+      const handleLoad = (slotName: SlotName) => {
+        console.log(slotName)
         router.push({
           name: gameMode.value as GameMode,
           query: { load: slotName },
@@ -104,13 +106,14 @@
       }
 
       const handleLoadLast = () => {
-        handleLoad({ slotName: SlotName.LastGame })
+        handleLoad(SlotName.LastGame)
       }
 
       return {
         gameModes,
         gameMode,
         theme,
+        memoryCard,
         lastGame,
         handleLoad,
         handleLoadLast,

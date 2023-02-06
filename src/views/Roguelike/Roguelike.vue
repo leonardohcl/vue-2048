@@ -16,16 +16,13 @@
             size="small"
             color="secondary"
             outlined
-            @click="handleStartOver"
+            @click="game.reset()"
           >
             Start Over
           </v-btn>
 
           <div>
-            <MemoryManager
-              :game="game"
-              close-on-load
-            />
+            <MemoryManager :game="game" close-on-load />
           </div>
         </div>
         <div class="roguelike__status--entry">
@@ -59,12 +56,12 @@
         :allow-square-selection="game.isRunning && game.activeItem"
         disable-pause-screen
         restart-text="Give Up"
-        @move="handleSaveCurrent"
-        @idle="handleSaveCurrent"
-        @new-game="handleNewGame"
-        @restart="handleRestart"
-        @win="handleGameOver"
-        @game-over="handleGameOver"
+        @move="game.saveCurrent()"
+        @idle="game.saveCurrent()"
+        @new-game="game.start()"
+        @restart="handleRunEnd(true)"
+        @win="handleRunEnd" 
+        @game-over="handleRunEnd"
         @square-selected="handleSquareSelected"
       />
       <div class="roguelike__status">
@@ -119,7 +116,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, inject, reactive } from 'vue'
+  import { defineComponent, reactive, ref } from 'vue'
   import { useRoute } from 'vue-router'
 
   import Game from '@/components/organisms/Game.vue'
@@ -133,10 +130,7 @@
   import DataChip from '@/components/atoms/DataChip/DataChip.vue'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
   import useHighscoreHandler from './handlers/highscore'
-  import useStateHandler from './handlers/state'
-  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
   import SquareType from '@/model/2048/Square'
-  import { RoguelikeMemoryCard } from '@/keys'
   import { SlotName } from '@/model/Game Utils/MemoryCard'
 
   export default defineComponent({
@@ -154,7 +148,8 @@
     setup() {
       const rankingId = 'roguelike'
 
-      // game
+      const rewardsManager = ref()
+
       const game = reactive(
         new RoguelikeGameController({
           width: 3,
@@ -165,51 +160,39 @@
         })
       )
 
-      const memoryCard = inject(RoguelikeMemoryCard)
-
-      const handleSaveGame = ({ key: slotName }: { key: SlotName }) => {
-        memoryCard?.save(game.getSaveFile(), slotName)
-      }
-
-      const handleSaveCurrent = () => {
-        handleSaveGame({ key: SlotName.LastGame })
+      const handleSaveGame = (slotName: SlotName) => {
+        game.save(slotName)
       }
 
       const handleSquareSelected = (sqr: SquareType) => {
         game.selectSquare(sqr)
       }
 
+      const handleRunEnd = (forceEnd = false) => {
+        if(forceEnd) game.endRun()
+        rewardsManager.value?.open()
+      }
+
       const route = useRoute()
 
       if (route.query.load) {
-        const slot = route.query.load
-        let save = memoryCard?.slots[slot as SlotName]
-        if (save) game.load(save as RoguelikeSaveFile)
+        game.load(route.query.load as SlotName)
       }
 
       const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
         useHighscoreHandler(game as RoguelikeGameController)
 
-      const { handleNewGame, handleRestart, handleGameOver, handleStartOver } =
-        useStateHandler(game as RoguelikeGameController)
-
       return {
         game: game as RoguelikeGameController,
         rankingId,
-        memoryCard,
+        handleRunEnd,
         handleSquareSelected,
-        // Memory
         handleSaveGame,
-        handleSaveCurrent,
-        // State
-        handleNewGame,
-        handleRestart,
-        handleGameOver,
-        handleStartOver,
         // Highscore
         isRankingWorthy,
         highscoreManager,
         haveSubmitedScore,
+        rewardsManager,
       }
     },
   })

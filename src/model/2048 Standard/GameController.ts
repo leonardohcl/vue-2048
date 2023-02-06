@@ -9,6 +9,9 @@ import { MoveDirection, onUpdateSquareFn } from '../2048/interfaces/Game'
 import { SquareTrackingMeta } from './interfaces/Square'
 import Square from '../2048/Square'
 import IGameController from './interfaces/GameController'
+import MemoryCard, { SlotName } from '../Game Utils/MemoryCard'
+import GameMode from '../Game Utils/GameMode'
+import RoguelikeSaveFile from '../Game Utils/SaveFile/RoguelikeSaveFile'
 
 //#endregion
 
@@ -22,12 +25,12 @@ const rememberMoves: onUpdateSquareFn = (sqr, { nextRow, nextCol }) => {
 //#endregion
 export default class GameController extends Game implements IGameController {
   //#region Attributes
-
   private _endless = false
   private _updateDelay = 0
   private _historySize = 0
   private _isWaintingUpdate = false
 
+  protected _memoryCard
   protected _undos = 0
   protected _moves = 0
   protected _paused = false
@@ -80,6 +83,9 @@ export default class GameController extends Game implements IGameController {
       historySize: this.historySize,
       winningBlock: this.winningBlock,
     }
+  }
+  get memoryCard() {
+    return this._memoryCard
   }
 
   //#endregion
@@ -181,7 +187,16 @@ export default class GameController extends Game implements IGameController {
     }
   }
 
-  getSaveFile() {
+  save(slotName: SlotName) {
+    const file = this.getSaveFile()
+    this._memoryCard.save(file, slotName)
+  }
+
+  saveCurrent() {
+    this.save(SlotName.LastGame)
+  }
+
+  protected getSaveFile() {
     return new SaveFile(this.getSnapshot())
   }
 
@@ -190,7 +205,10 @@ export default class GameController extends Game implements IGameController {
     this.updateGameState()
   }
 
-  load(save: SaveFile) {
+  load(slotName: SlotName) {
+    const save = this._memoryCard.slots[slotName]
+    if (!save) return
+    
     this.reset()
     this.updateSettings(save.settings)
     this._score = save.progress.score ?? 0
@@ -210,6 +228,7 @@ export default class GameController extends Game implements IGameController {
 
   //#region Settings
   updateSettings(newSettings: IGameSettings) {
+    this._isRunning = false
     const settings = { ...this.settings, ...newSettings }
     this._historySize = settings.historySize || 0
     this._winningBlock = settings.winningBlock || 2048
@@ -241,7 +260,9 @@ export default class GameController extends Game implements IGameController {
 
   updateGameState() {
     super.updateGameState()
-    if (!this.isRunning) this.pause(false)
+    if (!this.isRunning) {
+      this.pause(false)
+    }
   }
 
   clearTrackingMeta(squares: Square[] = this.board.squares) {
@@ -249,6 +270,10 @@ export default class GameController extends Game implements IGameController {
       sqr.setMeta(SquareTrackingMeta.NextMove, { vertical: 0, horizontal: 0 })
       sqr.setMeta(SquareTrackingMeta.IsReverse, false)
     })
+  }
+
+  restart() {
+    this.start()
   }
 
   start() {
@@ -286,6 +311,7 @@ export default class GameController extends Game implements IGameController {
     updateDelay = 0,
   } = {}) {
     super({ width, height, winningBlock })
+    this._memoryCard = new MemoryCard<SaveFile>(GameMode.Standard)
     this._historySize = historySize
     this._updateDelay = updateDelay
     this.board = new Board(width, height)

@@ -6,14 +6,21 @@
       !save ? 'save-slot--empty' : `border--${theme} glow--${theme}`,
       `save-slot--${mode}`,
     ]"
-    @click="$emit('select', { slotName: slotKey, slot: save })"
+    @click="$emit('select', slotName)"
   >
     <span class="save-slot--title" :class="{ [`text--${theme}`]: save }">
-      {{ slotKey }}
+      {{ slotName }}
     </span>
     <div class="save-slot--details" v-if="!save">EMPTY SLOT</div>
     <div class="save-slot--details" v-else>
-      <Square inline :value="save.progress.highestBlock" />
+      <Square
+        inline
+        :value="
+          roguelikeSave
+            ? roguelikeSave.bestRun.highestBlock
+            : save.progress.highestBlock
+        "
+      />
       <div class="save-slot--currency">
         <DataChip
           theme="score"
@@ -54,7 +61,7 @@
       tag: { type: String, default: 'li' },
       theme: { type: String, default: 'primary' },
       mode: { type: String, default: 'load' },
-      slotKey: { type: String, required: true },
+      slotName: { type: String, required: true },
       save: { type: [SaveFile, RoguelikeSaveFile] },
     },
     emits: ['select'],

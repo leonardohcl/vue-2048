@@ -3,28 +3,30 @@
 </template>
 
 <script lang="ts">
-import RewardsModal from "@/components/molecules/RewardsModal.vue";
-import { ref, defineComponent, watch, computed } from "vue";
-import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
+  import RewardsModal from '@/components/molecules/RewardsModal.vue'
+  import { ref, defineComponent, computed } from 'vue'
+  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
+  import GameRewards from '@/model/2048 Roguelike/GameRewards'
 
-export default defineComponent({
-  components: { RewardsModal },
-  props: {
-    game: {
-      type: RoguelikeGameController,
-      required: true,
+  export default defineComponent({
+    components: { RewardsModal },
+    props: {
+      game: {
+        type: RoguelikeGameController,
+        required: true,
+      },
     },
-  },
-  setup(props) {
-    const rewards = computed(() => props.game.rewards);
-    const rewardsModal = ref();
+    setup(props) {
+      const rewards = ref(props.game.getRewards())
+      const rewardsModal = ref()
 
-    watch(rewards, (hasLoot) => {
-      if (!hasLoot) return;
-      rewardsModal.value?.open();
-    });
+      const open = () => {
+        rewards.value = props.game.getRewards()
+        if (!rewards.value.totalEarned) return
+        rewardsModal.value?.open()
+      }
 
-    return { rewards, rewardsModal };
-  },
-});
+      return { rewards, rewardsModal, open }
+    },
+  })
 </script>

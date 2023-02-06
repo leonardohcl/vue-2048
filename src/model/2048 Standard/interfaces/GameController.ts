@@ -1,6 +1,7 @@
 import { IGame } from "@/model/2048/interfaces/Game";
 import IBoard from "@/model/2048/interfaces/Board";
 import MemoryCard from "@/model/Game Utils/MemoryCard";
+import SaveFile from "@/model/Game Utils/SaveFile/SaveFile";
 
 export default interface IGameController extends IGame {
     endless: boolean

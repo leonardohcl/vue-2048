@@ -5,60 +5,53 @@
   <SettingsModal
     :game="game"
     ref="settingsModal"
-    @open="handleOpen"
-    @close="handleClose"
+    @open="game.pause(true)"
+    @close="game.pause(false)"
     @update="handleUpdate"
   />
 </template>
 
-<script>
-import GameController from '@/model/2048 Standard/GameController';
-import SettingsModal from '@/components/molecules/SettingsModal.vue'
+<script lang="ts">
+  import GameController from '@/model/2048 Standard/GameController'
+  import SettingsModal from '@/components/molecules/SettingsModal.vue'
 
-import { computed, ref } from "vue";
+  import { computed, ref } from 'vue'
+import { IGameSettings } from '@/model/Game Utils/SaveFile/interfaces/GameSettings'
+import LooseObject from '@/utils/LooseObject'
 
-export default {
-  components: { SettingsModal },
-  props: {
-    id: { type: String, default: "main-game" },
-    buttonOptions: {
-      type: Object,
-      default: () => ({}),
+  export default {
+    components: { SettingsModal },
+    props: {
+      id: { type: String, default: 'main-game' },
+      buttonOptions: {
+        type: Object,
+        default: () => ({}),
+      },
+      game: {
+        type: GameController,
+        required: true,
+      },
     },
-    game: {
-      type: GameController,
-      required: true,
+    emits: ['open', 'update', 'close'],
+    setup(props, context) {
+      const buttonAttrs = computed<LooseObject>(() => ({
+        variant: 'plain',
+        prependIcon: 'fas fa-fw fa-gears',
+        ...props.buttonOptions,
+      }))
+
+      const settingsModal = ref()
+
+      const handleUpdate = (newSettings:IGameSettings) => {
+        props.game.updateSettings(newSettings)
+        context.emit('update', newSettings)
+      }
+
+      return {
+        buttonAttrs,
+        settingsModal,
+        handleUpdate,
+      }
     },
-  },
-  emits: ["open", "update", "close"],
-  setup(props, context) {
-    const buttonAttrs = computed(() => ({
-      variant: "plain",
-      prependIcon: "fas fa-fw fa-gears",
-      ...props.buttonOptions,
-    }));
-
-    const settingsModal = ref();
-
-    const handleOpen = (evt) => {
-      context.emit("open", evt);
-    };
-
-    const handleClose = (evt) => {
-      context.emit("close", evt);
-    };
-
-    const handleUpdate = (data) => {
-      context.emit("update", data);
-    };
-
-    return {
-      buttonAttrs,
-      settingsModal,
-      handleOpen,
-      handleClose,
-      handleUpdate,
-    };
-  },
-};
+  }
 </script>

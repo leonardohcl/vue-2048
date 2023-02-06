@@ -47,6 +47,7 @@ export default defineComponent({
 
     const handlePurchase = (item: UpgradeItem) => {
       props.game.inventory.buyItem(item, props.game);
+      props.game.saveCurrent()
     };
 
     return { upgrades, handlePurchase };

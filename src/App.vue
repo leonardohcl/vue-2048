@@ -20,15 +20,11 @@
     reactive,
     watch,
   } from '@vue/runtime-core'
-  import { Highlighter, RoguelikeMemoryCard, StandardMemoryCard } from '@/keys'
+  import { Highlighter } from '@/keys'
   import ElementHighlighter from './components/organisms/ElementHighlighter/ElementHighlighter.vue'
   import HighlighterFunctions from '@/components/organisms/ElementHighlighter/model/HighlighterFunctions'
   import PageContainer from './components/atoms/PageContainer.vue'
   import LooseObject from './utils/LooseObject'
-  import MemoryCard from './model/Game Utils/MemoryCard'
-  import GameMode from './model/Game Utils/GameMode'
-import SaveFile from './model/Game Utils/SaveFile/SaveFile'
-import RoguelikeSaveFile from './model/Game Utils/SaveFile/RoguelikeSaveFile'
   export default defineComponent({
     name: '2048',
     components: { ElementHighlighter, PageContainer },
@@ -41,11 +37,6 @@ import RoguelikeSaveFile from './model/Game Utils/SaveFile/RoguelikeSaveFile'
       > | null>(null)
 
       const highlighter = reactive(new HighlighterFunctions())
-
-      const memoryCard = new MemoryCard<SaveFile>(GameMode.Standard)
-      const roguelikeMemoryCard = new MemoryCard<RoguelikeSaveFile>(GameMode.Roguelike)
-      provide<MemoryCard<SaveFile>>(StandardMemoryCard, memoryCard)
-      provide<MemoryCard<RoguelikeSaveFile>>(RoguelikeMemoryCard, roguelikeMemoryCard)
 
       const getTransitionName = (meta: LooseObject) => {
         const prefix = 'page-swap-'

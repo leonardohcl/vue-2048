@@ -8,11 +8,11 @@
       <v-card-text>
         <ul class="save-modal__list">
           <SaveSlot
-            v-for="key in slotList"
-            :key="key"
-            :slot-key="key"
+            v-for="name in slotList"
+            :key="name"
+            :slot-name="name"
             :theme="theme"
-            :save="slots[key]"
+            :save="slots[name]"
             :mode="mode"
             @select="handleSelect"
           />
@@ -32,7 +32,11 @@
   import { computed } from 'vue'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
   import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
-  import MemoryCard, { SlotName, SLOTS_AVAILABLE } from '@/model/Game Utils/MemoryCard'
+  import MemoryCard, {
+    SlotName,
+    SLOTS_AVAILABLE,
+  } from '@/model/Game Utils/MemoryCard'
+  import LooseObject from '@/utils/LooseObject'
 
   export default {
     components: { SaveSlot },
@@ -48,15 +52,15 @@
         SLOTS_AVAILABLE.filter((x) => x !== SlotName.LastGame)
       )
 
-      const slots = computed(() => props.memoryCard?.slots ?? {})
+      const slots = computed(
+        () =>
+          props.memoryCard.slots as LooseObject<SaveFile | RoguelikeSaveFile>
+      )
 
       const { isOpen, open, close } = useDialogCommands()
 
-      const handleSelect = (data: {
-        sloName: SlotName
-        slot: SaveFile | RoguelikeSaveFile
-      }) => {
-        context.emit('selected', data)
+      const handleSelect = (slotName: SlotName) => {
+        context.emit('selected', slotName)
         if (props.closeAfterSelect) close()
       }
 

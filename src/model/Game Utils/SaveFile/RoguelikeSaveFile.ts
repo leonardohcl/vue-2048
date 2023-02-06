@@ -19,7 +19,13 @@ export default class RoguelikeSaveFile
 
   constructor(game: IRoguelikeGameController) {
     super(game)
-    this.progress = { ...super.progress, run: 0 }
+    this.progress = {
+      run: game.run,
+      highestBlock: game.highestBlock,
+      moves: game.moves,
+      score: game.score,
+      undos: game.undos,
+    }
     this.bestRun = game.bestRun
     this.inventory = game.inventorySnapshot ?? { bag: {}, coins: 0 }
   }

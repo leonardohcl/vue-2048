@@ -12,12 +12,15 @@ import GameRewards from './GameRewards'
 import Item from '@/model/Game Utils/Item/Item'
 import RoguelikeSaveFile from '../Game Utils/SaveFile/RoguelikeSaveFile'
 import { IRoguelikeGameProgress } from '../Game Utils/SaveFile/interfaces/GameProgress'
+import MemoryCard, { SlotName } from '../Game Utils/MemoryCard'
+import GameMode from '../Game Utils/GameMode'
 //#endregion
 export default class RoguelikeGameController
   extends GameController
   implements IRoguelikeGameController
 {
   //#region Attributes
+  protected _memoryCard: MemoryCard<RoguelikeSaveFile>
 
   private _run = 0
   private _inventory = new Inventory()
@@ -46,10 +49,8 @@ export default class RoguelikeGameController
     return this._activeItem
   }
 
-  get rewards() {
-    return this.winner || this.gameOver
-      ? GameRewards.calculate(this)
-      : undefined
+  get memoryCard() {
+    return this._memoryCard
   }
 
   //#endregion
@@ -77,8 +78,7 @@ export default class RoguelikeGameController
   }
 
   cancelItem() {
-    this._activeItem = undefined
-    this.clearConsumableMeta()
+    this.deactivateItem()
   }
 
   deactivateItem() {
@@ -101,6 +101,8 @@ export default class RoguelikeGameController
 
     this._activeItem.consume()
     this.deactivateItem()
+    this.updateGameState()
+    this.saveCurrent()
   }
 
   //#endregion
@@ -120,6 +122,20 @@ export default class RoguelikeGameController
     })
   }
 
+  start() {
+    super.start()
+    this._run++
+  }
+
+  endRun() {
+    this._isRunning = false
+    this.deactivateItem()
+    this.updateBestRun()
+    const rewards = this.getRewards()
+    this.inventory.wallet.add(rewards?.totalEarned ?? 0)
+    this.saveCurrent()
+  }
+
   activateEndless() {
     throw new Error("Roguelike mode can't be set as endless")
   }
@@ -127,12 +143,12 @@ export default class RoguelikeGameController
   updateGameState() {
     super.updateGameState()
 
-    if (this.gameOver || this.winner) {
-      if (this.rewards) this.inventory.wallet.add(this.rewards.totalEarned)
+    if (!this.isRunning) {
+      this.endRun()
     }
   }
 
-  processRunPerfomance() {
+  updateBestRun() {
     if (this._score <= this._bestRun.score) return
     this._bestRun = {
       score: this._score,
@@ -145,24 +161,35 @@ export default class RoguelikeGameController
 
   //#endregion
 
+  //#region Rewards
+  getRewards() {
+    return GameRewards.calculate(this) ?? new GameRewards([], 0)
+  }
+  //#endregion
+
   //#region Memory
   getSnapshot(): IRoguelikeGameController {
     const game = super.getSnapshot()
-    return {
+    const snapshot = {
       ...game,
       run: this._run,
       bestRun: this.bestRun,
       inventorySnapshot: this.inventory.getSnapshot(),
     }
+    return snapshot
   }
 
   getSaveFile() {
-    return new RoguelikeSaveFile(this.getSnapshot())
+    const file = new RoguelikeSaveFile(this.getSnapshot())
+    return file
   }
 
-  load(save: RoguelikeSaveFile) {
+  load(slotName: SlotName) {
+    const save = this._memoryCard.slots[slotName]
+    if (!save) return
+    this.reset
     this.reset()
-    super.load(save)
+    super.load(slotName)
     this._run = save.progress.run
     this._bestRun = save.bestRun ?? {
       run: 0,
@@ -189,6 +216,17 @@ export default class RoguelikeGameController
     return entry
   }
   //#endregion
+
+  constructor({
+    width = 3,
+    height = 3,
+    winningBlock = 64,
+    historySize = 0,
+    updateDelay = 0,
+  } = {}) {
+    super({ width, height, winningBlock, historySize, updateDelay })
+    this._memoryCard = new MemoryCard<RoguelikeSaveFile>(GameMode.Roguelike)
+  }
 }
 
 //#region Errors

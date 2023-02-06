@@ -49,6 +49,7 @@ export default defineComponent({
 
     const handleBuy = (item: ConsumableItem) => {
       props.game.inventory.buyItem(item);
+      props.game.saveCurrent()
     };
 
     const handleCancel = () => {

@@ -6,18 +6,8 @@
           <Ranking :ranking-id="rankingId" />
         </div>
         <div class="regular__hud--right">
-          <MemoryManager
-            :game="game"
-            close-on-load
-            @save="handleSaveGame"
-            @load="handleLoadGame"
-          />
-          <Settings
-            :game="game"
-            @open="handleSettingsOpen"
-            @close="handleSettingsClose"
-            @update="handleSettingsUpdate"
-          />
+          <MemoryManager :game="game" close-on-load />
+          <Settings :game="game" />
         </div>
       </div>
       <Game
@@ -25,12 +15,10 @@
         :rankingId="rankingId"
         :emit-moves-interval="15"
         :time-to-idle="1000"
-        @idle="handleSaveCurrent"
-        @move="handleSaveCurrent"
-        @new-game="handleNewGame"
-        @restart="handleNewGame"
-        @win="handleGameOver"
-        @game-over="handleGameOver"
+        @idle="game.saveCurrent()"
+        @move="game.saveCurrent()"
+        @new-game="game.start()"
+        @restart="game.restart()"
         @set-endless="game.activateEndless()"
       />
       <HighScoreManager
@@ -50,15 +38,12 @@
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
 
-  import { defineComponent, inject } from 'vue'
+  import { defineComponent } from 'vue'
 
   import { ref, reactive, computed } from 'vue'
   import { useRoute } from 'vue-router'
 
   import GameController from '@/model/2048 Standard/GameController'
-  import { IGameSettings } from '@/model/Game Utils/SaveFile/interfaces/GameSettings'
-  import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
-  import { StandardMemoryCard } from '@/keys'
   import { SlotName } from '@/model/Game Utils/MemoryCard'
 
   export default defineComponent({
@@ -73,8 +58,6 @@
     setup() {
       const highScoreManager = ref()
 
-      const memoryCard = inject(StandardMemoryCard)
-
       const game = reactive<GameController>(
         new GameController({
           width: 4,
@@ -87,57 +70,22 @@
 
       const rankingId = computed(() => `${game.width}x${game.height}`)
 
-      const handleSettingsOpen = () => {
-        game.pause(true)
+      const handleSaveGame = (slotName: SlotName) => {
+        game.save(slotName)
       }
 
-      const handleSettingsClose = () => {
-        game.pause(false)
-      }
-
-      const handleSettingsUpdate = (newSettings: IGameSettings) => {
-        game.updateSettings(newSettings)
-      }
-
-      const handleNewGame = () => {
-        game.start()
-      }
-
-      const handleSaveGame = ({ key: slotName }: { key: SlotName }) => {
-        memoryCard?.save(game.getSaveFile(), slotName)
-      }
-
-      const handleSaveCurrent = () => {
-        handleSaveGame({ key: SlotName.LastGame })
-      }
-
-      const handleLoadGame = ({ slot }: { slot: SaveFile }) => {
-        game.load(slot)
-      }
-
-      const handleGameOver = () => {
-        highScoreManager.value?.triggerDialog()
+      const handleLoadGame = (slotName: SlotName) => {
+        game.load(slotName)
       }
 
       const route = useRoute()
 
-      if (route.query.load) {
-        const slot = route.query.load
-        let save = memoryCard?.slots[slot as SlotName]
-        if (save) game.load(save)
-      }
+      if (route.query.load) game.load(route.query.load as SlotName)
 
       return {
         game: game as GameController,
         rankingId,
         highScoreManager,
-        memoryCard,
-        handleSaveCurrent,
-        handleSettingsOpen,
-        handleSettingsClose,
-        handleSettingsUpdate,
-        handleNewGame,
-        handleGameOver,
         handleSaveGame,
         handleLoadGame,
       }

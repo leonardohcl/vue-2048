@@ -61,6 +61,7 @@ export default class MemoryCard<T> implements IMemoryCard<T> {
           ...memory[slot].settings,
           ...memory[slot].progress,
           ...memory[slot].state,
+          bestRun: memory[slot].bestRun,
           inventorySnapshot: memory[slot].inventory,
         }
 

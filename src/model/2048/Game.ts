@@ -12,8 +12,7 @@ const SORTING_CONFIG = {
 }
 
 export default class Game implements IGame {
-    private _isRunning = false
-
+    protected _isRunning = false
     protected _score = 0
     protected _winningBlock: number
     protected _canMove = {
