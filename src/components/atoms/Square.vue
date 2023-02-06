@@ -14,7 +14,7 @@
 <script>
 import { SquareTrackingMeta } from "@/model/2048 Standard/interfaces/Square";
 import { SquareStateMeta } from "@/model/2048/interfaces/Square";
-import { SquareConsumableMeta } from "@/model/Game Utils/Consumables/interfaces/Square";
+import { SquareConsumableMeta } from "@/model/Game Utils/Item/interfaces/Square";
 import { computed, ref } from "vue";
 
 export default {

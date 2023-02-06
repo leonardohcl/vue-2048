@@ -16,9 +16,7 @@
         :model-value="item.percentageFull"
         color="secondary"
       >
-        <Square v-if="item.type === 'block'" :value="item.value" />
         <v-icon
-          v-else
           class="fa-fw"
           :icon="item.icon"
           :color="isFull ? 'secondary' : 'grey-lighten-1'"
@@ -52,7 +50,7 @@
         :class="{
           'sidebar-item__price--affordable': allowPurchase && canAfford,
         }"
-        :price="item.currentPrice"
+        :price="item.price"
         :can-afford="allowPurchase && canAfford"
         @click="handlePurchase"
       />
@@ -64,13 +62,13 @@
 import PurchaseButton from "./PurchaseButton.vue";
 import Square from "./Square.vue";
 import { computed, defineComponent } from "vue";
-import Item from "@/model/Game Utils/Item";
+import Item from "@/model/Game Utils/Item/Item";
 
 export default defineComponent({
   components: { Square, PurchaseButton },
   props: {
     item: { type: Item, required: true },
-    availableCoins: { type: Number, default: 0 },
+    coins: { type: Number, default: 0 },
     active: { type: Boolean, default: false },
     allowUse: { type: Boolean, default: false },
     allowPurchase: { type: Boolean, default: false },
@@ -81,7 +79,10 @@ export default defineComponent({
     const isFull = computed(() => props.item.quantity >= props.item.capacity);
 
     const canAfford = computed(() => {
-      return props.item.quantity < props.item.capacity && props.availableCoins >= props.item.currentPrice;
+      return (
+        props.item.quantity < props.item.capacity &&
+        props.coins >= props.item.price
+      );
     });
 
     const handlePurchase = () => {

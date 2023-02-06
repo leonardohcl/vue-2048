@@ -1,5 +1,5 @@
 import Square from "@/model/2048/Square"
-import ConsumableItem, { Consumable } from "../ConsumableItem"
+import ConsumableItem, { Consumable, IConsumableItemConfig } from "../ConsumableItem"
 
 export class UpgradeBlock extends ConsumableItem {
     squareIsValid(sqr: Square): boolean {
@@ -12,23 +12,19 @@ export class UpgradeBlock extends ConsumableItem {
 
     constructor({
         name = 'Upgrade Block',
-        defaultPrice = 240,
+        price = 240,
         icon = 'fas fa-square-plus',
-        prices = [],
         quantity = 0,
         capacity = 2,
-        baseValue = 0,
     } = {}) {
         super({
             id: Consumable.UpgradeBlock,
-            blocksRequired: 1,
+            squaresRequired: 1,
             name,
-            defaultPrice,
             icon,
-            prices,
+            price,
             quantity,
             capacity,
-            baseValue,
         })
     }
 }

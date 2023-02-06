@@ -106,12 +106,10 @@ export default class GameController extends Game implements IGameController {
   }
 
   updateSettings(newSettings: IGameSettings) {
-    // Clear state
-    this.reset()
     const settings = { ...new GameSettings(this), ...newSettings }
     this._historySize = settings.historySize || 0
     this._winningBlock = settings.winningBlock || 2048
-    this.board = new Board(newSettings.height ?? this.height, newSettings.width ?? this.width)
+    this.board = new Board(newSettings.width ?? this.width, newSettings.height ?? this.height)
   }
 
   reset() {

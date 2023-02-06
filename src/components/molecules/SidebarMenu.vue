@@ -12,7 +12,7 @@
         v-for="item in items"
         :key="item.id"
         :item="item"
-        :available-coins="availableCoins"
+        :coins="coins"
         :allow-use="allowUse"
         :allow-purchase="allowPurchase"
         :active="item === activeItem"
@@ -26,9 +26,8 @@
 
 <script lang="ts">
 import SidebarItem from "@/components/atoms/SidebarItem.vue";
-import Item from "@/model/Game Utils/Item";
-import Inventory from "@/model/Game Utils/Inventory";
-import { defineComponent, computed, PropType } from "@vue/runtime-core";
+import Item from "@/model/Game Utils/Item/Item";
+import { defineComponent, computed } from "@vue/runtime-core";
 
 export default defineComponent({
   components: { SidebarItem },
@@ -37,7 +36,7 @@ export default defineComponent({
     items: {
       default: () => new Array<Item>(),
     },
-    inventory: { type: Inventory, default: () => null },
+    coins: { type: Number, required: true },
     activeItem: { type: Item, required: false },
     allowUse: { type: Boolean, default: false },
     allowPurchase: { type: Boolean, default: false },
@@ -46,8 +45,6 @@ export default defineComponent({
   },
   emits: ["purchase", "use", "cancel"],
   setup(props, { emit }) {
-    const availableCoins = computed(() => props.inventory?.wallet.coins ?? 0);
-
     const handlePurchase = (item: Item) => {
       emit("purchase", item);
     };
@@ -60,7 +57,6 @@ export default defineComponent({
     };
 
     return {
-      availableCoins,
       handleUse,
       handleCancel,
       handlePurchase,

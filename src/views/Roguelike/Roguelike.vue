@@ -1,14 +1,7 @@
 <template>
   <div class="roguelike">
     <div class="roguelike__sidebar--left roguelike__sidebar">
-      <InventoryManager
-        :inventory="game.inventory"
-        :allow-shopping="game.canShop"
-        :allow-use="game.canUseItems"
-        @use="game.activateItem"
-        @cancel="game.deactivateItem"
-        @purchase="game.inventory.buyItem"
-      />
+      <InventoryManager :game="game" />
     </div>
     <div class="roguelike__center">
       <div class="roguelike__status">
@@ -65,7 +58,7 @@
         :time-to-idle="1000"
         :emit-moves-interval="15"
         :allow-endless="false"
-        :allow-square-selection="game.canSelectSquares"
+        :allow-square-selection="game.isRunning && game.activeItem"
         disable-pause-screen
         restart-text="Give Up"
         @move="memoryCard.saveCurrent"
@@ -74,7 +67,7 @@
         @restart="handleRestart"
         @win="handleGameOver"
         @game-over="handleGameOver"
-        @square-selected="game.selectSquare"
+        @square-selected="handleSquareSelected"
       />
       <div class="roguelike__status">
         <div
@@ -119,9 +112,8 @@
     <div class="roguelike__sidebar--right roguelike__sidebar">
       <UpgradeShop
         :game="game"
-        :allow-shopping="game.canShop"
+        :allow-shopping="!game.isRunning"
         :inventory="game.inventory"
-        @upgrade="game.buyUpgrade"
       />
     </div>
     <RewardsManager :game="game" ref="rewardsManager" />
@@ -129,13 +121,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import { useRoute } from "vue-router";
 
 import Game from "@/components/organisms/Game.vue";
 import Square from "@/components/atoms/Square.vue";
-import UpgradeShop from "@/components/organisms/UpgradeShop/UpgradeShop.vue";
-import InventoryManager from "@/components/organisms/InventoryManager/InventoryManager.vue";
+import UpgradeShop from "@/components/organisms/UpgradeShop.vue";
+import InventoryManager from "@/components/organisms/InventoryManager.vue";
 import RewardsManager from "@/components/organisms/RewardsManager.vue";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 import Ranking from "@/components/organisms/Ranking.vue";
@@ -148,6 +140,7 @@ import useHighscoreHandler from "./handlers/highscore";
 import useStateHandler from "./handlers/state";
 import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
 import memoryCard from "@/store/memory-card";
+import SquareType from "@/model/2048/Square";
 
 export default defineComponent({
   components: {
@@ -165,15 +158,21 @@ export default defineComponent({
     const rankingId = "roguelike";
 
     // game
-    const game = new RoguelikeGameController({
-      width: 3,
-      height: 3,
-      winningBlock: 64,
-      updateDelay: 100,
-      historySize: 0,
-    });
+    const game = reactive(
+      new RoguelikeGameController({
+        width: 3,
+        height: 3,
+        winningBlock: 64,
+        updateDelay: 100,
+        historySize: 0,
+      })
+    );
 
-    const memoryCard = useMemoryCard(game);
+    const memoryCard = useMemoryCard(game as RoguelikeGameController);
+
+    const handleSquareSelected = (sqr:SquareType) => {
+      game.selectSquare(sqr)
+    }
 
     const route = useRoute();
 
@@ -184,15 +183,16 @@ export default defineComponent({
     }
 
     const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
-      useHighscoreHandler(game);
+      useHighscoreHandler(game as RoguelikeGameController);
 
     const { handleNewGame, handleRestart, handleGameOver, handleStartOver } =
-      useStateHandler(game);
+      useStateHandler(game as RoguelikeGameController);
 
     return {
-      game,
+      game: game as RoguelikeGameController,
       rankingId,
       memoryCard,
+      handleSquareSelected,
       // State
       handleNewGame,
       handleRestart,

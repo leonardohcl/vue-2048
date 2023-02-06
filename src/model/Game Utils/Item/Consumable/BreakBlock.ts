@@ -1,5 +1,5 @@
 import Square from "@/model/2048/Square"
-import ConsumableItem, { Consumable } from "../ConsumableItem"
+import ConsumableItem, { Consumable, IConsumableItemConfig } from "../ConsumableItem"
 
 export class BreakBlock extends ConsumableItem {
     squareIsValid(sqr: Square): boolean {
@@ -12,23 +12,19 @@ export class BreakBlock extends ConsumableItem {
 
     constructor({
         name = 'Break Block',
-        defaultPrice = 40,
+        price = 40,
         icon = 'fas fa-hammer',
-        prices = [],
         quantity = 0,
         capacity = 3,
-        baseValue = 0,
     } = {}) {
         super({
             id: Consumable.BreakBlock,
-            blocksRequired: 1,
+            squaresRequired: 1,
             name,
-            defaultPrice,
             icon,
-            prices,
+            price,
             quantity,
             capacity,
-            baseValue,
         })
     }
 }

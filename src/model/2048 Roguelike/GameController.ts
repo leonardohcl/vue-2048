@@ -1,41 +1,26 @@
 import GameController from "@/model/2048 Standard/GameController";
-import ConsumableItem from "../Game Utils/ConsumableItem";
-import { SquareConsumableMeta } from "../Game Utils/Consumables/interfaces/Square";
+import ConsumableItem from "@/model/Game Utils/Item/ConsumableItem";
+import { SquareConsumableMeta } from "@/model/Game Utils/Item/interfaces/Square";
 import Inventory from "../Game Utils/Inventory";
 import IRoguelikeGameController from "./interfaces/GameController";
 import RoguelikeGameProgress from "./interfaces/GameProgress";
 import RoguelikeRankingEntry from "./RankingEntry";
 import Square from "@/model/2048/Square"
 import GameRewards from "./GameRewards";
-import Item from "../Game Utils/Item";
+import Item from "@/model/Game Utils/Item/Item";
 import RoguelikeSaveFile from "./RogueSaveFile";
-
-const x = new GameController()
-
 export default class RoguelikeGameController extends GameController implements IRoguelikeGameController {
 
     private _run = 0
     private _inventory = new Inventory()
     private _bestRun = new RoguelikeGameProgress()
-    private _activeItem?: ConsumableItem
+    private _activeItem?: Item
 
 
     get run() { return this._run }
     get inventory() { return this._inventory }
     get bestRun() { return this._bestRun }
     get activeItem() { return this._activeItem }
-
-    get canUseItems() {
-        return !this.activeItem && !this.gameOver && !this.winner
-    }
-
-    get canShop() {
-        return this.gameOver
-    }
-
-    get canSelectSquares() {
-        return this.activeItem !== undefined
-    }
 
     get rewards() {
         return this.winner || this.gameOver ? GameRewards.calculate(this) : undefined
@@ -48,7 +33,7 @@ export default class RoguelikeGameController extends GameController implements I
         })
     }
 
-    private setActiveItem(item?: ConsumableItem) {
+    private setActiveItem(item?: Item) {
         this._activeItem = item
     }
 
@@ -88,11 +73,11 @@ export default class RoguelikeGameController extends GameController implements I
         throw new Error("Roguelike mode can't be set as endless")
     }
 
-    activateItem(item: ConsumableItem) {
+    activateItem(item: Item) {
         if (!this._inventory.bag[item.id])
             throw new Error("GameController: not enough items in the inventory to use it")
         this.setActiveItem(item)
-        item.prepareGame(this)
+        item.prepareUse(this)
     }
 
     deactivateItem() {
@@ -102,13 +87,16 @@ export default class RoguelikeGameController extends GameController implements I
 
     selectSquare(sqr: Square) {
         if (!this._activeItem)
-            throw new Error("GameController: can't select squares without an active item")
+            throw new EmptyActiveItemError()
+
+        if (!(this._activeItem instanceof ConsumableItem))
+            throw new ActiveItemIsNotConsumable(this._activeItem)
 
 
         this._activeItem.selectSquare(sqr)
 
         if (!this._activeItem.canConsume) {
-            this._activeItem.prepareGame(this)
+            this._activeItem.prepareUse(this)
             return
         }
 
@@ -133,14 +121,6 @@ export default class RoguelikeGameController extends GameController implements I
         this.clearConsumableMeta()
     }
 
-    buyUpgrade(upgrade: Item) {
-        if (upgrade.quantity >= upgrade.capacity)
-            throw new Error("GameController: upgraded is already at its max value")
-
-        this._inventory.wallet.spend(upgrade.currentPrice)
-        this.updateSettings({ [upgrade.id]: upgrade.value })
-    }
-
     updateGameState() {
         super.updateGameState()
 
@@ -161,4 +141,16 @@ export default class RoguelikeGameController extends GameController implements I
 
         return entry;
     };
+}
+
+class EmptyActiveItemError extends Error {
+    constructor() {
+        super(`EmptyActiveItemError: can't select squares without an active item.`)
+    }
+}
+
+class ActiveItemIsNotConsumable extends Error {
+    constructor(item: Item) {
+        super(`ActiveItemIsNotConsumable: item (${item.id}) is active but it's not consumable`)
+    }
 }
