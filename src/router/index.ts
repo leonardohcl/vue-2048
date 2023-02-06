@@ -54,6 +54,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
+  if(!from.name) return
   const highlighter = app._instance?.refs.elementHighlighter
   if (highlighter) {
     (highlighter as typeof ElementHighlighterVue).dismiss()

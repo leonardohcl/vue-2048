@@ -23,10 +23,8 @@
 
           <div>
             <MemoryManager
-              game-mode="roguelike"
+              :game="game"
               close-on-load
-              @save="memoryCard.save"
-              @load="game.load"
             />
           </div>
         </div>
@@ -61,8 +59,8 @@
         :allow-square-selection="game.isRunning && game.activeItem"
         disable-pause-screen
         restart-text="Give Up"
-        @move="memoryCard.saveCurrent"
-        @idle="memoryCard.saveCurrent"
+        @move="handleSaveCurrent"
+        @idle="handleSaveCurrent"
         @new-game="handleNewGame"
         @restart="handleRestart"
         @win="handleGameOver"
@@ -121,168 +119,178 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
-import { useRoute } from "vue-router";
+  import { defineComponent, inject, reactive } from 'vue'
+  import { useRoute } from 'vue-router'
 
-import Game from "@/components/organisms/Game.vue";
-import Square from "@/components/atoms/Square.vue";
-import UpgradeShop from "@/components/organisms/UpgradeShop.vue";
-import InventoryManager from "@/components/organisms/InventoryManager.vue";
-import RewardsManager from "@/components/organisms/RewardsManager.vue";
-import MemoryManager from "@/components/organisms/MemoryManager.vue";
-import Ranking from "@/components/organisms/Ranking.vue";
-import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
-import DataChip from "@/components/atoms/DataChip/DataChip.vue";
+  import Game from '@/components/organisms/Game.vue'
+  import Square from '@/components/atoms/Square.vue'
+  import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
+  import InventoryManager from '@/components/organisms/InventoryManager.vue'
+  import RewardsManager from '@/components/organisms/RewardsManager.vue'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
+  import Ranking from '@/components/organisms/Ranking.vue'
+  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
+  import DataChip from '@/components/atoms/DataChip/DataChip.vue'
+  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
+  import useHighscoreHandler from './handlers/highscore'
+  import useStateHandler from './handlers/state'
+  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
+  import SquareType from '@/model/2048/Square'
+  import { RoguelikeMemoryCard } from '@/keys'
+  import { SlotName } from '@/model/Game Utils/MemoryCard'
 
-import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
-import useMemoryCard, { SlotName } from "@/composables/memoryCard";
-import useHighscoreHandler from "./handlers/highscore";
-import useStateHandler from "./handlers/state";
-import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
-import memoryCard from "@/store/memory-card";
-import SquareType from "@/model/2048/Square";
+  export default defineComponent({
+    components: {
+      Game,
+      Square,
+      UpgradeShop,
+      InventoryManager,
+      RewardsManager,
+      MemoryManager,
+      Ranking,
+      HighScoreManager,
+      DataChip,
+    },
+    setup() {
+      const rankingId = 'roguelike'
 
-export default defineComponent({
-  components: {
-    Game,
-    Square,
-    UpgradeShop,
-    InventoryManager,
-    RewardsManager,
-    MemoryManager,
-    Ranking,
-    HighScoreManager,
-    DataChip,
-  },
-  setup() {
-    const rankingId = "roguelike";
+      // game
+      const game = reactive(
+        new RoguelikeGameController({
+          width: 3,
+          height: 3,
+          winningBlock: 64,
+          updateDelay: 100,
+          historySize: 0,
+        })
+      )
 
-    // game
-    const game = reactive(
-      new RoguelikeGameController({
-        width: 3,
-        height: 3,
-        winningBlock: 64,
-        updateDelay: 100,
-        historySize: 0,
-      })
-    );
+      const memoryCard = inject(RoguelikeMemoryCard)
 
-    const memoryCard = useMemoryCard(game as RoguelikeGameController);
+      const handleSaveGame = ({ key: slotName }: { key: SlotName }) => {
+        memoryCard?.save(game.getSaveFile(), slotName)
+      }
 
-    const handleSquareSelected = (sqr:SquareType) => {
-      game.selectSquare(sqr)
-    }
+      const handleSaveCurrent = () => {
+        handleSaveGame({ key: SlotName.LastGame })
+      }
 
-    const route = useRoute();
+      const handleSquareSelected = (sqr: SquareType) => {
+        game.selectSquare(sqr)
+      }
 
-    if (route.query.load) {
-      const slot = route.query.load;
-      let save = memoryCard.slots.value[slot as SlotName];
-      if (save) game.load(save as RoguelikeSaveFile);
-    }
+      const route = useRoute()
 
-    const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
-      useHighscoreHandler(game as RoguelikeGameController);
+      if (route.query.load) {
+        const slot = route.query.load
+        let save = memoryCard?.slots[slot as SlotName]
+        if (save) game.load(save as RoguelikeSaveFile)
+      }
 
-    const { handleNewGame, handleRestart, handleGameOver, handleStartOver } =
-      useStateHandler(game as RoguelikeGameController);
+      const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
+        useHighscoreHandler(game as RoguelikeGameController)
 
-    return {
-      game: game as RoguelikeGameController,
-      rankingId,
-      memoryCard,
-      handleSquareSelected,
-      // State
-      handleNewGame,
-      handleRestart,
-      handleGameOver,
-      handleStartOver,
-      // Highscore
-      isRankingWorthy,
-      highscoreManager,
-      haveSubmitedScore,
-    };
-  },
-});
+      const { handleNewGame, handleRestart, handleGameOver, handleStartOver } =
+        useStateHandler(game as RoguelikeGameController)
+
+      return {
+        game: game as RoguelikeGameController,
+        rankingId,
+        memoryCard,
+        handleSquareSelected,
+        // Memory
+        handleSaveGame,
+        handleSaveCurrent,
+        // State
+        handleNewGame,
+        handleRestart,
+        handleGameOver,
+        handleStartOver,
+        // Highscore
+        isRankingWorthy,
+        highscoreManager,
+        haveSubmitedScore,
+      }
+    },
+  })
 </script>
 
 <style lang="scss">
-.roguelike {
-  width: 100%;
-  display: flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-
-  @include screen-above(sm) {
-    align-items: stretch;
-  }
-
-  @include screen-above(md) {
-    gap: $default-spacing * 0.5;
-  }
-
-  &__status {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    font-weight: bold;
-
-    &--entry {
-      display: flex;
-      padding: 1rem 0;
-      align-items: center;
-    }
-
-    &--full-width-entry {
-      grid-column: 1/3;
-      justify-content: space-between;
-    }
-  }
-
-  &__sidebar {
+  .roguelike {
+    width: 100%;
     display: flex;
-    z-index: $hud-z-index + 1;
-    position: absolute;
-    top: 6rem + $default-spacing;
+    position: relative;
+    justify-content: center;
+    align-items: center;
 
     @include screen-above(sm) {
-      position: initial !important;
-      transform: none !important;
-      top: unset;
+      align-items: stretch;
     }
 
-    &--left {
-      position: absolute;
-      transform: translateX(-50%);
-      left: 0;
-
-      @include screen-above(sm) {
-        justify-content: flex-end;
-      }
-    }
-
-    &--right {
-      position: absolute;
-      right: 0;
-      transform: translateX(50%);
-      @include screen-above(sm) {
-        justify-content: flex-start;
-      }
-    }
-  }
-
-  &__best {
-    display: flex;
-    flex-direction: column;
-    gap: $default-spacing * 0.5;
-    &--data {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    @include screen-above(md) {
       gap: $default-spacing * 0.5;
-      width: 100%;
+    }
+
+    &__status {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      font-weight: bold;
+
+      &--entry {
+        display: flex;
+        padding: 1rem 0;
+        align-items: center;
+      }
+
+      &--full-width-entry {
+        grid-column: 1/3;
+        justify-content: space-between;
+      }
+    }
+
+    &__sidebar {
+      display: flex;
+      z-index: $hud-z-index + 1;
+      position: absolute;
+      top: 6rem + $default-spacing;
+
+      @include screen-above(sm) {
+        position: initial !important;
+        transform: none !important;
+        top: unset;
+      }
+
+      &--left {
+        position: absolute;
+        transform: translateX(-50%);
+        left: 0;
+
+        @include screen-above(sm) {
+          justify-content: flex-end;
+        }
+      }
+
+      &--right {
+        position: absolute;
+        right: 0;
+        transform: translateX(50%);
+        @include screen-above(sm) {
+          justify-content: flex-start;
+        }
+      }
+    }
+
+    &__best {
+      display: flex;
+      flex-direction: column;
+      gap: $default-spacing * 0.5;
+      &--data {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $default-spacing * 0.5;
+        width: 100%;
+      }
     }
   }
-}
 </style>

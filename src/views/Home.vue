@@ -47,77 +47,91 @@
           size: 'large',
           variant: 'elevated',
         }"
-        @load="(slot) => handleLoad(slot.filename)"
+        @load="handleLoad"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import GameMode from "@/model/Game Utils/GameMode"
-import PageContainer from "@/components/atoms/PageContainer.vue";
-import MemoryManager from "@/components/organisms/MemoryManager.vue";
+  import GameMode from '@/model/Game Utils/GameMode'
+  import PageContainer from '@/components/atoms/PageContainer.vue'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
-import { computed, ref } from "vue";
-import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
-import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
-import SaveFile from "@/model/2048 Standard/SaveFile";
-import { SlotName } from "@/composables/memoryCard";
+  import { computed, inject, ref } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import MemoryCard, { SlotName } from '@/model/Game Utils/MemoryCard'
+  import { RoguelikeMemoryCard, StandardMemoryCard } from '@/keys'
 
-export default {
-  components: {
-    PageContainer,
-    MemoryManager,
-  },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
-    const route = useRoute();
+  export default {
+    components: {
+      PageContainer,
+      MemoryManager,
+    },
+    setup() {
+      const router = useRouter()
+      const route = useRoute()
 
-    const gameModes = [
-      { text: "Standard", value:  GameMode.Standard},
-      { text: "Roguelike", value: GameMode.Roguelike },
-    ];
+      const gameModes = [
+        { text: 'Standard', value: GameMode.Standard },
+        { text: 'Roguelike', value: GameMode.Roguelike },
+      ]
 
-    const gameMode = ref(route.meta.previousGameMode || GameMode.Standard);
+      const gameMode = ref(
+        (route.meta.previousGameMode as GameMode) || GameMode.Standard
+      )
 
-    const theme = computed(() =>
-      gameMode.value === GameMode.Standard ? "primary" : "secondary"
-    );
+      const theme = computed(() =>
+        gameMode.value === GameMode.Standard ? 'primary' : 'secondary'
+      )
 
-    const lastGame = computed(() => store.getters.lastGame(gameMode.value));
+      const memoryCards = {
+        [GameMode.Standard]: inject(StandardMemoryCard),
+        [GameMode.Roguelike]: inject(RoguelikeMemoryCard),
+      }
 
-    const handleLoad = (slot: SlotName) => {
-      router.push({
-        name: gameMode.value as GameMode,
-        query: { load: slot },
-      });
-    };
+      const memoryCard = computed(
+        () => memoryCards[gameMode.value] ?? new MemoryCard(gameMode.value)
+      )
 
-    const handleLoadLast = () => {
-      handleLoad(SlotName.LastGame)
-    }
+      const lastGame = computed(() => memoryCard.value.lastGame)
 
-    return { gameModes, gameMode, theme, lastGame, handleLoad, handleLoadLast };
-  },
-};
+      const handleLoad = ({ slotName }: { slotName: SlotName }) => {
+        router.push({
+          name: gameMode.value as GameMode,
+          query: { load: slotName },
+        })
+      }
+
+      const handleLoadLast = () => {
+        handleLoad({ slotName: SlotName.LastGame })
+      }
+
+      return {
+        gameModes,
+        gameMode,
+        theme,
+        lastGame,
+        handleLoad,
+        handleLoadLast,
+      }
+    },
+  }
 </script>
 
 <style lang="scss">
-.home {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-
-  &__hud {
-    flex-basis: 100%;
-    min-width: 200px;
-    max-width: 400px;
+  .home {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    gap: $default-spacing;
+    justify-content: center;
 
+    &__hud {
+      flex-basis: 100%;
+      min-width: 200px;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: $default-spacing;
+    }
   }
-}
 </style>

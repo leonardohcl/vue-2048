@@ -55,6 +55,10 @@ export default class Item implements IItem {
         this._quantity -= amount
     }
 
+    setQuantity(amount: number){
+        this._quantity = amount
+    }
+
     prepareUse(game: Game) { }
 
     constructor({

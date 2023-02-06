@@ -1,10 +1,9 @@
-import SaveFile from './SaveFile'
-import MOCK_GAME from '../../mocks/game.json'
-import GameController from './GameController'
-import { deepCopy } from '../../utils/copy'
-import GameSettings from './partials/GameSettings'
-import GameState from './partials/GameState'
-import GameProgress from './partials/GameProgress'
+import SaveFile from '../../2048 Standard/SaveFile'
+import MOCK_GAME from '../../../mocks/game.json'
+import GameController from '../../2048 Standard/GameController'
+import GameSettings from '../../2048 Standard/partials/GameSettings'
+import GameState from '../../2048 Standard/partials/GameState'
+import GameProgress from '../../2048 Standard/partials/GameProgress'
 
 /** Encodes a string as base64 format */
 global.btoa = (str) => Buffer.from(str, 'binary').toString('base64')

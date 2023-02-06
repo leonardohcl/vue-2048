@@ -10,7 +10,7 @@
           <SaveSlot
             v-for="key in slotList"
             :key="key"
-            :memory-card-key="key"
+            :slot-key="key"
             :theme="theme"
             :save="slots[key]"
             :mode="mode"
@@ -27,52 +27,50 @@
 </template>
 
 <script lang="ts">
-import useDialogCommands from "@/composables/dialogCommands";
-import SaveSlot from "@/components/atoms/SaveSlot.vue";
-import { computed } from "vue";
-import { useStore } from "vuex";
-import { SlotName, SLOT_NAMES } from "@/composables/memoryCard";
-import SaveFile from "@/model/2048 Standard/SaveFile";
-import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
+  import useDialogCommands from '@/composables/dialogCommands'
+  import SaveSlot from '@/components/atoms/SaveSlot.vue'
+  import { computed } from 'vue'
+  import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
+  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
+  import MemoryCard, { SlotName, SLOTS_AVAILABLE } from '@/model/Game Utils/MemoryCard'
 
-export default {
-  components: { SaveSlot },
-  props: {
-    mode: { type: String, default: "" },
-    theme: { type: String, default: "primary" },
-    maxSlots: { type: Number, default: 5 },
-    closeAfterSelect: { type: Boolean, default: false },
-    gameMode: { type: String, required: true },
-  },
-  emits: ["selected"],
-  setup(props, context) {
-    const store = useStore();
-    const slots = computed(() => store.getters.slots(props.gameMode));
-    const slotList = computed(() =>
-      SLOT_NAMES.filter((x) => x !== SlotName.LastGame)
-    );
+  export default {
+    components: { SaveSlot },
+    props: {
+      mode: { type: String, default: '' },
+      theme: { type: String, default: 'primary' },
+      closeAfterSelect: { type: Boolean, default: false },
+      memoryCard: { type: MemoryCard, required: true },
+    },
+    emits: ['selected'],
+    setup(props, context) {
+      const slotList = computed(() =>
+        SLOTS_AVAILABLE.filter((x) => x !== SlotName.LastGame)
+      )
 
-    const { isOpen, open, close } = useDialogCommands();
+      const slots = computed(() => props.memoryCard?.slots ?? {})
 
-    const handleSelect = (data: {
-      key: string;
-      slot: SaveFile | RoguelikeSaveFile;
-    }) => {
-      context.emit("selected", data);
-      if (props.closeAfterSelect) close();
-    };
+      const { isOpen, open, close } = useDialogCommands()
 
-    return { isOpen, slots, slotList, handleSelect, open, close };
-  },
-};
+      const handleSelect = (data: {
+        sloName: SlotName
+        slot: SaveFile | RoguelikeSaveFile
+      }) => {
+        context.emit('selected', data)
+        if (props.closeAfterSelect) close()
+      }
+
+      return { isOpen, slots, slotList, handleSelect, open, close }
+    },
+  }
 </script>
 
 <style lang="scss">
-.save-modal {
-  &__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .save-modal {
+    &__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
   }
-}
 </style>
