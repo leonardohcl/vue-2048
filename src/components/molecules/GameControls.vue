@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import GameController from "@/model/2048/GameController";
+import GameController from "@/model/2048 Standard/GameController";
 import { computed } from "@vue/reactivity";
 
 export default {
@@ -67,9 +67,9 @@ export default {
     }));
 
     const canMove = (dir) => {
-      if (props.game.paused) return false;
-      if (props.game.gameOver) return false;
-      return dir ? props.game.canMove[dir] : true;
+      if (props.game._paused) return false;
+      if (props.game._gameOver) return false;
+      return dir ? props.game._canMove[dir] : true;
     };
 
     return { buttonParams, sendCommand, canMove };

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import GameMode from "@/model/GameMode";
+import GameMode from "@/model/Game Utils/GameMode";
 import SaveModal from "@/components/molecules/SaveModal.vue";
 
 import { computed, ref } from "vue";
@@ -77,9 +77,9 @@ export default {
       return flags[mode.value];
     });
 
-    const handleSelected = (slot) => {
-      if (mode.value === "load" && slot.isEmpty) return;
-      context.emit(mode.value, slot);
+    const handleSelected = ({key, slot}) => {
+      if (mode.value === "load" && !slot) return;
+      context.emit(mode.value, {key, slot});
     };
 
     const saveModal = ref();

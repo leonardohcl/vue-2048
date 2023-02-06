@@ -1,5 +1,5 @@
-import RankingEntry, { IRankingEntry } from '@/model/2048/RankingEntry'
-import RoguelikeRankingEntry, { IRoguelikeRankingEntry } from '@/model/roguelike/RankingEntry'
+import { IRankingEntry } from '@/model/2048 Standard/RankingEntry'
+import { IRoguelikeRankingEntry } from '@/model/2048 Roguelike/RankingEntry'
 
 export interface IRankingDict {
   [key: string]: IRankingEntry[]

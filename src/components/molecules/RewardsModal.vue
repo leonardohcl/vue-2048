@@ -31,8 +31,8 @@
 
 <script lang="ts">
 import Square from "@/components/atoms/Square.vue";
-import GameRewards from "@/model/roguelike/GameRewards";
-import useDialogCommands from "@/mixins/dialogCommands";
+import GameRewards from "@/model/2048 Roguelike/GameRewards";
+import useDialogCommands from "@/composables/dialogCommands";
 
 export default {
   components: { Square },

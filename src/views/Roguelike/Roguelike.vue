@@ -2,12 +2,12 @@
   <div class="roguelike">
     <div class="roguelike__sidebar--left roguelike__sidebar">
       <InventoryManager
-        :inventory="inventory"
-        :allow-shopping="allowItemShopping"
-        :allow-use="allowItemUse"
-        @use="handleUseItem"
-        @cancel="handleCancelItem"
-        @purchase="handlePurchaseItem"
+        :inventory="game.inventory"
+        :allow-shopping="game.canShop"
+        :allow-use="game.canUseItems"
+        @use="game.activateItem"
+        @cancel="game.deactivateItem"
+        @purchase="game.inventory.buyItem"
       />
     </div>
     <div class="roguelike__center">
@@ -32,8 +32,8 @@
             <MemoryManager
               game-mode="roguelike"
               close-on-load
-              @save="handleSave"
-              @load="handleLoad"
+              @save="memoryCard.save"
+              @load="game.load"
             />
           </div>
         </div>
@@ -45,7 +45,7 @@
             variant="outlined"
           >
             <span class="d-none d-md-inline mr-1">Run:</span>
-            {{ progress.run }}
+            {{ game.run }}
           </DataChip>
         </div>
         <div class="roguelike__status--entry justify-end">
@@ -55,7 +55,7 @@
             color="warning"
             variant="outlined"
           >
-            {{ inventory.wallet.coins }}
+            {{ game.inventory.wallet.coins }}
           </DataChip>
         </div>
       </div>
@@ -65,16 +65,16 @@
         :time-to-idle="1000"
         :emit-moves-interval="15"
         :allow-endless="false"
-        :allow-square-selection="allowItemSquareUpdate"
+        :allow-square-selection="game.canSelectSquares"
         disable-pause-screen
         restart-text="Give Up"
-        @move="saveCurrent"
-        @idle="saveCurrent"
+        @move="memoryCard.saveCurrent"
+        @idle="memoryCard.saveCurrent"
         @new-game="handleNewGame"
         @restart="handleRestart"
         @win="handleGameOver"
         @game-over="handleGameOver"
-        @square-selected="handleItemUpdateSquares"
+        @square-selected="game.selectSquare"
       />
       <div class="roguelike__status">
         <div
@@ -83,24 +83,24 @@
           <div class="roguelike__best--data">
             <b>Your best:</b>
             <DataChip
-              :value="bestRun.run"
+              :value="game.bestRun.run"
               theme="run"
               :chip-options="{ variant: 'tonal', size: 'x-small' }"
             />
-            <Square class="mx-2" :value="bestRun.highestBlock" inline />
+            <Square class="mx-2" :value="game.bestRun.highestBlock" inline />
 
             <DataChip
-              :value="bestRun.score"
+              :value="game.bestRun.score"
               theme="score"
               :chip-options="{ variant: 'tonal' }"
             />
             <DataChip
-              :value="bestRun.moves"
+              :value="game.bestRun.moves"
               theme="moves"
               :chip-options="{ variant: 'tonal', size: 'x-small' }"
             />
             <DataChip
-              :value="bestRun.undos"
+              :value="game.bestRun.undos"
               theme="undos"
               :chip-options="{ variant: 'tonal', size: 'x-small' }"
             />
@@ -110,7 +110,6 @@
             :ranking-id="rankingId"
             :game="game"
             :disabled="!isRankingWorthy || haveSubmitedScore"
-            :get-entry="getRankingEntry"
             @save="haveSubmitedScore = true"
             use-submit
           />
@@ -120,36 +119,38 @@
     <div class="roguelike__sidebar--right roguelike__sidebar">
       <UpgradeShop
         :game="game"
-        :allow-shopping="allowUpgradeShopping"
-        :inventory="inventory"
-        @upgrade="handlePurchaseUpgrade"
+        :allow-shopping="game.canShop"
+        :inventory="game.inventory"
+        @upgrade="game.buyUpgrade"
       />
     </div>
-    <RewardsManager :game="game" ref="rewardsManager" @loot="handleReward" />
+    <RewardsManager :game="game" ref="rewardsManager" />
   </div>
 </template>
 
 <script lang="ts">
-import PageContainer from "@/components/atoms/PageContainer.vue";
-import GameController from "@/model/2048/GameController";
-import MemoryManager from "@/components/organisms/MemoryManager.vue";
-import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
-import Ranking from "@/components/organisms/Ranking.vue";
+import { defineComponent } from "vue";
+import { useRoute } from "vue-router";
+
 import Game from "@/components/organisms/Game.vue";
 import Square from "@/components/atoms/Square.vue";
 import UpgradeShop from "@/components/organisms/UpgradeShop/UpgradeShop.vue";
 import InventoryManager from "@/components/organisms/InventoryManager/InventoryManager.vue";
 import RewardsManager from "@/components/organisms/RewardsManager.vue";
+import MemoryManager from "@/components/organisms/MemoryManager.vue";
+import Ranking from "@/components/organisms/Ranking.vue";
+import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
 import DataChip from "@/components/atoms/DataChip/DataChip.vue";
-import { ref, defineComponent } from "vue";
-import { useStore } from "vuex";
-import { useRoute } from "vue-router";
-import RoguelikeSaveFile from "@/model/roguelike/RogueSaveFile";
-import { GameHandlerSuite } from "./handlers/model/HandlerSuite";
+
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
+import useMemoryCard, { SlotName } from "@/composables/memoryCard";
+import useHighscoreHandler from "./handlers/highscore";
+import useStateHandler from "./handlers/state";
+import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
+import memoryCard from "@/store/memory-card";
 
 export default defineComponent({
   components: {
-    PageContainer,
     Game,
     Square,
     UpgradeShop,
@@ -161,106 +162,46 @@ export default defineComponent({
     DataChip,
   },
   setup() {
-    const store = useStore();
-
     const rankingId = "roguelike";
 
     // game
-    const game = ref(
-      new GameController({
-        width: 3,
-        height: 3,
-        winningBlock: 64,
-        updateDelay: 100,
-        historySize: 0,
-      })
-    );
+    const game = new RoguelikeGameController({
+      width: 3,
+      height: 3,
+      winningBlock: 64,
+      updateDelay: 100,
+      historySize: 0,
+    });
 
-    // handlers
-
-    const handlers = new GameHandlerSuite(game.value);
+    const memoryCard = useMemoryCard(game);
 
     const route = useRoute();
 
     if (route.query.load) {
       const slot = route.query.load;
-      let save;
-      if (slot === "last") {
-        save = store.getters.lastGame("roguelike");
-      } else {
-        const saves = store.getters.saves("roguelike");
-        save = saves.find((s: RoguelikeSaveFile) => s.filename === slot);
-      }
-      if (save) handlers.memory?.handleLoad(save);
+      let save = memoryCard.slots.value[slot as SlotName];
+      if (save) game.load(save as RoguelikeSaveFile);
     }
 
-    // cherry picking from handlers
-
-    const {
-      inventory,
-      allowItemSquareUpdate,
-      allowItemShopping,
-      allowItemUse,
-      handleUseItem,
-      handleCancelItem,
-      handlePurchaseItem,
-      handleItemUpdateSquares,
-    } = handlers.inventory;
-
-    const { handleSave, handleLoad, saveCurrent } = handlers.memory;
-
-    const {
-      bestRun,
-      haveSubmitedScore,
-      isRankingWorthy,
-      highscoreManager,
-      getRankingEntry,
-    } = handlers.highscore;
+    const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
+      useHighscoreHandler(game);
 
     const { handleNewGame, handleRestart, handleGameOver, handleStartOver } =
-      handlers.state;
-
-    const { rewardsManager, handleReward } = handlers.reward;
-
-    const { allowUpgradeShopping, handlePurchaseUpgrade } = handlers.upgrade;
-
-    const { progress } = handlers.progress;
+      useStateHandler(game);
 
     return {
       game,
       rankingId,
-      // Reward
-      rewardsManager,
-      handleReward,
+      memoryCard,
       // State
       handleNewGame,
       handleRestart,
       handleGameOver,
       handleStartOver,
       // Highscore
-      bestRun,
       isRankingWorthy,
       highscoreManager,
       haveSubmitedScore,
-      getRankingEntry,
-      // Upgrades
-      allowUpgradeShopping,
-      handlePurchaseUpgrade,
-      // Inventory
-      inventory,
-      allowItemShopping,
-      allowItemUse,
-      allowItemSquareUpdate,
-      handleUseItem,
-      handleCancelItem,
-      handlePurchaseItem,
-      handleItemUpdateSquares,
-      // Memory
-      handleSave,
-      handleLoad,
-      saveCurrent,
-      // Progess
-      progress,
     };
   },
 });

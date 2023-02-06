@@ -53,7 +53,7 @@
           />
         </v-slide-x-reverse-transition>
         <small
-          v-if="!game.gameOver"
+          v-if="game.isRunning"
           class="d-inline-block text-warning font-italic w-100 text-right"
           >Saving changes will start a new game!</small
         >
@@ -77,9 +77,9 @@
 </template>
 
 <script lang="ts">
-import GameController from "@/model/2048/GameController";
+import GameController from "@/model/2048 Standard/GameController";
 import { ref, watch } from "vue";
-import useDialogCommands from "@/mixins/dialogCommands";
+import useDialogCommands from "@/composables/dialogCommands";
 
 export default {
   props: {

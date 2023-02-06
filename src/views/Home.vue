@@ -20,7 +20,7 @@
           size="large"
           block
           :color="theme"
-          @click="handleLoad('last')"
+          @click="handleLoadLast"
         >
           Continue
         </v-btn>
@@ -53,14 +53,17 @@
   </div>
 </template>
 
-<script>
-import GameMode from "@/model/GameMode"
+<script lang="ts">
+import GameMode from "@/model/Game Utils/GameMode"
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
+import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
+import SaveFile from "@/model/2048 Standard/SaveFile";
+import { SlotName } from "@/composables/memoryCard";
 
 export default {
   components: {
@@ -85,14 +88,18 @@ export default {
 
     const lastGame = computed(() => store.getters.lastGame(gameMode.value));
 
-    const handleLoad = (slot) => {
+    const handleLoad = (slot: SlotName) => {
       router.push({
-        name: gameMode.value,
+        name: gameMode.value as GameMode,
         query: { load: slot },
       });
     };
 
-    return { gameModes, gameMode, theme, lastGame, handleLoad };
+    const handleLoadLast = () => {
+      handleLoad(SlotName.LastGame)
+    }
+
+    return { gameModes, gameMode, theme, lastGame, handleLoad, handleLoadLast };
   },
 };
 </script>

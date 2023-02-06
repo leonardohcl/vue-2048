@@ -25,8 +25,8 @@
         :rankingId="rankingId"
         :emit-moves-interval="15"
         :time-to-idle="1000"
-        @idle="saveCurrentGame"
-        @move="saveCurrentGame"
+        @idle="memoryCard.saveCurrent"
+        @move="memoryCard.saveCurrent"
         @new-game="handleNewGame"
         @restart="handleNewGame"
         @win="handleGameOver"
@@ -42,21 +42,23 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import PageContainer from "@/components/atoms/PageContainer.vue";
 import Game from "@/components/organisms/Game.vue";
 import Ranking from "@/components/organisms/Ranking.vue";
 import Settings from "@/components/organisms/Settings.vue";
 import MemoryManager from "@/components/organisms/MemoryManager.vue";
 import HighScoreManager from "@/components/organisms/HighScoreManager.vue";
-import GameController from "@/model/2048/GameController";
+
 import { defineComponent } from "vue";
 
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
+import { ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 
-import { ADD_GAME_ACTION, SAVE_LAST_GAME_ACTION } from "@/store/memory-card";
+import GameController from "@/model/2048 Standard/GameController";
+import useMemoryCard, { SlotName } from "@/composables/memoryCard";
+import { IGameSettings } from "@/model/2048 Standard/partials/GameSettings";
+import SaveFile from "@/model/2048 Standard/SaveFile";
 
 export default defineComponent({
   components: {
@@ -68,11 +70,9 @@ export default defineComponent({
     HighScoreManager,
   },
   setup() {
-    const store = useStore();
-
     const highScoreManager = ref();
 
-    const game = ref(
+    const game = reactive(
       new GameController({
         width: 4,
         height: 4,
@@ -82,38 +82,32 @@ export default defineComponent({
       })
     );
 
-    const rankingId = computed(
-      () => `${game.value.width}x${game.value.height}`
-    );
+    const memoryCard = useMemoryCard(game as GameController);
 
-    const saveCurrentGame = () => {
-      const save = GameController.getSaveFile("last-game", game.value);
-      store.dispatch(SAVE_LAST_GAME_ACTION, { save });
-    };
+    const rankingId = computed(() => `${game.width}x${game.height}`);
 
     const handleSettingsOpen = () => {
-      game.value.paused = true;
+      game.pause(true);
     };
 
     const handleSettingsClose = () => {
-      game.value.paused = false;
+      game.pause(false);
     };
 
-    const handleSettingsUpdate = (newSettings) => {
-      game.value.updateSettings(newSettings);
+    const handleSettingsUpdate = (newSettings: IGameSettings) => {
+      game.updateSettings(newSettings);
     };
 
     const handleNewGame = () => {
-      game.value.start();
+      game.start();
     };
 
-    const handleSaveGame = (slot) => {
-      const save = GameController.getSaveFile(slot.filename, game.value);
-      store.dispatch(ADD_GAME_ACTION, { save });
+    const handleSaveGame = ({ key: slotName }: { key: SlotName }) => {
+      memoryCard.save(slotName);
     };
 
-    const handleLoadGame = (save) => {
-      game.value.loadSaveFile(save);
+    const handleLoadGame = ({ slot }: { slot: SaveFile }) => {
+      game.load(slot);
     };
 
     const handleGameOver = () => {
@@ -124,20 +118,15 @@ export default defineComponent({
 
     if (route.query.load) {
       const slot = route.query.load;
-      let save;
-      if (slot === "last") {
-        save = store.getters.lastGame();
-      } else {
-        const saves = store.getters.saves();
-        save = saves.find((s) => s.filename === slot);
-      }
-      if (save) handleLoadGame(save);
+      let save = memoryCard.slots.value[slot as SlotName];
+      if (save) game.load(save);
     }
 
     return {
       game,
       rankingId,
       highScoreManager,
+      memoryCard,
       handleSettingsOpen,
       handleSettingsClose,
       handleSettingsUpdate,
@@ -145,7 +134,6 @@ export default defineComponent({
       handleGameOver,
       handleSaveGame,
       handleLoadGame,
-      saveCurrentGame,
     };
   },
 });

@@ -1,7 +1,7 @@
 <template>
   <div :class="`game ${game.gameOver ? 'game--over' : 'game--running'}`">
     <v-fade-transition>
-      <div class="game__overlay" v-if="game.gameOver || game.winner">
+      <div class="game__overlay" v-if="!game.isRunning && !game.endless">
         <div class="game__overlay--score">Score: {{ game.score }}</div>
         <div class="game__overlay--buttons">
           <v-btn
@@ -94,12 +94,12 @@
 </template>
 
 <script>
-import GameController from "@/model/2048/GameController";
+import GameController from "@/model/2048 Standard/GameController";
 import GameControls from "@/components/molecules/GameControls.vue";
 import Board from "@/components/molecules/Board.vue";
 import { computed, watch, ref } from "vue";
 import { useStore } from "vuex";
-import { useGameCommands } from "@/mixins/boardCommands";
+import { useGameCommands } from "@/composables/boardCommands";
 import { remove } from "lodash";
 
 export default {
@@ -186,7 +186,7 @@ export default {
 
     const newHighscore = computed(
       () =>
-        highScores.value.count > 0 && props.game.score > highScores.value.first
+        highScores.value.count > 0 && props.game._score > highScores.value.first
     );
 
     const invalidMove = ref("");
@@ -223,7 +223,7 @@ export default {
 
     const animatePoints = (dir, success, points) => {
       if (!points) return;
-      const id = props.game.moves;
+      const id = props.game._moves;
       const point = {
         id,
         points: points < 0 ? points : "+" + points,
@@ -259,11 +259,11 @@ export default {
         : null
     );
 
-    const gameEnded = computed(() => props.game.winner || props.game.gameOver);
+    const gameEnded = computed(() => props.game._winner || props.game._gameOver);
 
     watch(gameEnded, () => {
       if (gameEnded.value) {
-        context.emit(props.game.winner ? "win" : "gameOver");
+        context.emit(props.game._winner ? "win" : "gameOver");
       }
     });
 

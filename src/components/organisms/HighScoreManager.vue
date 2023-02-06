@@ -20,10 +20,12 @@
 
 <script>
 import SaveScoreModal from "@/components/molecules/SaveScoreModal.vue";
-import GameController from "@/model/2048/GameController";
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import { ADD_SCORE_ACTION } from "@/store/ranking";
+
+import GameController from "@/model/2048 Standard/GameController";
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
 
 export default {
   components: { SaveScoreModal },
@@ -37,12 +39,8 @@ export default {
       required: true,
     },
     game: {
-      type: GameController,
+      type: [GameController, RoguelikeGameController],
       required: true,
-    },
-    getEntry: {
-      type: Function,
-      default: GameController.getRankingEntry,
     },
     disabled: {
       type: Boolean,
@@ -61,12 +59,13 @@ export default {
   setup(props, context) {
     const saveScoreModal = ref();
 
-    const entry = computed(() =>
-      props.getEntry({
-        id: props.rankingId,
-        game: props.game,
-      })
-    );
+    const entry = computed(() => {
+      if (!props.game.gameOver && !props.game.winner) return;
+
+      const gameEntry = props.game.getRankingEntry();
+      gameEntry.id = props.rankingId;
+      return gameEntry
+    });
 
     const store = useStore();
 

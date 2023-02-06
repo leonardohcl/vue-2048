@@ -1,70 +1,44 @@
-import LooseObject from '@/utils/LooseObject'
-import ISquare, { ISquareMove } from './interfaces/Square'
+import { deepCopy } from '../../utils/copy'
+import LooseObject from '../../utils/LooseObject'
+import ISquare from './interfaces/Square'
 
 export default class Square implements ISquare {
-  canMerge = true
 
-  value = 0
-  row = 0
-  col = 0
-  isSpawn = false
-  isMerged = false
+  private _value = 0
+  private _row = 0
+  private _col = 0
 
-  nextMove = {
-    reverse: false,
-    vertical: 0,
-    horizontal: 0,
-  }
 
-  customStates: LooseObject = {}
+  meta: LooseObject = {}
 
-  constructor(row: number, col: number, value: number = 0) {
-    this.value = value
-    this.row = row
-    this.col = col
-  }
+  get id() { return `s${this._row}x${this._col}` }
+  get isEmpty() { return this._value === 0 }
+  get col() { return this._col }
+  get row() { return this._row }
+  get value() { return this._value }
 
-  get id() {
-    return `s${this.row}x${this.col}`
-  }
-
-  get isEmpty() {
-    return this.value === 0
-  }
-
-  get coord() {
-    return `${this.row}, ${this.col}`
-  }
-
-  clone() {
-    const copy = new Square(this.row, this.col, this.value)
-    copy.canMerge = this.canMerge
-    copy.isSpawn = this.isSpawn
-    copy.nextMove = { ...this.nextMove }
-    return copy
+  getSnapshot(): ISquare {
+    return { value: this._value, row: this._row, col: this._col, meta: deepCopy(this.meta) }
   }
 
   setValue(value: number) {
-    this.value = value
+    this._value = value
   }
 
-  setSpawn(resetAfter = 0) {
-    this.isSpawn = true
-    if (resetAfter)
-      setTimeout(() => {
-        this.isSpawn = false
-      }, resetAfter)
-  }
+  setMeta(key: string, value: any) {
+    this.meta[key] = value
+  };
 
-  setMove(move: ISquareMove) {
-    this.nextMove = { ...this.nextMove, ...move }
-  }
 
   static fromObject(obj: ISquare) {
-    const sqr = new Square(obj.row ?? 0, obj.col ?? 0, obj.value)
-    sqr.canMerge = obj.canMerge
-    sqr.isSpawn = obj.isSpawn
-    sqr.setMove(obj.nextMove)
+    const sqr = new Square(obj.row ?? 0, obj.col ?? 0, obj.value, obj.meta)
     return sqr
+  }
+
+  constructor(row: number, col: number, value: number = 0, meta: LooseObject = {}) {
+    this._value = value
+    this._row = row
+    this._col = col
+    this.meta = deepCopy(meta)
   }
 }

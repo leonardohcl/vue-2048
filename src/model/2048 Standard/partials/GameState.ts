@@ -1,32 +1,28 @@
-import { deepCopy } from '../../../utils/copy'
-import Board from '../Board'
+import Board from '../../2048/Board'
 import GameController from '../GameController'
-import IBoard from '../interfaces/Board'
+import IBoard from '../../2048/interfaces/Board'
+import { deepCopy } from '../../../utils/copy'
 
 export interface IGameState {
-  gameOver: boolean
-  winner: boolean
+  paused: boolean
   board: IBoard
   history: { board: IBoard; pointsGained: number }[]
 }
 
 export default class GameState implements IGameState {
+  paused: boolean;
   board: IBoard
   history: { board: IBoard; pointsGained: number }[]
-  gameOver: boolean
-  winner: boolean
 
   constructor(
     game: GameController | IGameState = {
-      gameOver: false,
-      winner: false,
       board: new Board(4, 4),
       history: [],
+      paused: false
     }
   ) {
-    this.board = deepCopy(game.board)
-    this.history = deepCopy(game.history)
-    this.gameOver = game.gameOver
-    this.winner = game.winner
+    this.paused = game.paused
+    this.board = game instanceof GameController ? game.board.getSnapshot() : deepCopy(game.board)
+    this.history = game.history
   }
 }

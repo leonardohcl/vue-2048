@@ -1,17 +1,17 @@
 import GameController from './GameController'
 import LEGAL_MOVEMENTS from '../../mocks/legal-movements.json'
 import MOCK_GAME from '../../mocks/game.json'
-import { deepCopy } from '../../utils/copy.ts'
-import Direction from './Direction'
-import GameProgress from './interfaces/GameProgress'
-import GameState from './interfaces/GameState'
-import GameSettings from './interfaces/GameSettings'
+import { MoveDirection } from '../2048/interfaces/Game'
+import GameProgress from './partials/GameProgress'
+import GameState from './partials/GameState'
+import GameSettings from './partials/GameSettings'
+import { deepCopy } from '../../utils/copy'
 
 const moveBoardInCircle = async (game) => {
-  await game.move(Direction.Up)
-  await game.move(Direction.Right)
-  await game.move(Direction.Down)
-  await game.move(Direction.Left)
+  await game.move(MoveDirection.Up)
+  await game.move(MoveDirection.Right)
+  await game.move(MoveDirection.Down)
+  await game.move(MoveDirection.Left)
 }
 
 describe('GameController.ts', () => {
@@ -20,8 +20,9 @@ describe('GameController.ts', () => {
     expect(game.width).toBe(4)
     expect(game.height).toBe(4)
     expect(game.winningBlock).toBe(2048)
-    expect(game.gameOver).toBe(true)
+    expect(game.gameOver).toBe(false)
     expect(game.winner).toBe(false)
+    expect(game.paused).toBe(true)
     expect(game.canMove.up).toBe(true)
     expect(game.canMove.right).toBe(true)
     expect(game.canMove.down).toBe(true)
@@ -48,10 +49,10 @@ describe('GameController.ts', () => {
   test('must make the right movements', async () => {
     const game = new GameController()
     const directions = [
-      Direction.Up,
-      Direction.Down,
-      Direction.Right,
-      Direction.Left,
+      MoveDirection.Up,
+      MoveDirection.Down,
+      MoveDirection.Right,
+      MoveDirection.Left,
     ]
 
     for (let idx = 0; idx < directions.length; idx++) {
@@ -70,7 +71,7 @@ describe('GameController.ts', () => {
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 1024])
 
-    await game.move(Direction.Right)
+    await game.move(MoveDirection.Right)
     expect(game.winner).toBe(true)
     game.activateEndless()
     expect(game.winner).toBe(false)
@@ -81,11 +82,11 @@ describe('GameController.ts', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move(Direction.Right, false)
+    await game.move(MoveDirection.Right, false)
     expect(game.history.length).toBe(1)
-    await game.move(Direction.Up, false)
+    await game.move(MoveDirection.Up, false)
     expect(game.history.length).toBe(2)
-    await game.move(Direction.Left, false)
+    await game.move(MoveDirection.Left, false)
     expect(game.history.length).toBe(2)
   })
 
@@ -93,8 +94,8 @@ describe('GameController.ts', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move(Direction.Right, false)
-    await game.move(Direction.Up, false)
+    await game.move(MoveDirection.Right, false)
+    await game.move(MoveDirection.Up, false)
     await game.undo()
     expect(game.board.flat).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
@@ -111,9 +112,9 @@ describe('GameController.ts', () => {
     const game = new GameController()
     game.start()
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
-    await game.move(Direction.Down)
+    await game.move(MoveDirection.Down)
     expect(game.moves).toBe(0)
-    await game.move(Direction.Right)
+    await game.move(MoveDirection.Right)
     expect(game.moves).toBe(1)
   })
 
@@ -123,7 +124,7 @@ describe('GameController.ts', () => {
     game.loadBoardPreset([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2])
     await game.undo()
     expect(game.undos).toBe(0)
-    await game.move(Direction.Right)
+    await game.move(MoveDirection.Right)
     await game.undo()
     expect(game.undos).toBe(1)
   })
@@ -142,14 +143,15 @@ describe('GameController.ts', () => {
       const game = new GameController()
       game.start()
 
-      
       await moveBoardInCircle(game)
       const save = GameController.getSaveFile('test', game)
 
       const loadedGame = new GameController()
+
       loadedGame.loadSaveFile(save)
 
       expect(deepCopy(loadedGame)).toEqual(deepCopy(game))
+
     })
 
     test('load save from after undo', async () => {
@@ -161,9 +163,8 @@ describe('GameController.ts', () => {
 
       const save = GameController.getSaveFile('test', game)
 
-      const loadedGame = new GameController()
-
-      loadedGame.loadSaveFile(save)
+      const loadedGame = new GameController()    
+      loadedGame.loadSaveFile(save)      
       
       expect(deepCopy(loadedGame)).toEqual(deepCopy(game))
     })

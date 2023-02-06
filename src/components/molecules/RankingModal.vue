@@ -25,7 +25,7 @@
 import RankingEntry from "@/components/atoms/RankingEntry.vue";
 import { useStore } from "vuex";
 import { computed, defineComponent } from "vue";
-import useDialogCommands from "@/mixins/dialogCommands";
+import useDialogCommands from "@/composables/dialogCommands";
 
 export default defineComponent({
   components: { RankingEntry },

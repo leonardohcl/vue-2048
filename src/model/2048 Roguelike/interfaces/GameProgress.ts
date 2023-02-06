@@ -1,24 +1,17 @@
 import GameProgress, {
   IGameProgress,
-} from '@/model/2048/interfaces/GameProgress'
+} from '@/model/2048 Standard/partials/GameProgress'
 
 export interface IRoguelikeGameProgress extends IGameProgress {
   run?: number
 }
 
-export default class RoguelikeGameProgress implements IRoguelikeGameProgress {
-  score
-  undos
-  moves
-  highestBlock
+export default class RoguelikeGameProgress extends GameProgress implements IRoguelikeGameProgress {
   run
 
   constructor(
     { score = 0, undos = 0, moves = 0, highestBlock = 0, run = 0 }: IRoguelikeGameProgress = {}) {
-    this.score = score
-    this.undos = undos
-    this.moves = moves
-    this.highestBlock = highestBlock
+    super({ score, undos, moves, highestBlock })
     this.run = run
   }
 

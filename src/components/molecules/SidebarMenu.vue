@@ -27,7 +27,7 @@
 <script lang="ts">
 import SidebarItem from "@/components/atoms/SidebarItem.vue";
 import Item from "@/model/Game Utils/Item";
-import Inventory from "@/model/roguelike/Inventory";
+import Inventory from "@/model/Game Utils/Inventory";
 import { defineComponent, computed, PropType } from "@vue/runtime-core";
 
 export default defineComponent({
@@ -35,7 +35,6 @@ export default defineComponent({
   props: {
     title: { type: String },
     items: {
-      type: Array as PropType<Array<Item>>,
       default: () => new Array<Item>(),
     },
     inventory: { type: Inventory, default: () => null },

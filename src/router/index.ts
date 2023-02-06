@@ -4,7 +4,7 @@ import Roguelike from '@/views/Roguelike/Roguelike.vue'
 import app from '@/main'
 import ElementHighlighterVue from '@/components/organisms/ElementHighlighter/ElementHighlighter.vue'
 import Standard from '@/views/Standard.vue'
-import GameMode from '@/model/GameMode'
+import GameMode from '@/model/Game Utils/GameMode'
 
 const routes = [
   {

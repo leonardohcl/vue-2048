@@ -1,6 +1,6 @@
 import { countBy } from 'lodash'
-import GameController from '../2048/GameController'
 import LooseObject from '@/utils/LooseObject'
+import RoguelikeGameController from './GameController'
 
 const BLOCK_VALUES: LooseObject = {
   ...new Array(20)
@@ -22,12 +22,21 @@ export interface IBlockRewards {
 
 export interface IGameRewards {
   squares: IBlockRewards[]
+  totalEarned: number
 }
 
-export default class GameRewards implements IGameRewards {
-  squares: IBlockRewards[] = []
+export default class GameRewards implements IGameRewards{
+  squares:IBlockRewards[] = []
+  totalEarned = 0
 
-  constructor(game: GameController) {
+  constructor(squares:IBlockRewards[], totalEarned:number){
+    this.squares = squares
+    this.totalEarned = totalEarned
+  }
+
+  static calculate(game: RoguelikeGameController): GameRewards | undefined {
+    if (game.run === 0 || game.moves === 0) return;
+
     const count = countBy(game.board.squares, 'value')
 
     const blockSizes = Object.getOwnPropertyNames(count)
@@ -35,17 +44,18 @@ export default class GameRewards implements IGameRewards {
     if (game.winner) BLOCK_VALUES[0] = BLOCK_VALUES[game.winningBlock]
     else BLOCK_VALUES[0] = 0.5
 
-    this.squares = blockSizes.map((size) => ({
+    const squares: IBlockRewards[] = blockSizes.map((size) => ({
       block: parseInt(size),
       count: count[size],
       value: BLOCK_VALUES[size],
       coinsEarned: Math.round(count[size] * BLOCK_VALUES[size]),
     }))
+
+    const totalEarned = Math.round(
+      squares.reduce((total, next) => (total += next.coinsEarned), 0)
+    )
+
+    return new GameRewards(squares, totalEarned)
   }
 
-  get totalEarned(): number {
-    return Math.round(
-      this.squares.reduce((total, next) => (total += next.coinsEarned), 0)
-    )
-  }
 }

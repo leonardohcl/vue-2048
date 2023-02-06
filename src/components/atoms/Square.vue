@@ -12,6 +12,9 @@
 </template>
 
 <script>
+import { SquareTrackingMeta } from "@/model/2048 Standard/interfaces/Square";
+import { SquareStateMeta } from "@/model/2048/interfaces/Square";
+import { SquareConsumableMeta } from "@/model/Game Utils/Consumables/interfaces/Square";
 import { computed, ref } from "vue";
 
 export default {
@@ -19,21 +22,7 @@ export default {
   props: {
     id: { type: String, default: "" },
     value: { type: Number, required: true },
-    nextMove: {
-      type: Object,
-      default: () => ({
-        spawn: false,
-        reverse: false,
-        vertical: 0,
-        horizontal: 0,
-      }),
-    },
-    isSpawn: {
-      type: Boolean,
-      default: false,
-    },
-    canMerge: { type: Boolean, default: false },
-    customStates: {
+    meta: {
       type: Object,
       default: () => ({}),
     },
@@ -62,31 +51,36 @@ export default {
         blockStyles: {},
       };
     }
+    const nextMove = computed(() => 
+      props.meta[SquareTrackingMeta.NextMove] || {vertical: 0, horizontal: 0}
+    )
+
 
     const stepSize = computed(() => {
-      const { horizontal, vertical } = props.nextMove;
+      const { horizontal, vertical } = nextMove.value;
       return horizontal || vertical;
     });
 
     const isReverse = computed(() => {
-      return props.nextMove.reverse;
+      return props.meta[SquareTrackingMeta.IsReverse] || false;
     });
 
+
     const squareClasses = computed(() => ({
-      "square--selectable": props.customStates.selectable,
-      "square--selected": props.customStates.selected,
+      "square--selectable": props.meta[SquareConsumableMeta.Selectable],
+      "square--selected": props.meta[SquareConsumableMeta.Selected],
     }));
 
     const alreadySpawned = ref(false);
     const alreadyMerged = ref(false);
 
     const getBlockClasses = () => {
-      if (props.isSpawn) {
+      if (props.meta[SquareStateMeta.Spawned]) {
         setTimeout(() => {
           alreadySpawned.value = true;
         }, 200);
       }
-      if (!props.canMerge) {
+      if (props.meta[SquareStateMeta.Merged]) {
         setTimeout(() => {
           alreadyMerged.value = true;
         }, 200);
@@ -94,9 +88,9 @@ export default {
 
       return {
         [`square__block--${props.value}`]: true,
-        "square__block--spawn": props.isSpawn && !alreadySpawned.value,
-        "square__block--merged": !props.canMerge && !alreadyMerged.value,
-        "square__block--reverse": props.nextMove.reverse,
+        "square__block--spawn": props.meta[SquareStateMeta.Spawned] && !alreadySpawned.value,
+        "square__block--merged": props.meta[SquareStateMeta.Merged] && !alreadyMerged.value,
+        "square__block--reverse": isReverse.value,
       };
     };
 
@@ -121,7 +115,7 @@ export default {
           stepSize.value * -props.gap
         }rem)`;
 
-        const dir = props.nextMove.horizontal ? "left" : "top";
+        const dir = nextMove.value.horizontal ? "left" : "top";
         styles[dir] = transform;
         styles.transition = `${dir} ${props.transitionDuration}ms ease`;
 

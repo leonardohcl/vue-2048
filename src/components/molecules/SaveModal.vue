@@ -8,10 +8,11 @@
       <v-card-text>
         <ul class="save-modal__list">
           <SaveSlot
-            v-for="slot in slots"
-            :key="slot.filename"
+            v-for="key in slotList"
+            :key="key"
+            :memory-card-key="key"
             :theme="theme"
-            :save="slot"
+            :save="slots[key]"
             :mode="mode"
             @select="handleSelect"
           />
@@ -25,11 +26,14 @@
   </v-dialog>
 </template>
 
-<script>
-import useDialogCommands from "@/mixins/dialogCommands";
+<script lang="ts">
+import useDialogCommands from "@/composables/dialogCommands";
 import SaveSlot from "@/components/atoms/SaveSlot.vue";
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { SlotName, SLOT_NAMES } from "@/composables/memoryCard";
+import SaveFile from "@/model/2048 Standard/SaveFile";
+import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
 
 export default {
   components: { SaveSlot },
@@ -43,29 +47,22 @@ export default {
   emits: ["selected"],
   setup(props, context) {
     const store = useStore();
-    const saves = computed(() => store.getters.saves(props.gameMode));
-
-    const slots = computed(() => {
-      const list = [];
-
-      for (let idx = 1; idx <= props.maxSlots; idx++) {
-        const filename = `slot-${idx}`;
-        const existing = saves.value.find((x) => x.filename === filename);
-        if (existing) list.push(existing);
-        else list.push({ filename, isEmpty: true });
-      }
-
-      return list;
-    });
+    const slots = computed(() => store.getters.slots(props.gameMode));
+    const slotList = computed(() =>
+      SLOT_NAMES.filter((x) => x !== SlotName.LastGame)
+    );
 
     const { isOpen, open, close } = useDialogCommands();
 
-    const handleSelect = (slot) => {
-      context.emit("selected", slot);
+    const handleSelect = (data: {
+      key: string;
+      slot: SaveFile | RoguelikeSaveFile;
+    }) => {
+      context.emit("selected", data);
       if (props.closeAfterSelect) close();
     };
 
-    return { isOpen, slots, handleSelect, isOpen, open, close };
+    return { isOpen, slots, slotList, handleSelect, open, close };
   },
 };
 </script>

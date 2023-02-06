@@ -65,8 +65,8 @@ import { defineComponent, computed, PropType } from "vue";
 import Square from "@/components/atoms/Square.vue";
 import DataChip from "@/components/atoms/DataChip/DataChip.vue";
 
-import { IRankingEntry } from "@/model/2048/RankingEntry";
-import { IRoguelikeRankingEntry } from "@/model/roguelike/RankingEntry";
+import { IRankingEntry } from "@/model/2048 Standard/RankingEntry";
+import { IRoguelikeRankingEntry } from "@/model/2048 Roguelike/RankingEntry";
 
 type RankingEntryVariation = IRankingEntry | IRoguelikeRankingEntry;
 

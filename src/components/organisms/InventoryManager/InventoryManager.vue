@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, reactive } from "vue";
-import Inventory from "@/model/roguelike/Inventory";
+import Inventory from "@/model/Game Utils/Inventory";
 import SidebarMenu from "@/components/molecules/SidebarMenu.vue";
 import ITEMS from "./Items";
 import ConsumableItem from "@/model/Game Utils/ConsumableItem";
@@ -38,9 +38,9 @@ export default defineComponent({
   setup({ inventory }, context) {
     const availableItems = reactive(ITEMS);
 
-    const items = computed(() =>
+    const items = computed<Item[]>(() =>
       availableItems.map((item) => {
-        item.setCurrentValue(inventory.bag[item.id]);
+        item.setValue(inventory.bag[item.id] || 0);
         return item;
       })
     );

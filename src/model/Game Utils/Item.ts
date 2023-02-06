@@ -1,79 +1,98 @@
-enum ItemType {
-    Unknown = 'unk',
-    Block = 'block',
-    Number = 'number'
+import { Consumable } from "./ConsumableItem"
+
+export const enum ItemType {
+    Unknown = '',
+    Regular = 'regular',
+    Base2 = 'block',
 }
 
 export interface IItemConfig {
     id: string
     name: string
     baseValue?: number
-    amount?: number
-    maxAmount: number
+    quantity?: number
+    capacity: number
     prices?: number[]
     defaultPrice?: number
     icon?: string
     type?: ItemType
 }
 
-export interface IItem {
+export interface IItem extends IItemConfig {
     id: string,
     baseValue: number
-    amount: number
-    maxAmount: number
-    currentValue: number
+    value: number
+    quantity: number
+    capacity: number
     percentageFull: number
     prices: number[]
     currentPrice: number
     defaultPrice?: number
-    icon?: string
+    icon: string
     type: ItemType
 
-    getValue: (amount: number) => number
-    addAmount: (qt: number) => void
-    setCurrentValue: (value: number) => void
+    getQuantityValue: (amount: number) => number
+    add: (qt: number) => void
+    setValue: (value: number) => void
 }
 
 export default class Item implements IItem {
-    id = ''
-    name = ''
+    protected _id
+    private _type
+    private _icon
+    private _prices
 
-    type
-    icon
-    prices
-    amount
-    maxAmount
+    name
+    quantity
+    capacity
     baseValue
     defaultPrice
 
+    get id() {
+        return this._id
+    }
+
+    get type() {
+        return this._type
+    }
+
+    get icon() {
+        return this._icon
+    }
+
+    get prices() {
+        return [...this._prices]
+    }
+
+
     get percentageFull() {
-        return 100 * (this.amount / this.maxAmount)
+        return 100 * (this.quantity / this.capacity)
     }
 
     get currentPrice() {
-        if (this.prices[this.amount] != undefined) return this.prices[this.amount]
+        if (this._prices[this.quantity] != undefined) return this._prices[this.quantity]
         if (this.defaultPrice != undefined) return this.defaultPrice as number
-        return this.prices[this.prices.length - 1]
+        return this._prices[this._prices.length - 1]
     }
 
-    get currentValue() {
-        return this.getValue(this.amount)
+    get value() {
+        return this.getQuantityValue(this.quantity)
     }
 
     get nextValue() {
-        return this.getValue(this.amount + 1)
+        return this.getQuantityValue(this.quantity + 1)
     }
 
-    getValue(amount: number) {
-        return amount
+    getQuantityValue(quantity: number) {
+        return quantity
     };
 
-    addAmount(qt: number = 1) {
-        this.amount += qt
+    add(qt: number = 1) {
+        this.quantity += qt
     }
 
-    setCurrentValue(value: number) {
-        this.amount = value
+    setValue(value: number) {
+        this.quantity = value
     }
 
     constructor({
@@ -82,53 +101,49 @@ export default class Item implements IItem {
         defaultPrice,
         icon = 'fas fa-box',
         prices = [],
-        amount = 0,
-        maxAmount = 0,
+        quantity = 0,
+        capacity = 0,
         baseValue = 0,
         type = ItemType.Unknown
     }: IItemConfig) {
-        this.id = id
+        this._id = id
+        this._icon = icon
+        this._type = type
+        this._prices = prices
         this.name = name
-        this.icon = icon
-        this.prices = prices
-        this.amount = amount
-        this.maxAmount = maxAmount
-        this.type = type
+        this.quantity = quantity
+        this.capacity = capacity
         this.baseValue = baseValue
         this.defaultPrice = defaultPrice
     }
 }
 
-export class NumberItem extends Item {
-    type = ItemType.Number
-
+export class RegularItem extends Item {
     getValue(amount: number) {
         return this.baseValue + amount
     }
 
-    setCurrentValue(value: number) {
-        this.amount = value - this.baseValue
+    setValue(value: number) {
+        this.quantity = value - this.baseValue
     }
 
     constructor(config: IItemConfig) {
-        super({ ...config, type: ItemType.Number })
+        super({ ...config, type: ItemType.Regular })
     }
 }
 
-export class BlockItem extends Item {
-    type = ItemType.Block
-
+export class Base2Item extends Item {
     getValue(amount: number) {
         const baseLog = Math.log2(this.baseValue)
         return 2 ** (baseLog + amount)
     }
 
-    setCurrentValue(value: number): void {
+    setValue(value: number): void {
         const baseLog = Math.log2(this.baseValue)
-        this.amount = Math.log2(value) - baseLog
+        this.quantity = Math.log2(this.quantity) - baseLog
     }
 
     constructor(config: IItemConfig) {
-        super({ ...config, type: ItemType.Block })
+        super({ ...config, type: ItemType.Base2 })
     }
 }

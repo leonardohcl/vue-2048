@@ -1,18 +1,13 @@
-export interface ISquareMove {
-  reverse?: boolean
-  vertical?: number
-  horizontal?: number
-}
+import LooseObject from "@/utils/LooseObject"
 
 export default interface ISquare {
   row: number
   col: number
   value: number
-  isSpawn: boolean
-  canMerge: boolean
-  nextMove: ISquareMove
-
-  setMove: (move: ISquareMove) => void
-  setSpawn: () => void
+  meta: LooseObject
 }
 
+export const enum SquareStateMeta {
+  Merged = 'merged',
+  Spawned = 'spawned',
+}

@@ -1,4 +1,4 @@
-import RankingEntry, { IRankingEntry } from '../2048/RankingEntry'
+import RankingEntry, { IRankingEntry } from '@/model/2048 Standard/RankingEntry'
 
 export interface IRoguelikeRankingEntry extends IRankingEntry {
   run: number
@@ -23,6 +23,7 @@ export default class RoguelikeRankingEntry
     super({ id, name, score, block, moves, undos, width, height })
     this.run = run
   }
+  
   static getMock(): RoguelikeRankingEntry {
     const entry = RankingEntry.getMock() as RoguelikeRankingEntry
     entry.run = Math.round(Math.random() * 200)

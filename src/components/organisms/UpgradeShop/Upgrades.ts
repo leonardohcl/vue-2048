@@ -1,4 +1,4 @@
-import { BlockItem, NumberItem } from "@/model/Game Utils/Item";
+import { Base2Item, RegularItem } from "@/model/Game Utils/Item";
 
 /**
  * These are the upgrades available for the current game design,
@@ -7,34 +7,34 @@ import { BlockItem, NumberItem } from "@/model/Game Utils/Item";
  * per run in the early game and 40 coins in the late game
  **/
 export default [
-    new BlockItem({
+    new Base2Item({
         id: "winningBlock",
         name: "Final Block",
         baseValue: 64,
-        maxAmount: 7,
+        capacity: 7,
         prices: [45, 175, 325, 415],
         defaultPrice: 500
     }),
-    new NumberItem({
+    new RegularItem({
         id: "historySize",
         icon: "fas fa-brain",
         name: "Memory",
         prices: [500, 750, 750, 1000],
-        maxAmount: 5,
+        capacity: 5,
     }),
-    new NumberItem({
+    new RegularItem({
         id: "width",
         name: "Width",
         baseValue: 3,
-        maxAmount: 5,
+        capacity: 5,
         prices: [150, 350, 600, 750, 900],
         icon: "fas fa-arrows-left-right"
     }),
-    new NumberItem({
+    new RegularItem({
         id: "height",
         name: "Height",
         baseValue: 3,
-        maxAmount: 5,
+        capacity: 5,
         prices: [150, 350, 600, 750, 900],
         icon: "fas fa-arrows-up-down"
     }),

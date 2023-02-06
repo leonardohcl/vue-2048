@@ -3,35 +3,32 @@
     :is="tag"
     class="save-slot"
     :class="[
-      save.isEmpty ? 'save-slot--empty' : `border--${theme} glow--${theme}`,
+      !save ? 'save-slot--empty' : `border--${theme} glow--${theme}`,
       `save-slot--${mode}`,
     ]"
-    @click="$emit('select', save)"
+    @click="save ? $emit('select', { key: memoryCardKey, slot: save }) : null"
   >
-    <span
-      class="save-slot--title"
-      :class="{ [`text--${theme}`]: !save.isEmpty }"
-    >
-      {{ save.filename.replace("-", " ") }}
+    <span class="save-slot--title" :class="{ [`text--${theme}`]: save }">
+      {{ memoryCardKey }}
     </span>
-    <div class="save-slot--details" v-if="save.isEmpty">EMPTY SLOT</div>
+    <div class="save-slot--details" v-if="!save">EMPTY SLOT</div>
     <div class="save-slot--details" v-else>
       <Square inline :value="save.progress.highestBlock" />
       <div class="save-slot--currency">
         <DataChip
           theme="score"
           class="justify-center mx-auto"
-          :value="save.progress.bestScore || save.progress.score"
+          :value="(save as RoguelikeSaveFile)?.bestRun?.score || save.progress.score"
         />
         <DataChip
-          v-if="save.progress.run >= 0"
+          v-if="(save as RoguelikeSaveFile)?.progress.run >= 0"
           theme="run"
-          :value="save.progress.run"
+          :value="(save as RoguelikeSaveFile)?.progress.run"
         />
         <DataChip
-          v-if="save.inventory"
+          v-if="(save as RoguelikeSaveFile)?.inventory"
           theme="coins"
-          :value="save.inventory.wallet.coins"
+          :value="(save as RoguelikeSaveFile).inventory.wallet.coins"
         />
       </div>
       <span class="save-slot--shape">
@@ -41,10 +38,10 @@
   </component>
 </template>
 
-<script>
+<script lang="ts">
 import DataChip from "@/components/atoms/DataChip/DataChip.vue";
-import SaveFile from "@/model/2048/SaveFile";
-import RoguelikeSaveFile from "@/model/roguelike/RogueSaveFile";
+import SaveFile from "@/model/2048 Standard/SaveFile";
+import RoguelikeSaveFile from "@/model/2048 Roguelike/RogueSaveFile";
 import Square from "@/components/atoms/Square.vue";
 
 export default {
@@ -54,9 +51,10 @@ export default {
   },
   props: {
     tag: { type: String, default: "li" },
+    memoryCardKey: { type: String, required: true },
     theme: { type: String, default: "primary" },
     mode: { type: String, default: "load" },
-    save: { type: [SaveFile, RoguelikeSaveFile, Object], required: true },
+    save: { type: [SaveFile, RoguelikeSaveFile] },
   },
   emits: ["select"],
 };

@@ -4,6 +4,7 @@
       v-for="sqr in board.squares"
       :key="sqr.id"
       :id="sqr.id"
+      :value="sqr.value"
       :transition-duration="transitionDuration"
       :gap="gap"
       :inline="inline"

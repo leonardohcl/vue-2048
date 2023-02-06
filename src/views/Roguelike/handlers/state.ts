@@ -1,62 +1,41 @@
-import GameController from "@/model/2048/GameController";
-import IHandler from "./model/Handler";
-import HandlerCallback from "./model/HandlerCallback";
+import { computed, ref } from 'vue'
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
 
-type CallbackAction = "start" | "end" | "newGame" | "restart" | "gameOver" | "startOver"
-type VoidFunction = () => void
-
-export interface IStateHandler extends IHandler {
-    callback: HandlerCallback<CallbackAction>
-    startRun: VoidFunction
-    endRun: VoidFunction
-    handleNewGame: VoidFunction
-    handleRestart: VoidFunction
-    handleGameOver: VoidFunction
-    handleStartOver: VoidFunction
-}
-
-export default function useStateHandler(game: GameController): IStateHandler {
-    const callback = new HandlerCallback<CallbackAction>()
+export default function useStateHandler(game: RoguelikeGameController) {
+    const isRunInterval = ref(false)
+    const isRunActive = computed(() => !isRunInterval.value && !game.winner && !game.gameOver)
 
     const startRun = () => {
-        game.start();
-        callback.run("start")
+        game.start();        
+        isRunInterval.value = false
     };
 
     const endRun = () => {
-        callback.run("end")
+        game.deactivateItem()
+        isRunInterval.value = true
+        game.processRunPerfomance()
     };
 
     const handleNewGame = () => {
         startRun();
-        callback.run("newGame")
     };
 
     const handleRestart = () => {
-        game.gameOver = true;
-        callback.run("restart")
+        endRun()
     };
 
     const handleGameOver = () => {
         endRun();
-        callback.run("gameOver")
     };
 
     const handleStartOver = () => {
-        game.updateSettings({
-            width: 3,
-            height: 3,
-            historySize: 0,
-            winningBlock: 64,
-        });
-        
-        callback.run("startOver")
+        game.reset()
     };
 
-    const registerHandlers = () => {}
+    const registerHandlers = () => { }
 
     return {
-        callback,
+        isRunActive,
         startRun,
         endRun,
         handleNewGame,

@@ -1,4 +1,8 @@
-import { BreakBlock, UpgradeBlock, ShrinkBlock, MoveBlock } from "@/model/Game Utils/ConsumableItem";
+import { BreakBlock } from "@/model/Game Utils/Consumables/BreakBlock";
+import { MoveBlock } from "@/model/Game Utils/Consumables/MoveBlock";
+import { ShrinkBlock } from "@/model/Game Utils/Consumables/ShrinkBlock";
+import { UpgradeBlock } from "@/model/Game Utils/Consumables/UpgradeBlock";
+
 /**
  * These are the consumable items available for the current game design,
  * 

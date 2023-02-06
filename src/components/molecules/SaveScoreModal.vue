@@ -51,16 +51,16 @@
 import { ref } from "vue";
 import Square from "@/components/atoms/Square.vue";
 import DataChip from "@/components/atoms/DataChip/DataChip.vue";
-import RoguelikeRankingEntry from "@/model/roguelike/RankingEntry";
-import RankinEntry from "@/model/2048/RankingEntry";
-import useDialogCommands from "@/mixins/dialogCommands";
+import RoguelikeRankingEntry from "@/model/2048 Roguelike/RankingEntry";
+import RankinEntry from "@/model/2048 Standard/RankingEntry";
+import useDialogCommands from "@/composables/dialogCommands";
 
 export default {
   components: { Square, DataChip },
   props: {
     entry: {
-      type: [RankinEntry, RoguelikeRankingEntry, Object],
-      required: true,
+      type: [RankinEntry, RoguelikeRankingEntry],
+      default: () => new RankinEntry({id: '', name: ''}),
     },
   },
   emits: ["submit"],

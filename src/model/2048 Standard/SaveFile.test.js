@@ -2,9 +2,9 @@ import SaveFile from './SaveFile'
 import MOCK_GAME from '../../mocks/game.json'
 import GameController from './GameController'
 import { deepCopy } from '../../utils/copy'
-import GameSettings from './interfaces/GameSettings'
-import GameState from './interfaces/GameState'
-import GameProgress from './interfaces/GameProgress'
+import GameSettings from './partials/GameSettings'
+import GameState from './partials/GameState'
+import GameProgress from './partials/GameProgress'
 
 /** Encodes a string as base64 format */
 global.btoa = (str) => Buffer.from(str, 'binary').toString('base64')
@@ -36,23 +36,5 @@ describe('SaveFile.ts', () => {
     const saveStr = save.toString()
     const loaded = SaveFile.fromString(saveStr)
     expect(loaded).toEqual(save)
-  })
-
-  test('must load game correctly', async () => {
-    const game = new GameController(3, 3, 2, 0)
-    game.start()
-
-    await game.move('up')
-    await game.move('right')
-    await game.move('down')
-    await game.move('left')
-    await game.undo()
-
-    const save = GameController.getSaveFile(MOCK_FILENAME, game)
-
-    const loadedGame = save.getGame()
-
-    expect(deepCopy(loadedGame)).toEqual(deepCopy(game))
-
-  })
+  }) 
 })

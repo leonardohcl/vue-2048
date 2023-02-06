@@ -3,35 +3,28 @@
 </template>
 
 <script lang="ts">
-import GameRewards from "@/model/roguelike/GameRewards";
-import GameController from "@/model/2048/GameController";
 import RewardsModal from "@/components/molecules/RewardsModal.vue";
-import { ref, defineComponent } from "vue";
+import { ref, defineComponent, watch, computed } from "vue";
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
 
 export default defineComponent({
   components: { RewardsModal },
   props: {
     game: {
-      type: GameController,
+      type: RoguelikeGameController,
       required: true,
     },
   },
-  emits: ["loot"],
-  setup(props, context) {
-    const rewards = ref(new GameRewards(props.game));
+  setup(props) {
+    const rewards = computed(() => props.game.rewards);
     const rewardsModal = ref();
 
-    const getRewards = () => {
-      return new GameRewards(props.game);
-    };
-
-    const lootRewards = () => {
-      rewards.value = getRewards();
+    watch(rewards, (hasLoot) => {
+      if (!hasLoot) return;
       rewardsModal.value?.open();
-      context.emit("loot", rewards.value.totalEarned);
-    };
+    });
 
-    return { rewards, rewardsModal, getRewards, lootRewards };
+    return { rewards, rewardsModal };
   },
 });
 </script>

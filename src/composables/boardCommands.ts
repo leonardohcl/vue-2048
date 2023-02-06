@@ -1,20 +1,20 @@
 import { useKeypress } from 'vue3-keypress'
-import { useSwipe } from '@/mixins/swipe'
-import GameController from '@/model/2048/GameController'
-import Direction from '@/model/2048/Direction'
+import { useSwipe } from "@/composables/swipe"
+import GameController from '@/model/2048 Standard/GameController'
+import { MoveDirection } from '@/model/2048/interfaces/Game'
 
-const COMMAND_KEYS: { [key: string]: Direction } = {
-  ArrowUp: Direction.Up,
-  ArrowRight: Direction.Right,
-  ArrowDown: Direction.Down,
-  ArrowLeft: Direction.Left,
-  right: Direction.Right,
-  left: Direction.Left,
-  top: Direction.Up,
-  bottom: Direction.Down,
+const COMMAND_KEYS: { [key: string]: MoveDirection } = {
+  ArrowUp: MoveDirection.Up,
+  ArrowRight: MoveDirection.Right,
+  ArrowDown: MoveDirection.Down,
+  ArrowLeft: MoveDirection.Left,
+  right: MoveDirection.Right,
+  left: MoveDirection.Left,
+  top: MoveDirection.Up,
+  bottom: MoveDirection.Down,
 }
 
-type BoardCommand = Direction | "undo"
+type BoardCommand = MoveDirection | "undo"
 
 export function useGameCommands(game: GameController, swipeTarget = '', moveCallback?: (dir: BoardCommand, success: boolean, pointsAdded: number) => void) {
   const COOLDOWN: {
@@ -25,9 +25,9 @@ export function useGameCommands(game: GameController, swipeTarget = '', moveCall
     timeout: null,
   }
 
-  const canMove = (dir?: Direction) => {
+  const canMove = (dir?: MoveDirection) => {
     if (COOLDOWN.active) return false
-    if (game.paused || game.gameOver || game.winner) return false
+    if (game.paused || !game.isRunning) return false
     return dir ? game.canMove[dir] : true
   }
 
@@ -39,7 +39,7 @@ export function useGameCommands(game: GameController, swipeTarget = '', moveCall
     }, game.updateDelay)
   }
 
-  const move = async (dir: Direction) => {
+  const move = async (dir: MoveDirection) => {
     let moved = false, pointsAdded = 0
     if (canMove(dir)) {
       startCooldown()

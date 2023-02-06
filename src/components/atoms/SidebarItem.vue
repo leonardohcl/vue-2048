@@ -7,7 +7,7 @@
     }"
   >
     <v-badge
-      :content="`${item.amount}/${item.maxAmount}`"
+      :content="`${item.quantity}/${item.capacity}`"
       color="secondary"
       @click="handleUse"
     >
@@ -16,7 +16,7 @@
         :model-value="item.percentageFull"
         color="secondary"
       >
-        <Square v-if="item.type === 'block'" :value="item.currentValue" />
+        <Square v-if="item.type === 'block'" :value="item.value" />
         <v-icon
           v-else
           class="fa-fw"
@@ -78,10 +78,10 @@ export default defineComponent({
   },
   emits: ["purchase", "use", "cancel"],
   setup(props, { emit }) {
-    const isFull = computed(() => props.item.amount >= props.item.maxAmount);
+    const isFull = computed(() => props.item.quantity >= props.item.capacity);
 
     const canAfford = computed(() => {
-      return props.item.amount < props.item.maxAmount && props.availableCoins >= props.item.currentPrice;
+      return props.item.quantity < props.item.capacity && props.availableCoins >= props.item.currentPrice;
     });
 
     const handlePurchase = () => {
@@ -89,7 +89,7 @@ export default defineComponent({
     };
 
     const handleUse = () => {
-      if (props.item.amount > 0 && props.allowUse) emit("use", props.item);
+      if (props.item.quantity > 0 && props.allowUse) emit("use", props.item);
     };
 
     const handleCancel = () => {

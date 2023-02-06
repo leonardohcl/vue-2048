@@ -11,12 +11,12 @@
 
 <script lang="ts">
 import SidebarMenu from "@/components/molecules/SidebarMenu.vue";
-import GameController from "@/model/2048/GameController";
+import GameController from "@/model/2048 Standard/GameController";
 import { computed, defineComponent, reactive } from "vue";
 import UPGRADES from "./Upgrades";
-import GameSettings from "@/model/2048/interfaces/GameSettings";
+import GameSettings from "@/model/2048 Standard/partials/GameSettings";
 import Item from "@/model/Game Utils/Item";
-import Inventory from "@/model/roguelike/Inventory";
+import Inventory from "@/model/Game Utils/Inventory";
 
 export default defineComponent({
   components: { SidebarMenu },
@@ -33,21 +33,18 @@ export default defineComponent({
   },
   emit: ["upgrade"],
   setup({ game }, context) {
-    const upgrades = computed(() => {
+    const upgrades = computed<Item[]>(() => {
       const available = reactive(UPGRADES);
       const gameSettings = new GameSettings(game);
 
       return available.map((upgrade) => {
-        upgrade.setCurrentValue(gameSettings[upgrade.id] || 0);
-        return upgrade;
+        upgrade.setValue(gameSettings[upgrade.id] || 0);
+        return (upgrade as any) as Item;
       });
     });
 
     const handlePurchase = (item: Item) => {
-      context.emit("upgrade", {
-        price: item.currentPrice,
-        upgrade: { [item.id]: item.nextValue },
-      });
+      context.emit("upgrade", item);
     };
 
     return { upgrades, handlePurchase };

@@ -1,5 +1,14 @@
 import GameController from '../GameController'
-export interface IGameSettings {
+
+export const enum GameSettingsId {
+  Width = 'width',
+  Height = 'height',
+  HistorySize = 'historySize',
+  WinningBlock = 'winningBlock',
+}
+
+export type IGameSettings = {
+  [key: string]: number | undefined
   width?: number
   height?: number
   historySize?: number
@@ -8,13 +17,13 @@ export interface IGameSettings {
 
 export default class GameSettings implements IGameSettings {
   [key: string]: number | undefined
-  width?= 0
-  height?= 0
-  historySize?= 0
-  winningBlock?= 0
+  width
+  height
+  historySize
+  winningBlock
 
   constructor(
-    { width, height, historySize, winningBlock }: GameController | IGameSettings = {}
+    { width, height, historySize, winningBlock }: IGameSettings | GameController
   ) {
     this.width = width
     this.height = height

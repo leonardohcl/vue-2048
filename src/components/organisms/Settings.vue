@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import GameController from "@/model/2048/GameController";
+import GameController from '@/model/2048 Standard/GameController';
 import SettingsModal from '@/components/molecules/SettingsModal.vue'
 
 import { computed, ref } from "vue";
