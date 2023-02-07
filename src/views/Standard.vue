@@ -85,7 +85,18 @@
 </script>
 
 <style lang="scss">
-  .regular {
+.regular {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  &__container {
+    flex-basis: 100%;
+    min-width: 200px;
+    max-width: 450px;
+  }
+
+  &__hud {
     display: flex;
     justify-content: center;
     &__container {
