@@ -75,14 +75,26 @@ export default defineComponent({
   margin-top: 0;
   transition: all 200ms;
 
+  @include screen-above(sm){
+    padding: 2rem;
+  }
+
   $page-class-prefix: &;
 
   &--home-screen {
     #{$page-class-prefix} {
       &__title {
         padding: 4rem;
+
+        @include screen-above(sm){
+          padding: 2rem
+        }
+        
         &--text {
           font-size: 4rem;
+          // @include screen-above(sm){
+          //   padding: 5rem
+          // }
         }
       }
     }
@@ -106,6 +118,14 @@ export default defineComponent({
       color: $text-color !important;
       text-decoration: none !important;
       transition: font-size $page-animation-duration $page-animation-ease;
+
+      @include screen-above(sm){
+        font-size: 3rem;
+      }
+    }
+
+    &--redirect{
+      cursor: pointer;
     }
   }
 

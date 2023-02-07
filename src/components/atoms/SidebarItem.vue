@@ -152,13 +152,10 @@
       }
 
       .square {
-        width: 1rem;
-        height: 1rem;
+        flex: 0 0 auto;
+        width: 2rem;
+        height: 2rem;
 
-        @include screen-above(sm) {
-          width: 2rem;
-          height: 2rem;
-        }
         @include screen-above(md) {
           width: 3rem;
           height: 3rem;
@@ -167,7 +164,6 @@
     }
 
     &__details {
-      padding: 0 $default-spacing * 0.25;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -189,18 +185,10 @@
     }
 
     &__price {
-      display: none;
       transform: scale(0.75);
 
       &--affordable {
         display: flex;
-      }
-
-      @include screen-above(sm) {
-        display: flex;
-      }
-      @include screen-above(md) {
-        transform: none;
       }
     }
 
@@ -209,7 +197,11 @@
         position: absolute;
         left: 0;
         bottom: 0;
-        transform: translate(-25%, 25%);
+        transform: translate(-30%, 30%);
+        
+        @include screen-above(sm){
+          transform: translate(-40%, 40%);
+        }
       }
     }
 

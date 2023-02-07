@@ -67,7 +67,6 @@ export default defineComponent({
 
 <style lang="scss">
 .sidebar-menu {
-  padding: $default-spacing * 0.25;
   flex-basis: 10%;
 
   @include screen-above(md) {

@@ -10,4 +10,5 @@ export default interface ISquare {
 export const enum SquareStateMeta {
   Merged = 'merged',
   Spawned = 'spawned',
+  InvalidMove = 'invalidMove'
 }

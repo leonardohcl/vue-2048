@@ -88,7 +88,7 @@ export default class RoguelikeGameController
     this.clearConsumableMeta()
   }
 
-  selectSquare(sqr: Square) {
+  selectSquare(sqr: Square):boolean {
     if (!this._activeItem) throw new EmptyActiveItemError()
 
     if (!(this._activeItem instanceof ConsumableItem))
@@ -98,13 +98,14 @@ export default class RoguelikeGameController
 
     if (!this._activeItem.canConsume) {
       this._activeItem.prepareUse(this)
-      return
+      return false
     }
 
     this._activeItem.consume()
     this.deactivateItem()
     this.updateGameState()
     this.saveCurrent()
+    return true;
   }
 
   //#endregion

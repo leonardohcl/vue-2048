@@ -89,7 +89,7 @@
         @square-selected="handleSquareSelected"
       />
     </div>
-    <GameControls class="game__controls d-none d-sm-flex" :game="game" @command="move" />
+    <GameControls class="game__controls" :game="game" @command="move" />
   </div>
 </template>
 
@@ -101,6 +101,7 @@
   import { useGameCommands, BoardCommand } from '@/composables/boardCommands'
   import { remove } from 'lodash'
   import Square from '@/model/2048/Square'
+import { SquareStateMeta } from '@/model/2048/interfaces/Square'
 
   export default {
     components: { Board, GameControls },
@@ -223,6 +224,9 @@
       const trackInvalidMove = (dir: BoardCommand, success: boolean) => {
         if (!success) {
           invalidMove.value = dir
+          props.game.board.squares.forEach(sqr => {
+            sqr.setMeta(SquareStateMeta.InvalidMove, true)
+          });
           setTimeout(() => (invalidMove.value = ''), 200)
         } else invalidMove.value = ''
       }
@@ -281,6 +285,7 @@
     width: 100%;
     min-width: 200px;
     max-width: map-get($grid-breakpoints, 'sm') * 0.75;
+    max-height: 80vh;
 
     &--over {
       .game {
@@ -362,6 +367,7 @@
       }
 
       &--invalid-move {
+        
         .square__block {
           opacity: 1;
           animation-duration: 200ms;
@@ -393,6 +399,10 @@
           }
         }
       }
+    }
+
+    &__controls {
+      margin-top: $default-spacing * 0.5;
     }
 
     &__command-listener {

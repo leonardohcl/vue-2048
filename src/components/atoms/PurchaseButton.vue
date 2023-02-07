@@ -16,8 +16,8 @@ export default {
     options() {
       return {
         size: "small",
-        variant: "tonal",
-        color: this.canAfford ? "warning" : "white",
+        variant: "flat",
+        color: this.canAfford ? "warning" : "dark",
         prependIcon: "fas fa-fw fa-coins",
         rounded: "pill",
       };

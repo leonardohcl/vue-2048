@@ -1,30 +1,34 @@
 <template>
-  <div class="board" :style="boardStyle" :class="[inline && 'board--inline']">
-    <Square
-      v-for="sqr in board.squares"
-      :key="sqr.id"
-      :id="sqr.id"
-      :value="sqr.value"
-      :transition-duration="transitionDuration"
-      :gap="gap"
-      :inline="inline"
-      v-bind="sqr"
-      @click="handleSquareClick(sqr)"
-    />
+  <div class="board" :class="[inline && 'board--inline']" ref="container">
+    <div class="board__container" :style="boardStyle">
+      <Square
+        v-for="sqr in board.squares"
+        v-bind="sqr"
+        :id="sqr.id"
+        :value="sqr.value"
+        :key="sqr.id"
+        :transition-duration="transitionDuration"
+        :gap="gap"
+        :inline="inline"
+        @click="handleSquareClick(sqr)"
+      />
+    </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import Board from '@/model/2048/Board'
   import Square from '@/components/atoms/Square.vue'
-  import { computed } from 'vue'
+  import { computed, ref, onBeforeUnmount, onMounted, watch } from 'vue'
+  import SquareClass from '@/model/2048/Square'
+import LooseObject from '@/utils/LooseObject'
 
   export default {
     components: { Square },
     name: 'Board',
     props: {
       board: {
-        type: [Board, Object],
+        type: Board,
         required: true,
       },
       transitionDuration: {
@@ -33,34 +37,93 @@
       },
       gap: {
         type: Number,
-        default: 0.25,
+        default: 4,
       },
       inline: {
         type: Boolean,
         default: false,
       },
     },
-    emits: ["squareSelected"],
+    emits: ['squareSelected'],
     setup(props, context) {
-      const boardStyle = computed(() => {
-        const { width, height } = props.board
+      const container = ref<HTMLDivElement | undefined>()
+
+      const getContainerWidth = () => {
+        const { width = 0 } = container.value?.getBoundingClientRect() ?? {}
+        return width
+      }
+
+      const width = computed(() => props.board.width)
+      const height = computed(() => props.board.height)
+
+      const getBoardStyle = (
+        width = props.board.width,
+        height = props.board.height
+      ) => {
+        const gap = props.gap
+        const containerWidth = getContainerWidth()
+
+        const largestDimension = width > height ? width : height
+
+        const availableSpace =
+          containerWidth - (largestDimension + 1) * props.gap
+
+        const squareSide = availableSpace / largestDimension
+
+        const boardWidth = gap + (squareSide + gap) * width
+        const boardHeight = gap + (squareSide + gap) * height
 
         const styles = {
-          'grid-template-rows': `repeat(${height}, 1fr)`,
-          'grid-template-columns': `repeat(${width}, 1fr)`,
-          gap: `${props.gap}em`,
-          padding: `${props.gap}em`,
+          height: `${boardHeight}px`,
+          width: `${boardWidth}px`,
+          'grid-template-rows': `repeat(${height}, ${squareSide}px)`,
+          'grid-template-columns': `repeat(${width}, ${squareSide}px)`,
+          gap: `${props.gap}px`,
+          padding: `${props.gap}px`,
         }
 
         return styles
-      })
+      }
 
-      const handleSquareClick = (sqr) => {
+      const boardStyle = ref<LooseObject>(getBoardStyle())
+
+      const staggerTimeouts: { [key: string]: NodeJS.Timeout | null } = {
+        updateBoard: null,
+      }
+
+      const updateBoardSize = () => {
+        if (staggerTimeouts.updateBoard)
+          clearTimeout(staggerTimeouts.updateBoard)
+        staggerTimeouts.updateBoard = setTimeout(() => {
+          boardStyle.value = getBoardStyle()
+        }, 200)
+      }
+
+      const handleSquareClick = (sqr: SquareClass) => {
         context.emit('squareSelected', sqr)
       }
 
+      onMounted(() => {
+        updateBoardSize()
+
+        window.addEventListener('resize', updateBoardSize)
+      })
+
+      onBeforeUnmount(() => {
+        window.removeEventListener('resize', updateBoardSize)
+      })
+
+      watch([width, height], (newDimensions, oldDimensions) => {
+        if (
+          newDimensions[0] != oldDimensions[0] ||
+          newDimensions[1] != oldDimensions[1]
+        )
+          boardStyle.value = getBoardStyle()
+      })
+
       return {
         boardStyle,
+        container,
         handleSquareClick,
       }
     },
@@ -69,13 +132,21 @@
 
 <style lang="scss">
   .board {
-    background-color: $bg-secondary;
-    border-radius: $border-radius;
-    display: grid;
     width: 100%;
+    border-radius: $border-radius;
+    display: flex;
+    justify-content: center;
 
     &--inline {
       width: auto;
+    }
+
+    &__container {
+      background-color: $bg-secondary;
+      display: grid;
+      align-items: center;
+      justify-content: center;
+      transition: width 200ms, height 200ms;
     }
   }
 </style>
