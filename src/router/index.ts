@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
-import Roguelike from '@/views/Roguelike/Roguelike.vue'
+import Roguelike from '@/views/Roguelike.vue'
 import app from '@/main'
 import ElementHighlighterVue from '@/components/organisms/ElementHighlighter/ElementHighlighter.vue'
 import Standard from '@/views/Standard.vue'

@@ -8,7 +8,7 @@
         <div
           class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
         >
-          <Ranking :ranking-id="rankingId" with-run with-board />
+          <Ranking :game="game" with-run with-board />
 
           <v-btn
             prepend-icon="fas fa-fw fa-rotate-left"
@@ -49,11 +49,10 @@
       </div>
       <Game
         :game="game"
-        :ranking-id="rankingId"
         :time-to-idle="1000"
         :emit-moves-interval="15"
         :allow-endless="false"
-        :allow-square-selection="game.isRunning && game.activeItem"
+        :allow-square-selection="game.isRunning && game.activeItem !== undefined"
         disable-pause-screen
         restart-text="Give Up"
         @move="game.saveCurrent()"
@@ -93,14 +92,6 @@
               :chip-options="{ variant: 'tonal', size: 'x-small' }"
             />
           </div>
-          <HighScoreManager
-            ref="highscoreManager"
-            :ranking-id="rankingId"
-            :game="game"
-            :disabled="!isRankingWorthy || haveSubmitedScore"
-            @save="haveSubmitedScore = true"
-            use-submit
-          />
         </div>
       </div>
     </div>
@@ -126,10 +117,8 @@
   import RewardsManager from '@/components/organisms/RewardsManager.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
   import Ranking from '@/components/organisms/Ranking.vue'
-  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
   import DataChip from '@/components/atoms/DataChip/DataChip.vue'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
-  import useHighscoreHandler from './handlers/highscore'
   import SquareType from '@/model/2048/Square'
   import { SlotName } from '@/model/Game Utils/MemoryCard'
 
@@ -142,7 +131,6 @@
       RewardsManager,
       MemoryManager,
       Ranking,
-      HighScoreManager,
       DataChip,
     },
     setup() {
@@ -179,19 +167,13 @@
         game.load(route.query.load as SlotName)
       }
 
-      const { haveSubmitedScore, isRankingWorthy, highscoreManager } =
-        useHighscoreHandler(game as RoguelikeGameController)
+
 
       return {
         game: game as RoguelikeGameController,
-        rankingId,
         handleRunEnd,
         handleSquareSelected,
         handleSaveGame,
-        // Highscore
-        isRankingWorthy,
-        highscoreManager,
-        haveSubmitedScore,
         rewardsManager,
       }
     },

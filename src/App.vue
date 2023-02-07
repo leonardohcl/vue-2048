@@ -10,9 +10,6 @@
 </template>
 
 <script lang="ts">
-  import { LOAD_SCORE_MUTATION } from '@/store/ranking'
-
-  import { useStore } from 'vuex'
   import {
     ref,
     defineComponent,
@@ -29,9 +26,6 @@
     name: '2048',
     components: { ElementHighlighter, PageContainer },
     setup() {
-      const store = useStore()
-      store.commit(LOAD_SCORE_MUTATION)
-
       const elementHighlighter = ref<InstanceType<
         typeof ElementHighlighter
       > | null>(null)

@@ -6,7 +6,6 @@ import ConsumableItem, {
 import { SquareConsumableMeta } from '@/model/Game Utils/Item/interfaces/Square'
 import Inventory from '../Game Utils/Inventory'
 import IRoguelikeGameController from './interfaces/GameController'
-import RoguelikeRankingEntry from './RankingEntry'
 import Square from '@/model/2048/Square'
 import GameRewards from './GameRewards'
 import Item from '@/model/Game Utils/Item/Item'
@@ -14,6 +13,7 @@ import RoguelikeSaveFile from '../Game Utils/SaveFile/RoguelikeSaveFile'
 import { IRoguelikeGameProgress } from '../Game Utils/SaveFile/interfaces/GameProgress'
 import MemoryCard, { SlotName } from '../Game Utils/MemoryCard'
 import GameMode from '../Game Utils/GameMode'
+import LeaderboardEntry from '../Game Utils/Leaderboard/LeaderboardEntry'
 //#endregion
 export default class RoguelikeGameController
   extends GameController
@@ -48,9 +48,11 @@ export default class RoguelikeGameController
   get activeItem() {
     return this._activeItem
   }
-
   get memoryCard() {
     return this._memoryCard
+  }
+  get leaderboardId() {
+    return 'roguelike'
   }
 
   //#endregion
@@ -133,6 +135,7 @@ export default class RoguelikeGameController
     this.updateBestRun()
     const rewards = this.getRewards()
     this.inventory.wallet.add(rewards?.totalEarned ?? 0)
+    this.saveHighscore()
     this.saveCurrent()
   }
 
@@ -204,15 +207,16 @@ export default class RoguelikeGameController
   //#endregion
 
   //#region Ranking
-  getRankingEntry() {
-    const entry = super.getRankingEntry() as RoguelikeRankingEntry
-
-    entry.score = this.bestRun.score
-    entry.block = this.bestRun.highestBlock
-    entry.run = this.bestRun.run
-    entry.moves = this.bestRun.moves
-    entry.undos = this.bestRun.undos
-
+  getLeaderboardEntry() {
+    const entry = new LeaderboardEntry({
+      block: this.bestRun.highestBlock,
+      width: this.width,
+      height: this.height,
+      moves: this._bestRun.moves,
+      score: this._bestRun.score,
+      undos: this._bestRun.undos,
+      run: this._bestRun.run,
+    })
     return entry
   }
   //#endregion

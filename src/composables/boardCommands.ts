@@ -14,7 +14,7 @@ const COMMAND_KEYS: { [key: string]: MoveDirection } = {
   bottom: MoveDirection.Down,
 }
 
-type BoardCommand = MoveDirection | "undo"
+export type BoardCommand = MoveDirection | "undo"
 
 export function useGameCommands(game: GameController, swipeTarget = '', moveCallback?: (dir: BoardCommand, success: boolean, pointsAdded: number) => void) {
   const COOLDOWN: {

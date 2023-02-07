@@ -3,7 +3,7 @@
     <div class="regular__container">
       <div class="regular__hud">
         <div class="regular__hud--left">
-          <Ranking :ranking-id="rankingId" />
+          <Ranking :game="game" />
         </div>
         <div class="regular__hud--right">
           <MemoryManager :game="game" close-on-load />
@@ -12,7 +12,6 @@
       </div>
       <Game
         :game="game"
-        :rankingId="rankingId"
         :emit-moves-interval="15"
         :time-to-idle="1000"
         @idle="game.saveCurrent()"
@@ -23,7 +22,6 @@
       />
       <HighScoreManager
         :game="game"
-        :ranking-id="rankingId"
         ref="highScoreManager"
       />
     </div>
@@ -36,7 +34,6 @@
   import Ranking from '@/components/organisms/Ranking.vue'
   import Settings from '@/components/organisms/Settings.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import HighScoreManager from '@/components/organisms/HighScoreManager.vue'
 
   import { defineComponent } from 'vue'
 
@@ -53,10 +50,8 @@
       Ranking,
       Settings,
       MemoryManager,
-      HighScoreManager,
     },
     setup() {
-      const highScoreManager = ref()
 
       const game = reactive<GameController>(
         new GameController({
@@ -67,8 +62,6 @@
           updateDelay: 100,
         })
       )
-
-      const rankingId = computed(() => `${game.width}x${game.height}`)
 
       const handleSaveGame = (slotName: SlotName) => {
         game.save(slotName)
@@ -84,8 +77,6 @@
 
       return {
         game: game as GameController,
-        rankingId,
-        highScoreManager,
         handleSaveGame,
         handleLoadGame,
       }

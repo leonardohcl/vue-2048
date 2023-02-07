@@ -3,7 +3,7 @@ import Board from '../2048/Board'
 import SaveFile from '../Game Utils/SaveFile/SaveFile'
 import { IGameSettings } from '../Game Utils/SaveFile/interfaces/GameSettings'
 import IBoard from '../2048/interfaces/Board'
-import RankingEntry from './RankingEntry'
+import LeaderboardEntry from '../Game Utils/Leaderboard/LeaderboardEntry'
 import Game from '../2048/Game'
 import { MoveDirection, onUpdateSquareFn } from '../2048/interfaces/Game'
 import { SquareTrackingMeta } from './interfaces/Square'
@@ -12,6 +12,7 @@ import IGameController from './interfaces/GameController'
 import MemoryCard, { SlotName } from '../Game Utils/MemoryCard'
 import GameMode from '../Game Utils/GameMode'
 import RoguelikeSaveFile from '../Game Utils/SaveFile/RoguelikeSaveFile'
+import Leaderboard from '../Game Utils/Leaderboard/Leaderboard'
 
 //#endregion
 
@@ -30,6 +31,7 @@ export default class GameController extends Game implements IGameController {
   private _historySize = 0
   private _isWaintingUpdate = false
 
+  protected _leaderboard
   protected _memoryCard
   protected _undos = 0
   protected _moves = 0
@@ -86,6 +88,19 @@ export default class GameController extends Game implements IGameController {
   }
   get memoryCard() {
     return this._memoryCard
+  }
+  get leaderboardId() {
+    return `${this.width}x${this.height}`
+  }
+  get leaderboard() {
+    return this._leaderboard.getBoard(this.leaderboardId)
+  }
+
+  get isNewHighscore() {
+    return (
+      this._score > 0 &&
+      this._leaderboard.getBest(this.leaderboardId).score < this._score
+    )
   }
 
   //#endregion
@@ -208,7 +223,7 @@ export default class GameController extends Game implements IGameController {
   load(slotName: SlotName) {
     const save = this._memoryCard.slots[slotName]
     if (!save) return
-    
+
     this.reset()
     this.updateSettings(save.settings)
     this._score = save.progress.score ?? 0
@@ -262,6 +277,7 @@ export default class GameController extends Game implements IGameController {
     super.updateGameState()
     if (!this.isRunning) {
       this.pause(false)
+      this.saveHighscore()
     }
   }
 
@@ -289,10 +305,8 @@ export default class GameController extends Game implements IGameController {
 
   //#region Ranking
 
-  getRankingEntry() {
-    return new RankingEntry({
-      id: '',
-      name: '',
+  getLeaderboardEntry() {
+    return new LeaderboardEntry({
       height: this.height,
       width: this.width,
       block: this.highestBlock,
@@ -300,6 +314,12 @@ export default class GameController extends Game implements IGameController {
       moves: this._moves,
       undos: this._undos,
     })
+  }
+
+  saveHighscore() {
+    const entry = this.getLeaderboardEntry()
+    if (this._leaderboard.canJoinLeaderboard(this.leaderboardId, entry.score))
+      this._leaderboard.addEntry(this.leaderboardId, this.getLeaderboardEntry())
   }
   //#endregion
 
@@ -314,6 +334,7 @@ export default class GameController extends Game implements IGameController {
     this._memoryCard = new MemoryCard<SaveFile>(GameMode.Standard)
     this._historySize = historySize
     this._updateDelay = updateDelay
+    this._leaderboard = new Leaderboard()
     this.board = new Board(width, height)
   }
 }

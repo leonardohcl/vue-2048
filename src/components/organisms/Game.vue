@@ -50,7 +50,7 @@
       <div class="game__hud--score">
         <v-scroll-y-reverse-transition>
           <v-chip
-            v-if="newHighscore"
+            v-if="game.isNewHighscore"
             class="game__hud--new-highscore"
             size="x-small"
             color="error"
@@ -93,14 +93,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import GameController from '@/model/2048 Standard/GameController'
   import GameControls from '@/components/molecules/GameControls.vue'
   import Board from '@/components/molecules/Board.vue'
   import { computed, watch, ref } from 'vue'
-  import { useStore } from 'vuex'
-  import { useGameCommands } from '@/composables/boardCommands'
+  import { useGameCommands, BoardCommand } from '@/composables/boardCommands'
   import { remove } from 'lodash'
+  import Square from '@/model/2048/Square'
 
   export default {
     components: { Board, GameControls },
@@ -147,7 +147,6 @@
       restartText: { type: String, default: 'Restart' },
       newGameText: { type: String, default: 'New Game' },
       continueText: { type: String, default: 'Continue' },
-      rankingId: { type: String, required: true },
     },
     emits: [
       'move',
@@ -160,35 +159,13 @@
       'squareSelected',
     ],
     setup(props, context) {
-      const stateTracker = {
+      const stateTracker: {
+        moveCountdown: number
+        idleTimeout?: NodeJS.Timeout
+      } = {
         moveCountdown: props.emitMovesInterval,
-        idleTimeout: null,
+        idleTimeout: undefined,
       }
-
-      const store = useStore()
-
-      const ranking = computed(() => store.getters.ranking(props.rankingId))
-
-      const highScores = computed(() => {
-        if (ranking.value.length > 0)
-          return {
-            first: ranking.value[0].score,
-            last: ranking.value[ranking.value.length - 1].score,
-            count: ranking.value.length,
-          }
-
-        return {
-          first: 0,
-          last: 0,
-          count: 0,
-        }
-      })
-
-      const newHighscore = computed(
-        () =>
-          highScores.value.count > 0 &&
-          props.game._score > highScores.value.first
-      )
 
       const invalidMove = ref('')
       const boardClasses = computed(() => ({
@@ -206,7 +183,7 @@
         }, props.timeToIdle)
       }
 
-      const trackMove = (dir, success) => {
+      const trackMove = (dir: BoardCommand, success: boolean) => {
         if (!success) return
         stateTracker.moveCountdown--
         if (stateTracker.moveCountdown === 0) {
@@ -222,9 +199,13 @@
         }ms cubic-bezier(.15,.75,0,1)`,
       }))
 
-      const animatePoints = (dir, success, points) => {
+      const animatePoints = (
+        dir: BoardCommand,
+        success: boolean,
+        points: number
+      ) => {
         if (!points) return
-        const id = props.game._moves
+        const id = props.game.moves
         const point = {
           id,
           points: points < 0 ? points : '+' + points,
@@ -239,14 +220,18 @@
         }, props.pointAnimationDuration / 2)
       }
 
-      const trackInvalidMove = (dir, success) => {
+      const trackInvalidMove = (dir: BoardCommand, success: boolean) => {
         if (!success) {
           invalidMove.value = dir
           setTimeout(() => (invalidMove.value = ''), 200)
         } else invalidMove.value = ''
       }
 
-      const moveCallbacks = [trackInvalidMove]
+      const moveCallbacks: ((
+        dir: BoardCommand,
+        success: boolean,
+        points: number
+      ) => void)[] = [trackInvalidMove]
       if (props.emitMovesInterval) moveCallbacks.push(trackMove)
       if (props.timeToIdle) moveCallbacks.push(resetIdle)
       if (props.pointAnimationDuration) moveCallbacks.push(animatePoints)
@@ -258,7 +243,7 @@
           ? (dir, success, pointsGained) => {
               moveCallbacks.forEach((fn) => fn(dir, success, pointsGained))
             }
-          : null
+          : undefined
       )
 
       const gameEnded = computed(() => props.game.winner || props.game.gameOver)
@@ -269,15 +254,13 @@
         }
       })
 
-      const handleSquareSelected = (sqr) => {
+      const handleSquareSelected = (sqr: Square) => {
         if (props.allowSquareSelection) context.emit('squareSelected', sqr)
       }
 
       return {
         move,
         undo,
-        highScores,
-        newHighscore,
         boardClasses,
         animatedPoints,
         animatedPointsStyle,
