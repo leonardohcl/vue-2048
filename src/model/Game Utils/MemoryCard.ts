@@ -72,6 +72,7 @@ export default class MemoryCard<T> implements IMemoryCard<T> {
       })
 
     } catch (err) {
+      localStorage.removeItem(this.key)
       throw new CorruptedMemoryError()
     }
   }

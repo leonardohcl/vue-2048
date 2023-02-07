@@ -3,7 +3,7 @@
     <div class="regular__container">
       <div class="regular__hud">
         <div class="regular__hud--left">
-          <Ranking :game="game" />
+          <Leaderboard :game="game" />
         </div>
         <div class="regular__hud--right">
           <MemoryManager :game="game" close-on-load />
@@ -20,10 +20,6 @@
         @restart="game.restart()"
         @set-endless="game.activateEndless()"
       />
-      <HighScoreManager
-        :game="game"
-        ref="highScoreManager"
-      />
     </div>
   </div>
 </template>
@@ -31,13 +27,13 @@
 <script lang="ts">
   import PageContainer from '@/components/atoms/PageContainer.vue'
   import Game from '@/components/organisms/Game.vue'
-  import Ranking from '@/components/organisms/Ranking.vue'
+  import Leaderboard from '@/components/organisms/Leaderboard.vue'
   import Settings from '@/components/organisms/Settings.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
   import { defineComponent } from 'vue'
 
-  import { ref, reactive, computed } from 'vue'
+  import { reactive } from 'vue'
   import { useRoute } from 'vue-router'
 
   import GameController from '@/model/2048 Standard/GameController'
@@ -47,7 +43,7 @@
     components: {
       PageContainer,
       Game,
-      Ranking,
+      Leaderboard,
       Settings,
       MemoryManager,
     },
@@ -111,4 +107,5 @@
       width: 100%;
     }
   }
+}
 </style>

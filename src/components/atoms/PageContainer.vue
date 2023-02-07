@@ -69,7 +69,7 @@ export default defineComponent({
 .page {
   width: 100vw;
   height: 100vh;
-  padding: 2rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   margin-top: 0;
@@ -80,66 +80,51 @@ export default defineComponent({
   &--home-screen {
     #{$page-class-prefix} {
       &__title {
-        padding: 8rem 0 4rem;
+        padding: 4rem;
         &--text {
-          font-size: 6rem;
+          font-size: 4rem;
         }
       }
     }
+  }
 
-    &__title {
-      text-align: center;
-      display: flex;
-      align-items: center;
-      padding: 1rem 0;
-      transition: padding $page-animation-duration $page-animation-ease;
+  &__title {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    padding: 0 0 1rem;
+    transition: padding $page-animation-duration $page-animation-ease;
 
-      &--text {
-        position: relative;
-        display: inline-block;
-        align-items: center;
-        font-size: 3rem;
-        font-weight: bold;
-        margin: 0 auto;
-        text-align: center;
-        color: $text-color !important;
-        text-decoration: none !important;
-        transition: font-size $page-animation-duration $page-animation-ease;
-      }
-
-      &__game-mode {
-        position: absolute !important;
-        text-transform: capitalize;
-        font-weight: bold !important;
-        bottom: -5px;
-        right: -10px;
-      }
-
-      &__content {
-        position: relative;
-        flex: 1 1 auto;
-        & > * {
-          width: 100%;
-          flex-shrink: 0;
-        }
-      }
-    }
-
-    &__game-mode {
-      position: absolute !important;
-      text-transform: capitalize;
-      font-weight: bold !important;
-      bottom: -5px;
-      right: -10px;
-    }
-
-    &__content {
+    &--text {
       position: relative;
-      flex: 1 1 100%;
-      & > * {
-        width: 100%;
-        flex-shrink: 0;
-      }
+      display: inline-block;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0 auto;
+      text-align: center;
+      color: $text-color !important;
+      text-decoration: none !important;
+      transition: font-size $page-animation-duration $page-animation-ease;
+    }
+  }
+
+  &__game-mode {
+    position: absolute !important;
+    text-transform: capitalize;
+    font-weight: bold !important;
+    bottom: -1em;
+    right: -2em;
+    transform: scale(0.8);
+  }
+
+  &__content {
+    position: relative;
+    flex: 0 1 100%;
+
+    & > * {
+      width: 100%;
+      height: 100%;
     }
   }
 }

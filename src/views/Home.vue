@@ -98,7 +98,6 @@ export default {
     const lastGame = computed(() => memoryCard.value.lastGame);
 
     const handleLoad = (slotName: SlotName) => {
-      console.log(slotName);
       router.push({
         name: gameMode.value as GameMode,
         query: { load: slotName },
@@ -125,14 +124,14 @@ export default {
 <style lang="scss">
 .home {
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: 1 1 100%;
 
   &__hud {
     flex-basis: 100%;
-    min-width: 200px;
+    width: 100%;
     max-width: 400px;
     display: flex;
     justify-content: center;

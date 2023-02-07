@@ -89,7 +89,7 @@
         @square-selected="handleSquareSelected"
       />
     </div>
-    <GameControls class="game__controls" :game="game" @command="move" />
+    <GameControls class="game__controls d-none d-sm-flex" :game="game" @command="move" />
   </div>
 </template>
 

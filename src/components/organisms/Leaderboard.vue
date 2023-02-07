@@ -2,7 +2,7 @@
   <div class="ranking">
     <v-btn v-bind="buttonAttrs" @click="rankingModal.open()" />
     <LeaderboardModal
-      :leaderboard="game.leaderboard"
+      :leaderboard="game.leaderboard ?? []"
       :with-board="withBoard"
       :with-run="withRun"
       ref="rankingModal"

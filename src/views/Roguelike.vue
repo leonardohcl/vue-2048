@@ -8,7 +8,7 @@
         <div
           class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
         >
-          <Ranking :game="game" with-run with-board />
+          <Leaderboard :game="game" with-run with-board />
 
           <v-btn
             prepend-icon="fas fa-fw fa-rotate-left"
@@ -116,7 +116,7 @@
   import InventoryManager from '@/components/organisms/InventoryManager.vue'
   import RewardsManager from '@/components/organisms/RewardsManager.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import Ranking from '@/components/organisms/Ranking.vue'
+  import Leaderboard from '@/components/organisms/Leaderboard.vue'
   import DataChip from '@/components/atoms/DataChip/DataChip.vue'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
   import SquareType from '@/model/2048/Square'
@@ -130,7 +130,7 @@
       InventoryManager,
       RewardsManager,
       MemoryManager,
-      Ranking,
+      Leaderboard,
       DataChip,
     },
     setup() {

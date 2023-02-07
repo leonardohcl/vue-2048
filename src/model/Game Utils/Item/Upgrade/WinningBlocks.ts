@@ -6,7 +6,6 @@ import UpgradeItem, {
 
 export default class WinningBlockUpgrade extends UpgradeItem {
   protected getValue(amount: number) {
-    console.log(amount)
     const baseLog = Math.log2(this.startingValue)
     return 2 ** (baseLog + amount)
   }
