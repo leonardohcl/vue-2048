@@ -355,7 +355,7 @@
       }
 
       const refreshPosition = () => {
-        if(!display.value) return;
+        if (!display.value) return
         clearTimeout(memory.refreshTimeout)
         memory.refreshTimeout = setTimeout(() => {
           highlight(memory.lastHighlight.selector, {
@@ -364,7 +364,7 @@
             padding: memory.lastHighlight.padding,
             bgColor: memory.lastHighlight.bgColor,
             bgOpacity: memory.lastHighlight.bgOpacity,
-            bgCallbacks: memory.lastHighlight.bgCallbacks
+            bgCallbacks: memory.lastHighlight.bgCallbacks,
           })
         }, config.resizeStagger)
       }
@@ -431,10 +431,11 @@
     &__dialog {
       width: max-content;
       height: max-content;
+      pointer-events: all;
       &-container {
         position: absolute;
         z-index: $hud-z-index + 2;
-        pointer-events: all;
+        pointer-events: none;
         overflow: visible;
 
         &--content {
@@ -445,6 +446,7 @@
           gap: $default-spacing * 0.25;
           padding: $default-spacing * 0.5;
           width: 100%;
+          pointer-events: none;
         }
 
         &--h {

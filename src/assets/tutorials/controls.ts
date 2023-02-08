@@ -2,7 +2,6 @@ import { ITutorial } from "@/model/Game Utils/Tutorial";
 
 const tutorial: ITutorial = {
   title: "Controls",
-  stepDuration: 500,
   routine: [
     {
       highlight: ".board",

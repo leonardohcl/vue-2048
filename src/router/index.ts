@@ -1,33 +1,34 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "@/views/Home.vue";
-import Roguelike from "@/views/Roguelike.vue";
-import app from "@/main";
-import ElementHighlighterVue from "@/components/organisms/ElementHighlighter/ElementHighlighter.vue";
-import Standard from "@/views/Standard.vue";
-import GameMode from "@/model/Game Utils/GameMode";
-import NavbarVue from "@/components/organisms/Navbar/Navbar.vue";
-import StandardModeTutorial from "@/assets/tutorials/standard-mode";
-import StandardGameplayTutorial from "@/assets/tutorials/standard-gameplay";
-import ControlsTutorial from "@/assets/tutorials/controls";
+import { createRouter, createWebHashHistory } from 'vue-router'
+import Home from '@/views/Home.vue'
+import Roguelike from '@/views/Roguelike.vue'
+import app from '@/main'
+import ElementHighlighterVue from '@/components/organisms/ElementHighlighter/ElementHighlighter.vue'
+import Standard from '@/views/Standard.vue'
+import GameMode from '@/model/Game Utils/GameMode'
+import NavbarVue from '@/components/organisms/Navbar/Navbar.vue'
+import Tutorial from '@/assets/tutorials'
 
 const routes = [
   {
-    path: "/",
-    name: "home",
+    path: '/',
+    name: 'home',
     component: Home,
     meta: {
       homeScreen: true,
       conditionalEnterFrom: (previousTransitionDirection: string) => {
         switch (previousTransitionDirection) {
-          case "left":
-            return "right";
-          case "right":
-            return "left";
+          case 'left':
+            return 'right'
+          case 'right':
+            return 'left'
           default:
-            return "fade";
+            return 'fade'
         }
       },
-      tutorials: [{ ...StandardGameplayTutorial, title: "Standard Mode" }],
+      tutorials: [
+        { ...Tutorial.StandardGameplay, title: 'Standard Mode' },
+        { ...Tutorial.RoguelikeGameplay, title: 'Roguelike Mode' },
+      ],
     },
   },
   {
@@ -35,14 +36,14 @@ const routes = [
     name: GameMode.Standard,
     component: Standard,
     meta: {
-      navigateTo: "/",
-      enterFrom: "left",
+      navigateTo: '/',
+      enterFrom: 'left',
       gameMode: GameMode.Standard,
-      gameModeTheme: { color: "plain", variant: "tonal" },
+      gameModeTheme: { color: 'plain', variant: 'tonal' },
       tutorials: [
-        StandardModeTutorial,
-        StandardGameplayTutorial,
-        ControlsTutorial,
+        Tutorial.StandardMode,
+        Tutorial.StandardGameplay,
+        Tutorial.Controls,
       ],
     },
   },
@@ -51,37 +52,46 @@ const routes = [
     name: GameMode.Roguelike,
     component: Roguelike,
     meta: {
-      navigateTo: "/",
-      enterFrom: "right",
+      navigateTo: '/',
+      enterFrom: 'right',
       gameMode: GameMode.Roguelike,
-      gameModeTheme: { color: "secondary" },
+      gameModeTheme: { color: 'secondary' },
+      tutorials: [
+        Tutorial.RoguelikeMode,
+        Tutorial.RoguelikeGameplay,
+        Tutorial.Controls,
+        Tutorial.Rewards,
+        Tutorial.Purchase,
+        Tutorial.Items,
+        Tutorial.Upgrades,
+      ],
     },
   },
-];
+]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-});
+})
 
 router.beforeEach((to, from) => {
-  if (!from.name) return;
-  if (!app._instance) return;
+  if (!from.name) return
+  if (!app._instance) return
 
-  const highlighter = app._instance.refs.elementHighlighter;
+  const highlighter = app._instance.refs.elementHighlighter
   if (highlighter) {
-    (highlighter as typeof ElementHighlighterVue).dismiss();
+    ;(highlighter as typeof ElementHighlighterVue).dismiss()
   }
 
-  const navbar = app._instance.refs.navbar;
-  if (navbar) (navbar as typeof NavbarVue).setGame();
-});
+  const navbar = app._instance.refs.navbar
+  if (navbar) (navbar as typeof NavbarVue).setGame()
+})
 
 router.afterEach((to, from) => {
-  to.meta.previousPage = from.name;
-  to.meta.previousGameMode = from.meta.gameMode;
-  to.meta.previousGameModeTheme = from.meta.gameModeTheme;
-  to.meta.previousTransitionDirection = from.meta.enterFrom;
-});
+  to.meta.previousPage = from.name
+  to.meta.previousGameMode = from.meta.gameMode
+  to.meta.previousGameModeTheme = from.meta.gameModeTheme
+  to.meta.previousTransitionDirection = from.meta.enterFrom
+})
 
-export default router;
+export default router

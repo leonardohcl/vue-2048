@@ -11,7 +11,7 @@ export class BreakBlock extends ConsumableItem {
     }
 
     constructor({
-        name = 'Break Block',
+        name = 'Break',
         price = 40,
         icon = 'fas fa-hammer',
         quantity = 0,

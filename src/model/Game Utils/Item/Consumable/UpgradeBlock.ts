@@ -11,7 +11,7 @@ export class UpgradeBlock extends ConsumableItem {
     }
 
     constructor({
-        name = 'Upgrade Block',
+        name = 'Upgrade',
         price = 240,
         icon = 'fas fa-square-plus',
         quantity = 0,

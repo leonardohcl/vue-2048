@@ -17,7 +17,7 @@ export class MoveBlock extends ConsumableItem {
     }
 
     constructor({
-        name = 'Move Block',
+        name = 'Move',
         price = 400,
         icon = 'fas fa-hand',
         quantity = 0,

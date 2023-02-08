@@ -2,9 +2,7 @@
   <component
     :is="tag"
     class="sidebar-item"
-    :class="{
-      'sidebar-item--active': active,
-    }"
+    :class="[`sidebar-item__${item.id}`, active && 'sidebar-item--active']"
   >
     <v-badge
       :content="`${item.quantity}/${item.capacity}`"
@@ -198,8 +196,8 @@
         left: 0;
         bottom: 0;
         transform: translate(-30%, 30%);
-        
-        @include screen-above(sm){
+
+        @include screen-above(sm) {
           transform: translate(-40%, 40%);
         }
       }

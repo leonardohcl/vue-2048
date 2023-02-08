@@ -6,24 +6,6 @@
       </div>
       <div class="roguelike__hud--main">
         <div class="roguelike__status">
-          <!-- <div
-          class="roguelike__status--entry roguelike__status--full-width-entry pa-0"
-        >
-          <v-btn
-            prepend-icon="fas fa-fw fa-rotate-left"
-            variant="plain"
-            size="small"
-            color="secondary"
-            outlined
-            @click="game.reset()"
-          >
-            Start Over
-          </v-btn>
-
-          <div>
-            <MemoryManager :game="game" close-on-load />
-          </div>
-        </div> -->
           <div class="roguelike__status--entry">
             <DataChip
               prepend-icon="fas fa-fw fa-person-running"
@@ -37,6 +19,7 @@
           </div>
           <div class="roguelike__status--entry justify-end">
             <DataChip
+              class="coins"
               append-icon="fas fa-fw fa-coins"
               size="small"
               color="warning"
@@ -54,8 +37,9 @@
           :allow-square-selection="
             game.isRunning && game.activeItem !== undefined
           "
+          :new-game-text="`Start Run ${game.run + 1}`"
           disable-pause-screen
-          restart-text="Give Up"
+          restart-text="End Run"
           @move="game.saveCurrent()"
           @idle="game.saveCurrent()"
           @new-game="game.start()"
@@ -104,176 +88,176 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
+  import { defineComponent, inject, reactive, ref } from 'vue'
+  import { useRoute } from 'vue-router'
 
-import Game from "@/components/organisms/Game.vue";
-import Square from "@/components/atoms/Square.vue";
-import UpgradeShop from "@/components/organisms/UpgradeShop.vue";
-import InventoryManager from "@/components/organisms/InventoryManager.vue";
-import RewardsManager from "@/components/organisms/RewardsManager.vue";
-import MemoryManager from "@/components/organisms/MemoryManager.vue";
-import Leaderboard from "@/components/organisms/Leaderboard.vue";
-import DataChip from "@/components/atoms/DataChip/DataChip.vue";
-import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
-import SquareType from "@/model/2048/Square";
-import { SlotName } from "@/model/Game Utils/MemoryCard";
-import { Highlighter, Navbar } from "@/keys";
+  import Game from '@/components/organisms/Game.vue'
+  import Square from '@/components/atoms/Square.vue'
+  import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
+  import InventoryManager from '@/components/organisms/InventoryManager.vue'
+  import RewardsManager from '@/components/organisms/RewardsManager.vue'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
+  import Leaderboard from '@/components/organisms/Leaderboard.vue'
+  import DataChip from '@/components/atoms/DataChip/DataChip.vue'
+  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
+  import SquareType from '@/model/2048/Square'
+  import { SlotName } from '@/model/Game Utils/MemoryCard'
+  import { Highlighter, Navbar } from '@/keys'
 
-export default defineComponent({
-  components: {
-    Game,
-    Square,
-    UpgradeShop,
-    InventoryManager,
-    RewardsManager,
-    MemoryManager,
-    Leaderboard,
-    DataChip,
-  },
-  setup() {
-    const rewardsManager = ref();
+  export default defineComponent({
+    components: {
+      Game,
+      Square,
+      UpgradeShop,
+      InventoryManager,
+      RewardsManager,
+      MemoryManager,
+      Leaderboard,
+      DataChip,
+    },
+    setup() {
+      const rewardsManager = ref()
 
-    const game = reactive(
-      new RoguelikeGameController({
-        width: 3,
-        height: 3,
-        winningBlock: 64,
-        updateDelay: 100,
-        historySize: 0,
-      })
-    );
+      const game = reactive(
+        new RoguelikeGameController({
+          width: 3,
+          height: 3,
+          winningBlock: 64,
+          updateDelay: 100,
+          historySize: 0,
+        })
+      )
 
-    const navbar = inject(Navbar);
-    navbar?.setGame(game as RoguelikeGameController, { showSettings: false });
+      const navbar = inject(Navbar)
+      navbar?.setGame(game as RoguelikeGameController, { showSettings: false })
 
-    const handleSaveGame = (slotName: SlotName) => {
-      game.save(slotName);
-    };
+      const handleSaveGame = (slotName: SlotName) => {
+        game.save(slotName)
+      }
 
-    const highlighter = inject(Highlighter);
+      const highlighter = inject(Highlighter)
 
-    const handleSquareSelected = (sqr: SquareType) => {
-      const consumed = game.selectSquare(sqr);
-      if (consumed) highlighter?.dismiss();
-    };
+      const handleSquareSelected = (sqr: SquareType) => {
+        const consumed = game.selectSquare(sqr)
+        if (consumed) highlighter?.dismiss()
+      }
 
-    const handleRunEnd = (forceEnd = false) => {
-      if (forceEnd) game.endRun();
-      rewardsManager.value?.open();
-    };
+      const handleRunEnd = (forceEnd = false) => {
+        if (forceEnd) game.endRun()
+        rewardsManager.value?.open()
+      }
 
-    const route = useRoute();
+      const route = useRoute()
 
-    if (route.query.load) {
-      game.load(route.query.load as SlotName);
-    }
+      if (route.query.load) {
+        game.load(route.query.load as SlotName)
+      }
 
-    return {
-      game: game as RoguelikeGameController,
-      handleRunEnd,
-      handleSquareSelected,
-      handleSaveGame,
-      rewardsManager,
-    };
-  },
-});
+      return {
+        game: game as RoguelikeGameController,
+        handleRunEnd,
+        handleSquareSelected,
+        handleSaveGame,
+        rewardsManager,
+      }
+    },
+  })
 </script>
 
 <style lang="scss">
-.roguelike {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: $default-spacing * 0.25;
-
-  @include screen-above(sm) {
-    align-items: stretch;
-  }
-
-  @include screen-above(md) {
-    gap: $default-spacing * 0.5;
-  }
-
-  &__hud {
-    padding: 0 2rem;
-    width: 100%;
-    position: relative;
+  .roguelike {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: $default-spacing * 0.25;
 
     @include screen-above(sm) {
+      align-items: stretch;
+    }
+
+    @include screen-above(md) {
       gap: $default-spacing * 0.5;
     }
 
-    &--main {
+    &__hud {
+      padding: 0 2rem;
       width: 100%;
-      max-width: 400px;
-    }
-  }
-
-  &__status {
-    display: flex;
-    justify-content: space-between;
-    padding: $default-spacing * 0.25 0;
-  }
-
-  &__sidebar {
-    display: flex;
-    z-index: $hud-z-index + 1;
-    top: 2rem;
-    position: absolute;
-
-    @include screen-above(sm) {
-      position: initial !important;
-    }
-
-    &--left {
-      left: -1rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
 
       @include screen-above(sm) {
-        justify-content: flex-end;
+        gap: $default-spacing * 0.5;
+      }
+
+      &--main {
+        width: 100%;
+        max-width: 400px;
       }
     }
 
-    &--right {
-      right: -1rem;
-      @include screen-above(sm) {
-        justify-content: flex-start;
-      }
-    }
-  }
-
-  &__best {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0 $default-spacing * 0.5;
-    padding: 0 2rem;
-
-    @include screen-above(sm) {
-      flex-wrap: nowrap;
+    &__status {
+      display: flex;
+      justify-content: space-between;
+      padding: $default-spacing * 0.25 0;
     }
 
-    &--title {
-      display: block;
-      width: 100%;
-      justify-self: flex-start;
+    &__sidebar {
+      display: flex;
+      z-index: $hud-z-index + 1;
+      top: 2rem;
+      position: absolute;
 
       @include screen-above(sm) {
-        width: unset;
+        position: initial !important;
+      }
+
+      &--left {
+        left: -1rem;
+
+        @include screen-above(sm) {
+          justify-content: flex-end;
+        }
+      }
+
+      &--right {
+        right: -1rem;
+        @include screen-above(sm) {
+          justify-content: flex-start;
+        }
       }
     }
 
-    &--data {
+    &__best {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: $default-spacing * 0.5;
-      width: 100%;
+      flex-wrap: wrap;
+      gap: 0 $default-spacing * 0.5;
+      padding: 0 2rem;
+
+      @include screen-above(sm) {
+        flex-wrap: nowrap;
+      }
+
+      &--title {
+        display: block;
+        width: 100%;
+        justify-self: flex-start;
+
+        @include screen-above(sm) {
+          width: unset;
+        }
+      }
+
+      &--data {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $default-spacing * 0.5;
+        width: 100%;
+      }
     }
   }
-}
 </style>

@@ -7,7 +7,7 @@ const tutorial: ITutorial = {
       highlight: { x: "center", y: "center" },
       dialog: {
         content:
-          "2048 is a puzzle game where the objective is to slide blocks on a grid to combine them and create a tile with the number 2048.",
+          "2048 is a puzzle game where the objective is to slide blocks on the board to combine them and create a block with the number 2048.",
         config: {
           maxWidth: 300,
         },
@@ -38,7 +38,7 @@ const tutorial: ITutorial = {
     {
       dialog: {
         content:
-          "When two blocks with the same number touch, they merge into a single tile with the combined value.",
+          "When two blocks with the same number touch, they merge into a single block with the combined value.",
         append: true,
         config: {
           maxWidth: 300,
@@ -48,7 +48,7 @@ const tutorial: ITutorial = {
     {
       dialog: {
         content:
-          "You win the if you can keep merging blocks until you reach the 2048 tile.",
+          "You win the if you can keep merging blocks until you reach the 2048 block.",
         config: {
           maxWidth: 300,
         },

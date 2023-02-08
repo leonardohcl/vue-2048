@@ -11,7 +11,7 @@ export class ShrinkBlock extends ConsumableItem {
     }
 
     constructor({
-        name = "Shrink Block",
+        name = "Shrink",
         price = 80,
         icon = 'fas fa-square-minus',
         quantity = 0,
