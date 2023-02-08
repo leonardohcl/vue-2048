@@ -17,7 +17,7 @@ const tutorial: ITutorial = {
       highlightConfig: {padding: 10},
       dialog: {
         content:
-          "You can also use this buttons to move,",
+          "You can also use the arrows on the keyboard or this buttons to move,",
       },
       dialogPosition: { vertical: "top", horizontal: "center" },
     },
