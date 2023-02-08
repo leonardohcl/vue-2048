@@ -1,4 +1,5 @@
 <template>
+  <Navbar ref="navbar" />
   <PageContainer>
     <router-view v-slot="{ Component, route }">
       <Transition :name="getTransitionName(route.meta)">
@@ -15,22 +16,29 @@ import {
   defineComponent,
   provide,
   reactive,
-  watch,
+  onMounted,
 } from "@vue/runtime-core";
-import { Highlighter } from "@/keys";
+import { Highlighter, Navbar as NavbarKey } from "@/keys";
 import ElementHighlighter from "./components/organisms/ElementHighlighter/ElementHighlighter.vue";
 import HighlighterFunctions from "@/components/organisms/ElementHighlighter/model/HighlighterFunctions";
 import PageContainer from "./components/atoms/PageContainer.vue";
 import LooseObject from "./utils/LooseObject";
+import Navbar from "./components/organisms/Navbar/Navbar.vue";
+import NavbarFunctions from "./components/organisms/Navbar/model/NavbarFunctions";
+
 export default defineComponent({
   name: "2048",
-  components: { ElementHighlighter, PageContainer },
+  components: { ElementHighlighter, PageContainer, Navbar },
   setup() {
-    const elementHighlighter = ref<InstanceType<
-      typeof ElementHighlighter
-    > | null>(null);
+    const elementHighlighter = ref<InstanceType<typeof ElementHighlighter>>();
 
     const highlighter = reactive(new HighlighterFunctions());
+
+    const navbar = ref<InstanceType<typeof Navbar>>();
+    const navbarFunctions = reactive(new NavbarFunctions());
+
+    provide<HighlighterFunctions>(Highlighter, highlighter);
+    provide<NavbarFunctions>(NavbarKey, navbarFunctions);
 
     const getTransitionName = (meta: LooseObject) => {
       const prefix = "page-swap-";
@@ -45,22 +53,25 @@ export default defineComponent({
       return prefix + animation;
     };
 
-    provide<HighlighterFunctions>(Highlighter, highlighter);
+    onMounted(() => {
+      if (elementHighlighter.value) {
+        highlighter.highlight = elementHighlighter.value.highlight;
+        highlighter.dismiss = elementHighlighter.value.dismiss;
+        highlighter.addText = elementHighlighter.value.addText;
+        highlighter.clearText = elementHighlighter.value.clearText;
+        highlighter.removeText = elementHighlighter.value.removeText;
+        highlighter.setConfig = elementHighlighter.value.setConfig;
+        highlighter.setBackgroundCallback = (bgCallback) => {
+          highlighter.setConfig({ bgCallback });
+        };
+      }
 
-    watch(elementHighlighter, (el) => {
-      if (!el) return;
-      highlighter.highlight = el.highlight;
-      highlighter.dismiss = el.dismiss;
-      highlighter.addText = el.addText;
-      highlighter.clearText = el.clearText;
-      highlighter.removeText = el.removeText;
-      highlighter.setConfig = el.setConfig;
-      highlighter.setBackgroundCallback = (bgCallback) => {
-        highlighter.setConfig({ bgCallback });
-      };
+      if (navbar.value) {
+        navbarFunctions.setGame = navbar.value.setGame;
+      }
     });
 
-    return { elementHighlighter, getTransitionName };
+    return { navbar, elementHighlighter, getTransitionName };
   },
 });
 </script>

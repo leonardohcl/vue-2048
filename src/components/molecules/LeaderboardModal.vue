@@ -6,7 +6,7 @@
     v-model="isOpen"
     transition="slide-y-transition"
   >
-    <v-card title="Ranking" prepend-icon="fas fa-fw fa-ranking-star">
+    <v-card title="Leaderboard" prepend-icon="fas fa-fw fa-ranking-star">
       <v-card-text>
         <LeaderboardEntry
           v-for="(entry, idx) in leaderboard"

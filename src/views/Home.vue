@@ -41,6 +41,7 @@
         :theme="theme"
         :allow-save="false"
         :load-button-options="{
+          prependIcon: '',
           text: 'Load Game',
           color: theme,
           block: true,
@@ -48,7 +49,9 @@
           variant: 'elevated',
         }"
         @load="handleLoad"
-      />
+      >
+        <template #load-button> Load Game </template>
+      </MemoryManager>
     </div>
   </div>
 </template>

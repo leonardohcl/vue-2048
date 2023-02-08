@@ -1,15 +1,6 @@
 <template>
   <div class="regular">
     <div class="regular__container">
-      <div class="regular__hud">
-        <div class="regular__hud--left">
-          <Leaderboard :game="game" />
-        </div>
-        <div class="regular__hud--right">
-          <MemoryManager :game="game" close-on-load />
-          <Settings :game="game" />
-        </div>
-      </div>
       <Game
         :game="game"
         :emit-moves-interval="15"
@@ -25,59 +16,62 @@
 </template>
 
 <script lang="ts">
-  import PageContainer from '@/components/atoms/PageContainer.vue'
-  import Game from '@/components/organisms/Game.vue'
-  import Leaderboard from '@/components/organisms/Leaderboard.vue'
-  import Settings from '@/components/organisms/Settings.vue'
-  import MemoryManager from '@/components/organisms/MemoryManager.vue'
+import PageContainer from "@/components/atoms/PageContainer.vue";
+import Game from "@/components/organisms/Game.vue";
+import Leaderboard from "@/components/organisms/Leaderboard.vue";
+import Settings from "@/components/organisms/Settings.vue";
+import MemoryManager from "@/components/organisms/MemoryManager.vue";
 
-  import { defineComponent } from 'vue'
+import { defineComponent, inject } from "vue";
 
-  import { reactive } from 'vue'
-  import { useRoute } from 'vue-router'
+import { reactive } from "vue";
+import { useRoute } from "vue-router";
 
-  import GameController from '@/model/2048 Standard/GameController'
-  import { SlotName } from '@/model/Game Utils/MemoryCard'
+import GameController from "@/model/2048 Standard/GameController";
+import { SlotName } from "@/model/Game Utils/MemoryCard";
+import { Navbar } from "@/keys";
 
-  export default defineComponent({
-    components: {
-      PageContainer,
-      Game,
-      Leaderboard,
-      Settings,
-      MemoryManager,
-    },
-    setup() {
+export default defineComponent({
+  components: {
+    PageContainer,
+    Game,
+    Leaderboard,
+    Settings,
+    MemoryManager,
+  },
+  setup() {
+    const game = reactive<GameController>(
+      new GameController({
+        width: 4,
+        height: 4,
+        winningBlock: 2048,
+        historySize: 2,
+        updateDelay: 100,
+      })
+    );
 
-      const game = reactive<GameController>(
-        new GameController({
-          width: 4,
-          height: 4,
-          winningBlock: 2048,
-          historySize: 2,
-          updateDelay: 100,
-        })
-      )
+    const navbar = inject(Navbar);
+    navbar?.setGame(game as GameController);
 
-      const handleSaveGame = (slotName: SlotName) => {
-        game.save(slotName)
-      }
+    const handleSaveGame = (slotName: SlotName) => {
+      game.save(slotName);
+    };
 
-      const handleLoadGame = (slotName: SlotName) => {
-        game.load(slotName)
-      }
+    const handleLoadGame = (slotName: SlotName) => {
+      game.load(slotName);
+    };
 
-      const route = useRoute()
+    const route = useRoute();
 
-      if (route.query.load) game.load(route.query.load as SlotName)
+    if (route.query.load) game.load(route.query.load as SlotName);
 
-      return {
-        game: game as GameController,
-        handleSaveGame,
-        handleLoadGame,
-      }
-    },
-  })
+    return {
+      game: game as GameController,
+      handleSaveGame,
+      handleLoadGame,
+    };
+  },
+});
 </script>
 
 <style lang="scss">

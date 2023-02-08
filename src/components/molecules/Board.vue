@@ -21,7 +21,7 @@
   import Square from '@/components/atoms/Square.vue'
   import { computed, ref, onBeforeUnmount, onMounted, watch } from 'vue'
   import SquareClass from '@/model/2048/Square'
-import LooseObject from '@/utils/LooseObject'
+  import LooseObject from '@/utils/LooseObject'
 
   export default {
     components: { Square },
@@ -146,7 +146,7 @@ import LooseObject from '@/utils/LooseObject'
       display: grid;
       align-items: center;
       justify-content: center;
-      transition: width 200ms, height 200ms;
+      transition: width 750ms, height 750ms;
     }
   }
 </style>

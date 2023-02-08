@@ -5,6 +5,7 @@ import app from '@/main'
 import ElementHighlighterVue from '@/components/organisms/ElementHighlighter/ElementHighlighter.vue'
 import Standard from '@/views/Standard.vue'
 import GameMode from '@/model/Game Utils/GameMode'
+import NavbarVue from '@/components/organisms/Navbar/Navbar.vue'
 
 const routes = [
   {
@@ -54,11 +55,16 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  if(!from.name) return
-  const highlighter = app._instance?.refs.elementHighlighter
+  if (!from.name) return
+  if (!app._instance) return
+
+  const highlighter = app._instance.refs.elementHighlighter
   if (highlighter) {
     (highlighter as typeof ElementHighlighterVue).dismiss()
   }
+
+  const navbar = app._instance.refs.navbar
+  if (navbar) (navbar as typeof NavbarVue).setGame()
 })
 
 router.afterEach((to, from) => {
