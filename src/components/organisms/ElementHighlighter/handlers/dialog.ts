@@ -15,8 +15,18 @@ export default function useDialogHandler(config: HighlighterConfig) {
     const dialogs = ref<HighlightDialog[]>([]);
 
 
-    const clearText = () => {
+    const clearText = (duration = 0) => {
+        if(!dialogs.value.length) return Promise.resolve()
+        dialogs.value.forEach(dialog => {
+            if (!dialog.style) dialog.style = {}
+            dialog.style.transitionDuration = `${duration}ms !important`
+        }
+        )
         dialogs.value = []
+
+        return new Promise<void>(resolve => {
+            setTimeout(() => { resolve() }, duration)
+        })
     }
 
     const fixDialogPad = (position: IHighlightDialogPosition) => {

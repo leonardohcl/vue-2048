@@ -11,7 +11,7 @@ export interface IHighlighterFunctions {
         transitionDuration?: number;
     }) => Promise<void>
     addText?: (dialog: IHighlightDialog, position?: IHighlightDialogPosition, animationDuration?: number) => void
-    clearText?: () => void
+    clearText?: (duration?: number) => Promise<void>
     removeText?: (id: string | number) => void
     setBackgroundCallback?: (bgCallback: (evt: MouseEvent) => void) => void
     setConfig?: (data: IHighlighterConfig) => void
@@ -34,7 +34,7 @@ export default class HighlighterFunctions implements IHighlighterFunctions {
         highlight = (selector: string | { x: number | string, y: number | string }) => { throwMissingReference(); return Promise.resolve() },
         dismiss = () => { throwMissingReference(); return Promise.resolve() },
         addText = (dialog: IHighlightDialog) => { throwMissingReference() },
-        clearText = () => { throwMissingReference() },
+        clearText = () => { throwMissingReference(); return Promise.resolve() },
         removeText = (id: string | number) => { throwMissingReference() },
         setBackgroundCallback = (bgCallback: (evt: MouseEvent) => void) => { throwMissingReference() },
         setConfig = (data: IHighlighterConfig) => { throwMissingReference() }

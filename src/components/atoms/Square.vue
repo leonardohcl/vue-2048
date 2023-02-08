@@ -143,7 +143,6 @@
     border-radius: $border-radius;
     background-color: fade-out($square-color, 0.8);
     font-size: 0.9rem;
-    transition: width 200ms, height 200ms;
 
     &--inline {
       padding-top: 2rem;

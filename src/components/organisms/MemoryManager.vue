@@ -3,11 +3,13 @@
     <v-btn
       v-if="allowSave"
       v-bind="saveButtonAttrs"
+      class="memory-manager__save"
       @click="handleOpenModal('save')"
     >
       <slot name="save-button" />
     </v-btn>
     <v-btn
+      class="memory-manager__load"
       v-if="allowLoad"
       v-bind="loadButtonAttrs"
       @click="handleOpenModal('load')"

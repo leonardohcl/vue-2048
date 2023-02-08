@@ -3,8 +3,9 @@
     <div class="navbar__left">
       <v-scroll-y-reverse-transition group>
         <v-btn
-          prepend-icon="fas fa-home"
           v-if="!isHome"
+          key="home"
+          prepend-icon="fas fa-home"
           v-bind="btnConfig"
           @click="$router.push('/')"
         >
@@ -12,6 +13,7 @@
         </v-btn>
         <Leaderboard
           v-if="game && display.leaderboard"
+          key="leaderboard"
           :game="game"
           :button-options="btnConfig"
           :with-board="isRoguelike"
@@ -25,6 +27,7 @@
       <v-scroll-y-reverse-transition group>
         <MemoryManager
           v-if="game"
+          key="memory"
           :game="game"
           :allow-load="display.load"
           :allow-save="display.save"
@@ -43,11 +46,21 @@
 
         <Settings
           v-if="game && display.settings"
+          key="settings"
           :game="game"
           :button-options="btnConfig"
         >
           <span class="d-none d-sm-inline"> Settings </span>
         </Settings>
+
+        <Help
+          v-if="tutorials.length"
+          key="help"
+          :tutorials="tutorials"
+          :button-options="btnConfig"
+        >
+          <span class="d-none d-sm-inline"> Help </span>
+        </Help>
       </v-scroll-y-reverse-transition>
     </div>
   </nav>
@@ -62,10 +75,16 @@ import { defineComponent, ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 import Settings from "../Settings.vue";
 import MemoryManager from "../MemoryManager.vue";
+import Help from "@/components/organisms/Help.vue";
 export default defineComponent({
-  components: { Settings, Leaderboard, MemoryManager },
+  components: { Settings, Leaderboard, MemoryManager, Help },
   setup() {
     const route = useRoute();
+    const meta = computed(() => route.meta ?? {});
+
+    const tutorials = computed<LooseObject[]>(
+      () => (meta.value.tutorials as LooseObject[]) ?? []
+    );
 
     const isHome = computed(() => route.name === "home");
 
@@ -79,6 +98,7 @@ export default defineComponent({
     const isRoguelike = computed(
       () => game.value instanceof RoguelikeGameController
     );
+
     const display = reactive<LooseObject>({
       settings: true,
       leaderboard: true,
@@ -108,6 +128,7 @@ export default defineComponent({
       isRoguelike,
       display,
       btnConfig,
+      tutorials,
       setGame,
     };
   },

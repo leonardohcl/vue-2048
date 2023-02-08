@@ -444,6 +444,7 @@
           justify-content: inherit;
           gap: $default-spacing * 0.25;
           padding: $default-spacing * 0.5;
+          width: 100%;
         }
 
         &--h {
