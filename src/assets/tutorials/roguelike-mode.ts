@@ -8,7 +8,7 @@ import PurchaseTutorial from './purchase'
 import ItemsTutorial from './items'
 import UpgradesTutorial from './upgrades'
 
-const routine: ITutorial = {
+const RoguelikeModeTutorial: ITutorial = {
   title: 'How to play',
   routine: [
     ...GameplayTutorial.routine,
@@ -21,4 +21,4 @@ const routine: ITutorial = {
   ],
 }
 
-export default routine
+export default RoguelikeModeTutorial

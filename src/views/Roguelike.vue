@@ -88,9 +88,8 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, inject, reactive, ref } from 'vue'
+  import { defineComponent, reactive, ref } from 'vue'
   import { useRoute } from 'vue-router'
-
   import Game from '@/components/organisms/Game.vue'
   import Square from '@/components/atoms/Square.vue'
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
@@ -102,7 +101,10 @@
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
   import SquareType from '@/model/2048/Square'
   import { SlotName } from '@/model/Game Utils/MemoryCard'
-  import { Highlighter, Navbar } from '@/keys'
+  import useNavbar from '@/composables/navbar'
+  import useHighlighter from '@/composables/highlighter'
+  import useTutorialHandler from '@/composables/tutorialRoutine'
+  import Tutorials from '@/assets/tutorials'
 
   export default defineComponent({
     components: {
@@ -128,14 +130,25 @@
         })
       )
 
-      const navbar = inject(Navbar)
+      const tutorialHandler = useTutorialHandler([
+        Tutorials.RoguelikeMode,
+        Tutorials.RoguelikeGameplay,
+        Tutorials.Controls,
+        Tutorials.Rewards,
+        Tutorials.Purchase,
+        Tutorials.Items,
+        Tutorials.Upgrades,
+      ])
+
+      const navbar = useNavbar()
       navbar?.setGame(game as RoguelikeGameController, { showSettings: false })
+      navbar?.setTutorialHandler(tutorialHandler)
 
       const handleSaveGame = (slotName: SlotName) => {
         game.save(slotName)
       }
 
-      const highlighter = inject(Highlighter)
+      const highlighter = useHighlighter()
 
       const handleSquareSelected = (sqr: SquareType) => {
         const consumed = game.selectSquare(sqr)

@@ -16,7 +16,7 @@
           <a href="https://github.com/leonardohcl/vue-2048">GitHub</a>
         </p>
         <p class="font-weight-thin font-italic">
-            version 1.0
+            version 1.0.1
         </p>
       </v-card-text>
       <v-card-actions class="justify-end">

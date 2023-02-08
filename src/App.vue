@@ -68,6 +68,7 @@ export default defineComponent({
 
       if (navbar.value) {
         navbarFunctions.setGame = navbar.value.setGame;
+        navbarFunctions.setTutorialHandler = navbar.value.setTutorialHandler;
       }
     });
 

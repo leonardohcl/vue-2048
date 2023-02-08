@@ -1,6 +1,6 @@
 import { ITutorial } from "@/model/Game Utils/Tutorial";
 
-const tutorial: ITutorial = {
+const ControlsTutorial: ITutorial = {
   title: "Controls",
   routine: [
     {
@@ -27,4 +27,4 @@ const tutorial: ITutorial = {
   ],
 };
 
-export default tutorial;
+export default ControlsTutorial;

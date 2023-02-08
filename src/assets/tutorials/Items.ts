@@ -5,7 +5,7 @@ import { UpgradeBlock } from '@/model/Game Utils/Item/Consumable/UpgradeBlock'
 import { Consumable } from '@/model/Game Utils/Item/ConsumableItem'
 import { ITutorial } from '@/model/Game Utils/Tutorial'
 
-const routine: ITutorial = {
+const ItemsTutorial: ITutorial = {
   title: 'Items',
   routine: [
     {
@@ -90,4 +90,4 @@ const routine: ITutorial = {
   ],
 }
 
-export default routine
+export default ItemsTutorial

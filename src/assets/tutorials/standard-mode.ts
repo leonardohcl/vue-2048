@@ -5,7 +5,7 @@ import ControlsTutorial from "./controls";
 import SettingsTutorial from "./settings";
 import MemoryTutorial from "./memory"
 
-const routine: ITutorial = {
+const StandardModeTutorial: ITutorial = {
   title: "How to play",
   routine: [
     ...GameplayTutorial.routine,
@@ -15,4 +15,4 @@ const routine: ITutorial = {
   ],
 };
 
-export default routine;
+export default StandardModeTutorial;

@@ -60,6 +60,7 @@
   import DialogBox from '@/components/atoms/DialogBox/DialogBox.vue'
   import useDialogHandler from './handlers/dialog'
   import { getPageSize } from '@/utils/viewport'
+import { onBeforeRouteLeave } from 'vue-router'
 
   export default {
     setup() {

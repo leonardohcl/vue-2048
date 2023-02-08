@@ -8,7 +8,7 @@ import Items from './Items'
 import Upgrades from './upgrades'
 import RoguelikeMode from './roguelike-mode'
 
-export default {
+const Tutorials = {
   RoguelikeMode,
   StandardGameplay,
   StandardMode,
@@ -19,3 +19,5 @@ export default {
   Items,
   Upgrades,
 }
+
+export default Tutorials

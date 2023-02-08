@@ -60,9 +60,9 @@
         </Settings>
 
         <Help
-          v-if="tutorials.length"
+          v-if="tutorialHandler && tutorialHandler.tutorials.length"
           key="help"
-          :tutorials="tutorials"
+          :tutorial-handler="tutorialHandler"
           :button-options="btnConfig"
         >
           <span class="d-none d-sm-inline"> Help </span>
@@ -85,17 +85,13 @@
   import Settings from '../Settings.vue'
   import MemoryManager from '../MemoryManager.vue'
   import Help from '@/components/organisms/Help.vue'
-  import { ITutorial } from '@/model/Game Utils/Tutorial'
   import About from '@/components/molecules/About.vue'
+  import { ITutorialHandler } from '@/composables/tutorialRoutine'
+
   export default defineComponent({
     components: { Settings, Leaderboard, MemoryManager, Help, About },
     setup() {
       const route = useRoute()
-      const meta = computed(() => route.meta ?? {})
-
-      const tutorials = computed<ITutorial[]>(
-        () => (meta.value.tutorials as ITutorial[]) ?? []
-      )
 
       const isHome = computed(() => route.name === 'home')
 
@@ -133,14 +129,21 @@
         display.load = showLoad
       }
 
+      const tutorialHandler = ref<ITutorialHandler>()
+
+      const setTutorialHandler = (handler?: ITutorialHandler) => {
+        tutorialHandler.value = handler
+      }
+
       return {
         game,
         isHome,
         isRoguelike,
         display,
         btnConfig,
-        tutorials,
+        tutorialHandler,
         setGame,
+        setTutorialHandler,
       }
     },
   })

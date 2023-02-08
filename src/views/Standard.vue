@@ -16,79 +16,79 @@
 </template>
 
 <script lang="ts">
-import PageContainer from "@/components/atoms/PageContainer.vue";
-import Game from "@/components/organisms/Game.vue";
-import Leaderboard from "@/components/organisms/Leaderboard.vue";
-import Settings from "@/components/organisms/Settings.vue";
-import MemoryManager from "@/components/organisms/MemoryManager.vue";
+  import PageContainer from '@/components/atoms/PageContainer.vue'
+  import Game from '@/components/organisms/Game.vue'
+  import Leaderboard from '@/components/organisms/Leaderboard.vue'
+  import Settings from '@/components/organisms/Settings.vue'
+  import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
-import { defineComponent, inject } from "vue";
+  import { defineComponent } from 'vue'
 
-import { reactive } from "vue";
-import { useRoute } from "vue-router";
+  import { reactive } from 'vue'
+  import { useRoute } from 'vue-router'
 
-import GameController from "@/model/2048 Standard/GameController";
-import { SlotName } from "@/model/Game Utils/MemoryCard";
-import { Navbar } from "@/keys";
+  import GameController from '@/model/2048 Standard/GameController'
+  import { SlotName } from '@/model/Game Utils/MemoryCard'
+  import useNavbar from '@/composables/navbar'
+  import Tutorials from '@/assets/tutorials'
+import useTutorialHandler from '@/composables/tutorialRoutine'
 
-export default defineComponent({
-  components: {
-    PageContainer,
-    Game,
-    Leaderboard,
-    Settings,
-    MemoryManager,
-  },
-  setup() {
-    const game = reactive<GameController>(
-      new GameController({
-        width: 4,
-        height: 4,
-        winningBlock: 2048,
-        historySize: 2,
-        updateDelay: 100,
-      })
-    );
+  export default defineComponent({
+    components: {
+      PageContainer,
+      Game,
+      Leaderboard,
+      Settings,
+      MemoryManager,
+    },
+    setup() {
+      const game = reactive<GameController>(
+        new GameController({
+          width: 4,
+          height: 4,
+          winningBlock: 2048,
+          historySize: 2,
+          updateDelay: 100,
+        })
+      )
 
-    const navbar = inject(Navbar);
-    navbar?.setGame(game as GameController);
+      const tutorialHandler = useTutorialHandler([
+        Tutorials.StandardMode,
+        Tutorials.StandardGameplay,
+        Tutorials.Controls,
+      ])
 
-    const handleSaveGame = (slotName: SlotName) => {
-      game.save(slotName);
-    };
+      const navbar = useNavbar()
+      navbar?.setGame(game as GameController)
+      navbar?.setTutorialHandler(tutorialHandler)
 
-    const handleLoadGame = (slotName: SlotName) => {
-      game.load(slotName);
-    };
+      const handleSaveGame = (slotName: SlotName) => {
+        game.save(slotName)
+      }
 
-    const route = useRoute();
+      const handleLoadGame = (slotName: SlotName) => {
+        game.load(slotName)
+      }
 
-    if (route.query.load) game.load(route.query.load as SlotName);
+      const route = useRoute()
 
-    return {
-      game: game as GameController,
-      handleSaveGame,
-      handleLoadGame,
-    };
-  },
-});
+      if (route.query.load) game.load(route.query.load as SlotName)
+
+      return {
+        game: game as GameController,
+        handleSaveGame,
+        handleLoadGame,
+      }
+    },
+  })
 </script>
 
 <style lang="scss">
-.regular {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  &__container {
-    flex-basis: 100%;
-    min-width: 200px;
-    max-width: 450px;
-  }
-
-  &__hud {
+  .regular {
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 100%;
     &__container {
       flex-basis: 100%;
       min-width: 200px;
@@ -97,9 +97,18 @@ export default defineComponent({
 
     &__hud {
       display: flex;
-      justify-content: space-between;
-      width: 100%;
+      justify-content: center;
+      &__container {
+        flex-basis: 100%;
+        min-width: 200px;
+        max-width: 450px;
+      }
+
+      &__hud {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
     }
   }
-}
 </style>

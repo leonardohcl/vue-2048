@@ -1,12 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import Roguelike from '@/views/Roguelike.vue'
-import app from '@/main'
-import ElementHighlighterVue from '@/components/organisms/ElementHighlighter/ElementHighlighter.vue'
 import Standard from '@/views/Standard.vue'
 import GameMode from '@/model/Game Utils/GameMode'
-import NavbarVue from '@/components/organisms/Navbar/Navbar.vue'
-import Tutorial from '@/assets/tutorials'
+import Tutorials from '@/assets/tutorials'
+import { useStore } from 'vuex'
 
 const routes = [
   {
@@ -25,10 +23,6 @@ const routes = [
             return 'fade'
         }
       },
-      tutorials: [
-        { ...Tutorial.StandardGameplay, title: 'Standard Mode' },
-        { ...Tutorial.RoguelikeGameplay, title: 'Roguelike Mode' },
-      ],
     },
   },
   {
@@ -40,11 +34,6 @@ const routes = [
       enterFrom: 'left',
       gameMode: GameMode.Standard,
       gameModeTheme: { color: 'plain', variant: 'tonal' },
-      tutorials: [
-        Tutorial.StandardMode,
-        Tutorial.StandardGameplay,
-        Tutorial.Controls,
-      ],
     },
   },
   {
@@ -56,15 +45,6 @@ const routes = [
       enterFrom: 'right',
       gameMode: GameMode.Roguelike,
       gameModeTheme: { color: 'secondary' },
-      tutorials: [
-        Tutorial.RoguelikeMode,
-        Tutorial.RoguelikeGameplay,
-        Tutorial.Controls,
-        Tutorial.Rewards,
-        Tutorial.Purchase,
-        Tutorial.Items,
-        Tutorial.Upgrades,
-      ],
     },
   },
 ]
@@ -75,16 +55,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  if (!from.name) return
-  if (!app._instance) return
+  if (!to.name) return
 
-  const highlighter = app._instance.refs.elementHighlighter
-  if (highlighter) {
-    ;(highlighter as typeof ElementHighlighterVue).dismiss()
-  }
+  const store = useStore()
 
-  const navbar = app._instance.refs.navbar
-  if (navbar) (navbar as typeof NavbarVue).setGame()
+  store?.getters.highlighter?.dismiss()
 })
 
 router.afterEach((to, from) => {

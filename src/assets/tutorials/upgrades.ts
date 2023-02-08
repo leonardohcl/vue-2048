@@ -4,7 +4,7 @@ import WidthUpgrade from '@/model/Game Utils/Item/Upgrade/Width'
 import WinningBlockUpgrade from '@/model/Game Utils/Item/Upgrade/WinningBlocks'
 import { ITutorial } from '@/model/Game Utils/Tutorial'
 
-const tutorial: ITutorial = {
+const UpgradesTutorial: ITutorial = {
   title: 'Upgrades',
   routine: [
     {
@@ -73,4 +73,4 @@ const tutorial: ITutorial = {
   ],
 }
 
-export default tutorial
+export default UpgradesTutorial
