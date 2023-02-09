@@ -1,26 +1,27 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
-import Roguelike from '@/views/Roguelike.vue'
-import Standard from '@/views/Standard.vue'
-import GameMode from '@/model/Game Utils/GameMode'
-import Tutorials from '@/assets/tutorials'
-import { useStore } from 'vuex'
+import { createRouter, createWebHashHistory } from "vue-router";
+import Home from "@/views/Home.vue";
+import Roguelike from "@/views/Roguelike.vue";
+import Standard from "@/views/Standard.vue";
+import GameMode from "@/model/Game Utils/GameMode";
+import Tutorials from "@/assets/tutorials";
+import { useStore } from "vuex";
+import SecretLabVue from "@/views/SecretLab.vue";
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
+    path: "/",
+    name: "home",
     component: Home,
     meta: {
       homeScreen: true,
       conditionalEnterFrom: (previousTransitionDirection: string) => {
         switch (previousTransitionDirection) {
-          case 'left':
-            return 'right'
-          case 'right':
-            return 'left'
+          case "left":
+            return "right";
+          case "right":
+            return "left";
           default:
-            return 'fade'
+            return "fade";
         }
       },
     },
@@ -30,10 +31,10 @@ const routes = [
     name: GameMode.Standard,
     component: Standard,
     meta: {
-      navigateTo: '/',
-      enterFrom: 'left',
+      navigateTo: "/",
+      enterFrom: "left",
       gameMode: GameMode.Standard,
-      gameModeTheme: { color: 'plain', variant: 'tonal' },
+      gameModeTheme: { color: "plain", variant: "tonal" },
     },
   },
   {
@@ -41,32 +42,33 @@ const routes = [
     name: GameMode.Roguelike,
     component: Roguelike,
     meta: {
-      navigateTo: '/',
-      enterFrom: 'right',
+      navigateTo: "/",
+      enterFrom: "right",
       gameMode: GameMode.Roguelike,
-      gameModeTheme: { color: 'secondary' },
+      gameModeTheme: { color: "secondary" },
     },
   },
-]
+  { path: "/secret-lab", name: "secret lab", component: SecretLabVue },
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
-})
+});
 
 router.beforeEach((to, from) => {
-  if (!to.name) return
+  if (!to.name) return;
 
-  const store = useStore()
+  const store = useStore();
 
-  store?.getters.highlighter?.dismiss()
-})
+  store?.getters.highlighter?.dismiss();
+});
 
 router.afterEach((to, from) => {
-  to.meta.previousPage = from.name
-  to.meta.previousGameMode = from.meta.gameMode
-  to.meta.previousGameModeTheme = from.meta.gameModeTheme
-  to.meta.previousTransitionDirection = from.meta.enterFrom
-})
+  to.meta.previousPage = from.name;
+  to.meta.previousGameMode = from.meta.gameMode;
+  to.meta.previousGameModeTheme = from.meta.gameModeTheme;
+  to.meta.previousTransitionDirection = from.meta.enterFrom;
+});
 
-export default router
+export default router;
