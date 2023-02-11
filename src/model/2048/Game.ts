@@ -1,3 +1,4 @@
+import randomWeightedSelection from "@/utils/randomSelection";
 import { orderBy } from "lodash";
 import Board from "./Board";
 import { IGame, MoveDirection, onUpdateSquareFn } from "./interfaces/Game";
@@ -114,8 +115,9 @@ export default class Game implements IGame {
     const selectedIndex = Math.floor(Math.random() * options.length);
 
     options[selectedIndex].setMeta(SquareStateMeta.Spawned, true);
-    if (Math.random() > 0.1) options[selectedIndex].setValue(2);
-    else options[selectedIndex].setValue(4);
+
+    const value = randomWeightedSelection<number>([2,4], [9,1]) ?? 0
+    options[selectedIndex].setValue(value);
   }
 
   protected isWinner() {

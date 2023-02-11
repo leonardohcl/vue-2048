@@ -3,10 +3,7 @@ import Home from "@/views/Home.vue";
 import Roguelike from "@/views/Roguelike.vue";
 import Standard from "@/views/Standard.vue";
 import GameMode from "@/model/Game Utils/GameMode";
-import Tutorials from "@/assets/tutorials";
 import { useStore } from "vuex";
-import SecretLabVue from "@/views/SecretLab.vue";
-
 const routes = [
   {
     path: "/",
@@ -48,7 +45,6 @@ const routes = [
       gameModeTheme: { color: "secondary" },
     },
   },
-  { path: "/secret-lab", name: "secret lab", component: SecretLabVue },
 ];
 
 const router = createRouter({
