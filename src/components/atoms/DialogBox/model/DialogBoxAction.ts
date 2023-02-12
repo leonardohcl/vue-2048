@@ -10,7 +10,7 @@ export interface IDialogBoxAction {
     variant?: 'flat' | 'elevated' | 'tonal' | 'outlined' | 'text' | 'plain'
 }
 
-export default class DialogBoxConfig {
+export default class DialogBoxAction {
     title
     action
     prependIcon

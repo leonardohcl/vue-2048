@@ -12,7 +12,6 @@ export default {
   props: {
     value: { type: [String, Number], default: 0 },
     theme: { type: String, default: "" },
-    text: { type: String, default: "" },
     chipOptions: { type: Object, default: () => ({}) },
   },
   setup(props) {

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-  import PageContainer from '@/components/atoms/PageContainer.vue'
+  import PageContainer from '@/components/organisms/PageContainer.vue'
   import Game from '@/components/organisms/Game.vue'
   import Leaderboard from '@/components/organisms/Leaderboard.vue'
   import Settings from '@/components/organisms/Settings.vue'

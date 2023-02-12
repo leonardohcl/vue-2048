@@ -58,7 +58,7 @@
 
 <script lang="ts">
   import GameMode from '@/model/Game Utils/GameMode'
-  import PageContainer from '@/components/atoms/PageContainer.vue'
+  import PageContainer from '@/components/organisms/PageContainer.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
   import { computed, ref } from 'vue'

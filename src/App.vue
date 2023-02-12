@@ -21,7 +21,7 @@ import {
 import { Highlighter, Navbar as NavbarKey } from "@/keys";
 import ElementHighlighter from "./components/organisms/ElementHighlighter/ElementHighlighter.vue";
 import HighlighterFunctions from "@/components/organisms/ElementHighlighter/model/HighlighterFunctions";
-import PageContainer from "./components/atoms/PageContainer.vue";
+import PageContainer from "./components/organisms/PageContainer.vue";
 import LooseObject from "./utils/LooseObject";
 import Navbar from "./components/organisms/Navbar/Navbar.vue";
 import NavbarFunctions from "./components/organisms/Navbar/model/NavbarFunctions";
@@ -78,6 +78,39 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+html {
+  overflow-y: auto;
+}
+
+body {
+  font-size: $text-size;
+  font-family: "Roboto", sans-serif;
+  background-color: $bg;
+  color: $text-color;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+
+  body,
+  .page {
+    width: 100vh;
+    height: 100vw;
+  }
+}
+
 .page-swap {
   &-right,
   &-left,
