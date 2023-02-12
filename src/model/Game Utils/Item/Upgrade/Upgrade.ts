@@ -6,6 +6,7 @@ import LimitedUseItem, {
 } from '../LimitedUseItem'
 
 export const enum Upgrade {
+  Generic = 'generic',
   WinningBlock = 'winningBlock',
   Width = 'width',
   Height = 'height',

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import DataChip from "@/components/atoms/DataChip/DataChip.vue";
+import DataChip from "@/components/electrons/DataChip/DataChip.vue";
 export default {
   components: { DataChip },
   props: {

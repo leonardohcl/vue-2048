@@ -18,7 +18,7 @@
 
 <script lang="ts">
   import Board from '@/model/2048/Board'
-  import Square from '@/components/atoms/Square.vue'
+  import Square from '@/components/atoms/Square/Square.vue'
   import { computed, ref, onBeforeUnmount, onMounted, watch } from 'vue'
   import SquareClass from '@/model/2048/Square'
   import LooseObject from '@/utils/LooseObject'

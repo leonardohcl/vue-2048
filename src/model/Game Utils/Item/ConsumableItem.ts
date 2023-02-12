@@ -4,6 +4,7 @@ import { SquareConsumableMeta } from "@/model/Game Utils/Item/interfaces/Square"
 import Item, { IItemConfig, IItem, MissingItemError } from "./Item";
 
 export const enum Consumable {
+    Generic = 'Generic',
     BreakBlock = "breakBlock",
     ShrinkBlock = "shrinkBlock",
     UpgradeBlock = "upgradeBlock",

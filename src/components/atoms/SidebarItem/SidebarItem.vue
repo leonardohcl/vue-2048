@@ -27,7 +27,7 @@
         />
       </v-progress-circular>
       <v-btn
-        v-if="active && allowUse"
+        v-if="active"
         class="sidebar-item__btn sidebar-item__btn--cancel"
         icon="fas fa-circle-xmark"
         color="error"
@@ -63,8 +63,8 @@
 </template>
 
 <script lang="ts">
-  import PurchaseButton from './PurchaseButton.vue'
-  import Square from './Square.vue'
+  import PurchaseButton from '@/components/electrons/PurchaseButton/PurchaseButton.vue'
+  import Square from '../Square/Square.vue'
   import { computed, defineComponent } from 'vue'
   import Item from '@/model/Game Utils/Item/Item'
   import UpgradeItem from '@/model/Game Utils/Item/Upgrade/Upgrade'

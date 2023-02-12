@@ -96,7 +96,7 @@
           transform: '',
           top: '',
           left: '',
-          animationDuration: '',
+          animationDuration: `${props.transitionDuration}ms`,
           'font-size': `${
             props.value >= 1000 ? 0.9 : props.value > 100 ? 1.1 : 1.3
           }em`,
@@ -110,10 +110,6 @@
           const dir = nextMove.value.horizontal ? 'left' : 'top'
           styles[dir] = transform
           styles.transition = `${dir} ${props.transitionDuration}ms ease`
-
-          if (isReverse.value) {
-            styles.animationDuration = `${props.transitionDuration}ms`
-          }
         }
 
         return styles
@@ -179,7 +175,6 @@
         transform: scale(0.1);
         opacity: 0.3;
         animation-name: spawn;
-        animation-duration: 200ms;
       }
 
       &--reverse {
@@ -188,7 +183,6 @@
 
       &--merged {
         animation-name: pop;
-        animation-duration: 200ms;
         animation-direction: alternate-reverse;
       }
 

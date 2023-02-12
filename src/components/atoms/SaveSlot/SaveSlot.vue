@@ -46,10 +46,10 @@
 </template>
 
 <script lang="ts">
-  import DataChip from '@/components/atoms/DataChip/DataChip.vue'
+  import DataChip from '@/components/electrons/DataChip/DataChip.vue'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
   import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
-  import Square from '@/components/atoms/Square.vue'
+  import Square from '@/components/atoms/Square/Square.vue'
   import { computed } from '@vue/runtime-core'
 
   export default {

@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import GameController from "@/model/2048 Standard/GameController";
-import { ref, watch } from "vue";
+import { ref, watch, SetupContext } from "vue";
 import useDialogCommands from "@/composables/dialogCommands";
 
 export default {
@@ -95,7 +95,7 @@ export default {
     const allowUndo = ref(true);
     const undoHistorySize = ref(2);
 
-    const { open, close, isOpen } = useDialogCommands(context);
+    const { open, close, isOpen } = useDialogCommands(context as SetupContext);
 
     const updateSettings = () => {
       context.emit("update", {

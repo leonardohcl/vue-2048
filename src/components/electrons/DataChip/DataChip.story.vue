@@ -1,5 +1,5 @@
 <template>
-  <Story  :layout="{type:'grid'}" group="atoms">
+  <Story  :layout="{type:'grid'}" group="electrons">
     <Variant v-for="theme in themes" :key="theme" :title="theme">
       <DataChip :theme="theme" :value="state.value" :chip-options="state.options" />
     </Variant>

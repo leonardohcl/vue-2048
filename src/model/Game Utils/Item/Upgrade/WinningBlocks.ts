@@ -1,6 +1,4 @@
 import UpgradeItem, {
-  IUpgradeItem,
-  IUpgradeItemConfig,
   Upgrade,
 } from './Upgrade'
 

@@ -28,7 +28,7 @@
 
 <script lang="ts">
   import useDialogCommands from '@/composables/dialogCommands'
-  import SaveSlot from '@/components/atoms/SaveSlot.vue'
+  import SaveSlot from '@/components/atoms/SaveSlot/SaveSlot.vue'
   import { computed } from 'vue'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
   import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'

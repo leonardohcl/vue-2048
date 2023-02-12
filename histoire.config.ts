@@ -13,6 +13,7 @@ export default defineConfig({
   ],
   tree: {
     groups: [
+      { id: "electrons", title: "Electrons" },
       { id: "atoms", title: "Atoms" },
       { id: "atoms", title: "Molecules" },
       { id: "atoms", title: "Organisms" },

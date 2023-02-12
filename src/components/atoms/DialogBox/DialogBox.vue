@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import Square from "../Square.vue";
+import Square from "../Square/Square.vue";
 import { defineComponent } from "vue";
 import DialogBoxConfig from "./model/DialogBoxConfig";
 import DialogBoxAction from "./model/DialogBoxAction";

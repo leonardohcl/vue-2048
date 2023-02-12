@@ -210,7 +210,7 @@ export default class GameController extends Game implements IGameController {
     this.save(SlotName.LastGame)
   }
 
-  protected getSaveFile() {
+  getSaveFile() {
     return new SaveFile(this.getSnapshot())
   }
 

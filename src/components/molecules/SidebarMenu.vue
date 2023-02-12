@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import SidebarItem from "@/components/atoms/SidebarItem.vue";
+import SidebarItem from "@/components/atoms/SidebarItem/SidebarItem.vue";
 import Item from "@/model/Game Utils/Item/Item";
 import { defineComponent, computed } from "@vue/runtime-core";
 
