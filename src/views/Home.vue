@@ -14,7 +14,7 @@
         </v-btn>
       </v-btn-toggle>
 
-      <v-slide-x-transition>
+      <Transition name="scroll-x">
         <v-btn
           v-if="lastGame"
           size="large"
@@ -24,7 +24,7 @@
         >
           Continue
         </v-btn>
-      </v-slide-x-transition>
+      </Transition>
 
       <v-btn
         tag="router-link"

@@ -14,7 +14,7 @@
         @click="handleRedirect"
       >
         {{ title }}
-        <v-fade-transition>
+        <Transition name="fade">
           <v-chip
             v-if="gameMode"
             size="small"
@@ -24,7 +24,7 @@
           >
             {{ gameMode }}
           </v-chip>
-        </v-fade-transition>
+        </Transition>
       </h1>
     </div>
     <div class="page__content">
@@ -75,7 +75,7 @@ export default defineComponent({
   margin-top: 0;
   transition: all 200ms;
 
-  @include screen-above(sm){
+  @include screen-above(sm) {
     padding: 2rem;
   }
 
@@ -86,10 +86,10 @@ export default defineComponent({
       &__title {
         padding: 4rem;
 
-        @include screen-above(sm){
-          padding: 2rem
+        @include screen-above(sm) {
+          padding: 2rem;
         }
-        
+
         &--text {
           font-size: 4rem;
           // @include screen-above(sm){
@@ -119,12 +119,12 @@ export default defineComponent({
       text-decoration: none !important;
       transition: font-size $page-animation-duration $page-animation-ease;
 
-      @include screen-above(sm){
+      @include screen-above(sm) {
         font-size: 3rem;
       }
     }
 
-    &--redirect{
+    &--redirect {
       cursor: pointer;
     }
   }

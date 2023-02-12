@@ -1,5 +1,5 @@
 <template>
-  <v-fade-transition>
+  <Transition name="fade">
     <div v-if="display" class="element-highlighter" :style="containerStyle">
       <div
         class="element-highlighter__background element-highlighter__top"
@@ -22,7 +22,7 @@
         @click="handleBackgroudClick"
       />
       <div class="element-highlighter__window" :style="windowStyle">
-        <v-fade-transition>
+        <Transition name="fade">
           <div
             v-if="dialogs.length"
             class="element-highlighter__dialog-container"
@@ -30,7 +30,7 @@
             :style="dialogContainerStyles"
           >
             <div class="element-highlighter__dialog-container--content">
-              <v-scroll-y-reverse-transition group>
+              <TransitionGroup name="scroll-y-reverse">
                 <DialogBox
                   v-for="dialog in dialogs"
                   :key="dialog.id"
@@ -39,13 +39,13 @@
                   :actions="dialog.actions"
                   :style="dialog.style"
                 />
-              </v-scroll-y-reverse-transition>
+              </TransitionGroup>
             </div>
           </div>
-        </v-fade-transition>
+        </Transition>
       </div>
     </div>
-  </v-fade-transition>
+  </Transition>
 </template>
 
 <script lang="ts">

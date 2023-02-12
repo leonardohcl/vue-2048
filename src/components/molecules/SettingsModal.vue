@@ -38,7 +38,7 @@
           v-model="allowUndo"
           hide-details
         />
-        <v-slide-x-reverse-transition>
+        <Transition name="scroll-x">
           <v-slider
             v-if="allowUndo"
             class="settings-modal__slider"
@@ -51,7 +51,7 @@
             show-ticks="always"
             :ticks="[1, 2, 3, 4, 5]"
           />
-        </v-slide-x-reverse-transition>
+        </Transition>
         <small
           v-if="game.isRunning"
           class="d-inline-block text-warning font-italic w-100 text-right"

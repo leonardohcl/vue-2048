@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar__left">
-      <v-scroll-y-reverse-transition group>
+      <TransitionGroup name="scroll-y-reverse">
         <v-btn
           v-if="!isHome"
           key="home"
@@ -46,10 +46,10 @@
             <span class="d-none d-sm-inline"> Load Game </span>
           </template>
         </MemoryManager>
-      </v-scroll-y-reverse-transition>
+      </TransitionGroup>
     </div>
     <div class="navbar__right">
-      <v-scroll-y-reverse-transition group>
+      <TransitionGroup name="scroll-y-reverse">
         <Settings
           v-if="game && display.settings"
           key="settings"
@@ -67,7 +67,7 @@
         >
           <span class="d-none d-sm-inline"> Help </span>
         </Help>
-      </v-scroll-y-reverse-transition>
+      </TransitionGroup>
       <About :button-options="btnConfig">
         <span class="d-none d-sm-inline"> About </span>
       </About>

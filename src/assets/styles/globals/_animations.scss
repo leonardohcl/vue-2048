@@ -1,8 +1,68 @@
-@keyframes fade {
-  from {
+.fade {
+  &-enter-active,
+  &-leave-active {
+    transition: opacity 200ms;
+  }
+
+  &-enter-from,
+  &-leave-to {
     opacity: 0;
   }
-  to {
+
+  &-leave-from,
+  &-enter-to {
     opacity: 1;
+  }
+}
+
+.scroll-y-reverse {
+  &-enter-active,
+  &-leave-active {
+    transition: transform 200ms, opacity 200ms;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+  }
+
+  &-leave-from,
+  &-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &-enter-from{
+    transform: translateY(75%);
+  }
+
+  &-leave-to{
+    transform: translateY(-75%);
+  }
+}
+
+.scroll-x {
+  &-enter-active,
+  &-leave-active {
+    transition: transform 200ms, opacity 200ms;
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+  }
+
+  &-leave-from,
+  &-enter-to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  &-enter-from{
+    transform: translateX(-75%);
+  }
+
+  &-leave-to{
+    transform: translateX(75%);
   }
 }

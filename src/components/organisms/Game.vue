@@ -1,6 +1,6 @@
 <template>
   <div :class="`game ${game.gameOver ? 'game--over' : 'game--running'}`">
-    <v-fade-transition>
+    <Transition name="fade">
       <div class="game__overlay" v-if="!game.isRunning && !game.endless">
         <div class="game__overlay--score">Score: {{ game.score }}</div>
         <div class="game__overlay--buttons">
@@ -24,7 +24,7 @@
       <div class="game__overlay" v-else-if="game.paused && !disablePauseScreen">
         <span class="game__overlay--pause"> Game Paused </span>
       </div>
-    </v-fade-transition>
+    </Transition>
     <div class="game__hud">
       <div class="game__hud--buttons">
         <v-btn
@@ -48,7 +48,7 @@
         </v-btn>
       </div>
       <div class="game__hud--score">
-        <v-scroll-y-reverse-transition>
+        <TransitionGroup name="scroll-y-reverse">
           <v-chip
             v-if="game.isNewHighscore"
             class="game__hud--new-highscore"
@@ -58,11 +58,11 @@
           >
             New Best!
           </v-chip>
-        </v-scroll-y-reverse-transition>
+        </TransitionGroup>
         Score:
         <span class="points">
           {{ game.score }}
-          <v-scroll-y-reverse-transition group>
+          <TransitionGroup name="scroll-y-reverse">
             <span
               v-for="idx in 3"
               :key="animatedPoints[idx]?.id ?? -idx"
@@ -73,7 +73,7 @@
             >
               {{ animatedPoints[idx]?.points }}
             </span>
-          </v-scroll-y-reverse-transition>
+          </TransitionGroup>
         </span>
       </div>
     </div>
