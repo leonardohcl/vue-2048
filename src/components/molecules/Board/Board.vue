@@ -55,6 +55,7 @@
 
       const width = computed(() => props.board.width)
       const height = computed(() => props.board.height)
+      const gap = computed(() => props.gap) 
 
       const getBoardStyle = (
         width = props.board.width,
@@ -113,10 +114,11 @@
         window.removeEventListener('resize', updateBoardSize)
       })
 
-      watch([width, height], (newDimensions, oldDimensions) => {
+      watch([width, height, gap], (newDimensions, oldDimensions) => {
         if (
           newDimensions[0] != oldDimensions[0] ||
-          newDimensions[1] != oldDimensions[1]
+          newDimensions[1] != oldDimensions[1] ||
+          newDimensions[2] != oldDimensions[2] 
         )
           boardStyle.value = getBoardStyle()
       })

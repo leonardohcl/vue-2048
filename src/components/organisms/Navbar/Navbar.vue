@@ -6,28 +6,35 @@
           v-if="!isHome"
           key="home"
           prepend-icon="fas fa-home"
-          v-bind="btnConfig"
+          v-bind="navitemConfig"
           @click="$router.push('/')"
         >
           <span class="d-none d-sm-inline"> Home </span>
         </v-btn>
-        <Leaderboard
+        <v-btn
           v-if="game && display.leaderboard"
           key="leaderboard"
-          :game="game"
-          :button-options="btnConfig"
-          :with-board="isRoguelike"
-          :with-run="isRoguelike"
+          prepend-icon="fas fa-fw fa-ranking-star"
+          v-bind="navitemConfig"
         >
           <span class="d-none d-sm-inline"> Leaderboard </span>
-        </Leaderboard>
+          <v-dialog activator="parent" width="500" height="800">
+            <Leaderboard
+              key="leaderboard"
+              :entries="game.leaderboard"
+              :button-options="navitemConfig"
+              :with-board="isRoguelike"
+              :with-run="isRoguelike"
+            />
+          </v-dialog>
+        </v-btn>
         <MemoryManager
           v-if="game"
           key="memory-save"
           :game="game"
           :allow-load="false"
           :allow-save="display.save"
-          :save-button-options="btnConfig"
+          :save-button-options="navitemConfig"
         >
           <template #save-button>
             <span class="d-none d-sm-inline"> Save Game </span>
@@ -39,7 +46,7 @@
           :game="game"
           :allow-load="display.load"
           :allow-save="false"
-          :load-button-options="btnConfig"
+          :load-button-options="navitemConfig"
           close-on-load
         >
           <template #load-button>
@@ -54,7 +61,7 @@
           v-if="game && display.settings"
           key="settings"
           :game="game"
-          :button-options="btnConfig"
+          :button-options="navitemConfig"
         >
           <span class="d-none d-sm-inline"> Settings </span>
         </Settings>
@@ -63,12 +70,12 @@
           v-if="tutorialHandler && tutorialHandler.tutorials.length"
           key="help"
           :tutorial-handler="tutorialHandler"
-          :button-options="btnConfig"
+          :button-options="navitemConfig"
         >
           <span class="d-none d-sm-inline"> Help </span>
         </Help>
       </TransitionGroup>
-      <v-btn v-bind="btnConfig" prepend-icon="fas fa-fw fa-circle-info">
+      <v-btn v-bind="navitemConfig" prepend-icon="fas fa-fw fa-circle-info">
         <span class="d-none d-sm-inline"> About </span>
         <v-dialog activator="parent" width="300">
           <About />
@@ -79,89 +86,89 @@
 </template>
 
 <script lang="ts">
-import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
-import GameController from "@/model/2048 Standard/GameController";
-import LooseObject from "@/utils/LooseObject";
-import Leaderboard from "../Leaderboard.vue";
-import { defineComponent, ref, reactive, computed } from "vue";
-import { useRoute } from "vue-router";
-import Settings from "../Settings.vue";
-import MemoryManager from "../MemoryManager.vue";
-import Help from "@/components/organisms/Help.vue";
-import About from "@/components/atoms/About/About.vue";
-import { ITutorialHandler } from "@/composables/tutorialRoutine";
+  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
+  import GameController from '@/model/2048 Standard/GameController'
+  import LooseObject from '@/utils/LooseObject'
+  import Leaderboard from '@/components/molecules/Leaderboard/Leaderboard.vue'
+  import { defineComponent, ref, reactive, computed } from 'vue'
+  import { useRoute } from 'vue-router'
+  import Settings from '../Settings.vue'
+  import MemoryManager from '../MemoryManager.vue'
+  import Help from '@/components/organisms/Help.vue'
+  import About from '@/components/atoms/About/About.vue'
+  import { ITutorialHandler } from '@/composables/tutorialRoutine'
 
-export default defineComponent({
-  components: { Settings, Leaderboard, MemoryManager, Help, About },
-  setup() {
-    const route = useRoute();
+  export default defineComponent({
+    components: { Settings, Leaderboard, MemoryManager, Help, About },
+    setup() {
+      const route = useRoute()
 
-    const isHome = computed(() => route.name === "home");
+      const isHome = computed(() => route.name === 'home')
 
-    const btnConfig: LooseObject<string> = {
-      variant: "text",
-      size: "small",
-    };
+      const navitemConfig: LooseObject<string> = {
+        variant: 'text',
+        size: 'small',
+      }
 
-    const game = ref<GameController | RoguelikeGameController>();
+      const game = ref<GameController | RoguelikeGameController>()
 
-    const isRoguelike = computed(
-      () => game.value instanceof RoguelikeGameController
-    );
+      const isRoguelike = computed(
+        () => game.value instanceof RoguelikeGameController
+      )
 
-    const display = reactive<LooseObject>({
-      settings: true,
-      leaderboard: true,
-      load: true,
-      save: true,
-    });
+      const display = reactive<LooseObject>({
+        settings: true,
+        leaderboard: true,
+        load: true,
+        save: true,
+      })
 
-    const setGame = (
-      newGame?: GameController | RoguelikeGameController,
-      {
-        showSettings = true,
-        showLeaderboard = true,
-        showSave = true,
-        showLoad = true,
-      } = {}
-    ) => {
-      game.value = newGame;
-      display.settings = showSettings;
-      display.leaderboard = showLeaderboard;
-      display.save = showSave;
-      display.load = showLoad;
-    };
+      const setGame = (
+        newGame?: GameController | RoguelikeGameController,
+        {
+          showSettings = true,
+          showLeaderboard = true,
+          showSave = true,
+          showLoad = true,
+        } = {}
+      ) => {
+        game.value = newGame
+        display.settings = showSettings
+        display.leaderboard = showLeaderboard
+        display.save = showSave
+        display.load = showLoad
+      }
 
-    const tutorialHandler = ref<ITutorialHandler>();
+      const tutorialHandler = ref<ITutorialHandler>()
 
-    const setTutorialHandler = (handler?: ITutorialHandler) => {
-      tutorialHandler.value = handler;
-    };
+      const setTutorialHandler = (handler?: ITutorialHandler) => {
+        tutorialHandler.value = handler
+      }
 
-    return {
-      game,
-      isHome,
-      isRoguelike,
-      display,
-      btnConfig,
-      tutorialHandler,
-      setGame,
-      setTutorialHandler,
-    };
-  },
-});
+      return {
+        game,
+        isHome,
+        isRoguelike,
+        display,
+        navitemConfig,
+        tutorialHandler,
+        setGame,
+        setTutorialHandler,
+      }
+    },
+  })
 </script>
 
 <style lang="scss">
-.navbar {
-  padding: $default-spacing * 0.25;
-  display: flex;
-  justify-content: space-between;
-
-  &__left,
-  &__right {
+  .navbar {
+    padding: $default-spacing * 0.25;
     display: flex;
-    gap: $default-spacing * 0.25;
+    justify-content: space-between;
+
+    &__left,
+    &__right {
+      display: flex;
+      gap: $default-spacing * 0.25;
+    }
   }
-}
 </style>

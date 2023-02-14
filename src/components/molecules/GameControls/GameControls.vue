@@ -5,8 +5,8 @@
         <v-btn
           class="game-controls__button"
           v-bind="buttonParams"
-          :disabled="!canMove('left')"
-          @click="sendCommand('left')"
+          :disabled="!canMove(MoveDirection.Left)"
+          @click="sendCommand(MoveDirection.Left)"
         >
           LEFT
         </v-btn>
@@ -16,19 +16,21 @@
         <v-btn
           class="game-controls__button"
           v-bind="buttonParams"
-          :disabled="!canMove('up')"
-          @click="sendCommand('up')"
+          :disabled="!canMove(MoveDirection.Up)"
+          @click="sendCommand(MoveDirection.Up)"
         >
           UP
         </v-btn>
       </div>
 
-      <div class="game-controls__button--container game-controls__button--right">
+      <div
+        class="game-controls__button--container game-controls__button--right"
+      >
         <v-btn
           class="game-controls__button"
           v-bind="buttonParams"
-          :disabled="!canMove('right')"
-          @click="sendCommand('right')"
+          :disabled="!canMove(MoveDirection.Right)"
+          @click="sendCommand(MoveDirection.Right)"
         >
           RIGHT
         </v-btn>
@@ -38,8 +40,8 @@
         <v-btn
           class="game-controls__button"
           v-bind="buttonParams"
-          :disabled="!canMove('down')"
-          @click="sendCommand('down')"
+          :disabled="!canMove(MoveDirection.Down)"
+          @click="sendCommand(MoveDirection.Down)"
         >
           DOWN
         </v-btn>
@@ -48,41 +50,34 @@
   </div>
 </template>
 
-<script>
-  import GameController from '@/model/2048 Standard/GameController'
-  import { computed } from '@vue/reactivity'
+<script setup lang="ts">
+  import {
+    GameActionTracker,
+    MoveDirection,
+  } from '@/model/2048/interfaces/Game'
+  import LooseObject from '@/utils/LooseObject'
+  import { computed } from 'vue'
 
-  export default {
-    emits: ['command'],
-    props: {
-      game: {
-        type: GameController,
-        required: true,
-      },
-      buttonOptions: {
-        type: Object,
-        default: () => ({}),
-      },
-    },
-    setup(props, context) {
-      const sendCommand = (dir) => {
-        context.emit('command', dir)
-      }
+  const emit = defineEmits(['command'])
+  const props = defineProps({
+    actionTracker: { type: GameActionTracker, required: true },
+    allowCommands: { type: Boolean, default: true },
+    buttonOptions: { type: Object, default: () => ({}) },
+  })
 
-      const buttonParams = computed(() => ({
-        variant: 'flat',
-        size: 'small',
-        ...props.buttonOptions,
-      }))
+  const sendCommand = (dir: MoveDirection) => {
+    emit('command', dir)
+  }
 
-      const canMove = (dir) => {
-        if (props.game._paused) return false
-        if (props.game._gameOver) return false
-        return dir ? props.game._canMove[dir] : true
-      }
+  const buttonParams = computed<LooseObject>(() => ({
+    variant: 'flat',
+    size: 'small',
+    ...props.buttonOptions,
+  }))
 
-      return { buttonParams, sendCommand, canMove }
-    },
+  const canMove = (dir: MoveDirection) => {
+    if (!props.allowCommands) return false
+    return dir ? props.actionTracker[dir] : true
   }
 </script>
 
@@ -102,12 +97,12 @@
         grid-row: 1/3;
       }
 
-      &--right{
+      &--right {
         grid-column-start: 3;
         justify-self: flex-start;
       }
 
-      &--container{
+      &--container {
         display: flex;
         align-items: center;
         justify-content: center;

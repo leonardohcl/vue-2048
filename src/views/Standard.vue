@@ -18,7 +18,6 @@
 <script lang="ts">
   import PageContainer from '@/components/organisms/PageContainer.vue'
   import Game from '@/components/organisms/Game.vue'
-  import Leaderboard from '@/components/organisms/Leaderboard.vue'
   import Settings from '@/components/organisms/Settings.vue'
   import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
@@ -37,7 +36,6 @@ import useTutorialHandler from '@/composables/tutorialRoutine'
     components: {
       PageContainer,
       Game,
-      Leaderboard,
       Settings,
       MemoryManager,
     },

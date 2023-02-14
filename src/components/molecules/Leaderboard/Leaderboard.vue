@@ -1,24 +1,16 @@
 <template>
-  <v-dialog
-    class="ranking-modal"
-    max-height="800"
-    max-width="500"
-    v-model="isOpen"
-    transition="slide-y-transition"
-  >
-    <v-card title="Leaderboard" prepend-icon="fas fa-fw fa-ranking-star">
-      <v-card-text>
-        <LeaderboardEntry
-          v-for="(entry, idx) in leaderboard"
-          :key="idx"
-          :position="idx + 1"
-          :entry="entry"
-          :with-board="withBoard"
-          :with-run="withRun"
-        />
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+  <v-card title="Leaderboard" prepend-icon="fas fa-fw fa-ranking-star">
+    <v-card-text>
+      <LeaderboardEntry
+        v-for="(entry, idx) in entries"
+        :key="idx"
+        :position="idx + 1"
+        :entry="entry"
+        :with-board="withBoard"
+        :with-run="withRun"
+      />
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -30,7 +22,7 @@
   export default defineComponent({
     components: { LeaderboardEntry },
     props: {
-      leaderboard: { type: Array<LeaderboardEntryClass>, required: true },
+      entries: { type: Array<LeaderboardEntryClass>, required: true },
       withRun: {
         type: Boolean,
         default: false,

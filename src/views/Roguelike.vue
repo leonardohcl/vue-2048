@@ -95,8 +95,6 @@
   import UpgradeShop from '@/components/organisms/UpgradeShop.vue'
   import InventoryManager from '@/components/organisms/InventoryManager.vue'
   import RewardsManager from '@/components/organisms/RewardsManager.vue'
-  import MemoryManager from '@/components/organisms/MemoryManager.vue'
-  import Leaderboard from '@/components/organisms/Leaderboard.vue'
   import DataChip from '@/components/electrons/DataChip/DataChip.vue'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
   import SquareType from '@/model/2048/Square'
@@ -113,8 +111,6 @@
       UpgradeShop,
       InventoryManager,
       RewardsManager,
-      MemoryManager,
-      Leaderboard,
       DataChip,
     },
     setup() {

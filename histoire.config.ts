@@ -15,9 +15,9 @@ export default defineConfig({
     groups: [
       { id: "electrons", title: "Electrons" },
       { id: "atoms", title: "Atoms" },
-      { id: "atoms", title: "Molecules" },
-      { id: "atoms", title: "Organisms" },
-      { id: "atoms", title: "Pages" },
+      { id: "molecules", title: "Molecules" },
+      { id: "organisms", title: "Organisms" },
+      { id: "pages", title: "Pages" },
     ],    
   },
   defaultStoryProps:{

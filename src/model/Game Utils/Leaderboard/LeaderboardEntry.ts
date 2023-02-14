@@ -15,7 +15,7 @@ export default class LeaderboardEntry implements ILeaderboardEntry {
   undos = 0
   width = 0
   height = 0
-  run?:number
+  run?: number
 
   constructor({
     score = 0,
@@ -24,7 +24,7 @@ export default class LeaderboardEntry implements ILeaderboardEntry {
     undos = 0,
     width = 0,
     height = 0,
-    run = undefined
+    run = undefined,
   }: ILeaderboardEntry) {
     this.score = score
     this.block = block
@@ -33,5 +33,17 @@ export default class LeaderboardEntry implements ILeaderboardEntry {
     this.width = width
     this.height = height
     this.run = run
+  }
+
+  static mock() {
+    return new LeaderboardEntry({
+      score: 0,
+      block: 0,
+      moves: 0,
+      undos: 0,
+      width: 0,
+      height: 0,
+      run: 0,
+    })
   }
 }

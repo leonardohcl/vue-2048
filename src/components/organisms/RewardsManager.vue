@@ -1,15 +1,16 @@
 <template>
-  <RewardsModal :rewards="rewards" ref="rewardsModal" />
+  <v-dialog width="300" v-model="isOpen">
+    <Rewards :rewards="rewards" ref="rewardsModal" />
+  </v-dialog>
 </template>
 
 <script lang="ts">
-  import RewardsModal from '@/components/molecules/RewardsModal.vue'
-  import { ref, defineComponent, computed } from 'vue'
+  import Rewards from '@/components/molecules/Rewards/Rewards.vue'
+  import { ref, defineComponent } from 'vue'
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
-  import GameRewards from '@/model/2048 Roguelike/GameRewards'
 
   export default defineComponent({
-    components: { RewardsModal },
+    components: { Rewards },
     props: {
       game: {
         type: RoguelikeGameController,
@@ -18,15 +19,15 @@
     },
     setup(props) {
       const rewards = ref(props.game.getRewards())
-      const rewardsModal = ref()
+      const isOpen = ref(false)
 
       const open = () => {
         rewards.value = props.game.getRewards()
         if (!rewards.value.totalEarned) return
-        rewardsModal.value?.open()
+        isOpen.value = true
       }
 
-      return { rewards, rewardsModal, open }
+      return { rewards, isOpen, open }
     },
   })
 </script>

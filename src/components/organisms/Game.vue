@@ -89,19 +89,24 @@
         @square-selected="handleSquareSelected"
       />
     </div>
-    <GameControls class="game__controls" :game="game" @command="move" />
+    <GameControls
+      class="game__controls"
+      :action-tracker="game.canMove"
+      :allow-commands="game.isRunning && !game.paused"
+      @command="move"
+    />
   </div>
 </template>
 
 <script lang="ts">
   import GameController from '@/model/2048 Standard/GameController'
-  import GameControls from '@/components/molecules/GameControls.vue'
-  import Board from '@/components/molecules/Board.vue'
+  import GameControls from '@/components/molecules/GameControls/GameControls.vue'
+  import Board from '@/components/molecules/Board/Board.vue'
   import { computed, watch, ref } from 'vue'
   import { useGameCommands, BoardCommand } from '@/composables/boardCommands'
   import { remove } from 'lodash'
   import Square from '@/model/2048/Square'
-import { SquareStateMeta } from '@/model/2048/interfaces/Square'
+  import { SquareStateMeta } from '@/model/2048/interfaces/Square'
 
   export default {
     components: { Board, GameControls },
@@ -224,9 +229,9 @@ import { SquareStateMeta } from '@/model/2048/interfaces/Square'
       const trackInvalidMove = (dir: BoardCommand, success: boolean) => {
         if (!success) {
           invalidMove.value = dir
-          props.game.board.squares.forEach(sqr => {
+          props.game.board.squares.forEach((sqr) => {
             sqr.setMeta(SquareStateMeta.InvalidMove, true)
-          });
+          })
           setTimeout(() => (invalidMove.value = ''), 200)
         } else invalidMove.value = ''
       }
@@ -367,7 +372,6 @@ import { SquareStateMeta } from '@/model/2048/interfaces/Square'
       }
 
       &--invalid-move {
-        
         .square__block {
           opacity: 1;
           animation-duration: 200ms;

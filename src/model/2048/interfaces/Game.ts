@@ -8,6 +8,21 @@ export const enum MoveDirection {
     Left = 'left',
 }
 
+export interface IGameActionTracker {
+    [MoveDirection.Up]: boolean
+    [MoveDirection.Down]: boolean
+    [MoveDirection.Right]: boolean
+    [MoveDirection.Left]: boolean
+  }
+  
+  export class GameActionTracker implements IGameActionTracker {
+    [MoveDirection.Up] = true;
+    [MoveDirection.Down] = true;
+    [MoveDirection.Left] = true;
+    [MoveDirection.Right] = true
+  }
+  
+
 export interface IGame {
     score: number
     width: number
@@ -16,12 +31,7 @@ export interface IGame {
     board: IBoard
     winner: boolean
     gameOver: boolean
-    canMove: {
-        [MoveDirection.Up]: boolean,
-        [MoveDirection.Down]: boolean,
-        [MoveDirection.Left]: boolean,
-        [MoveDirection.Right]: boolean,
-    }
+    canMove: IGameActionTracker
 }
 
 export type onUpdateSquareFn = (square: Square, next: { nextRow: number, nextCol: number }) => void
