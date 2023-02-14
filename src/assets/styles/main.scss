@@ -1,8 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-@import 'base';
-@import 'globals';
-@import 'vuetify';
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap");
+@import "base";
+@import "globals";
+@import "vuetify";
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  overflow-y: auto;
+}
+
+body {
+  font-size: $text-size;
+  font-family: "Roboto", sans-serif;
+  background-color: $bg;
+  color: $text-color;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+
+  body,
+  .page {
+    width: 100vh;
+    height: 100vw;
+  }
 }

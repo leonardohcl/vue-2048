@@ -68,97 +68,100 @@
           <span class="d-none d-sm-inline"> Help </span>
         </Help>
       </TransitionGroup>
-      <About :button-options="btnConfig">
+      <v-btn v-bind="btnConfig" prepend-icon="fas fa-fw fa-circle-info">
         <span class="d-none d-sm-inline"> About </span>
-      </About>
+        <v-dialog activator="parent" width="300">
+          <About />
+        </v-dialog>
+      </v-btn>
     </div>
   </nav>
 </template>
 
 <script lang="ts">
-  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
-  import GameController from '@/model/2048 Standard/GameController'
-  import LooseObject from '@/utils/LooseObject'
-  import Leaderboard from '../Leaderboard.vue'
-  import { defineComponent, ref, reactive, computed } from 'vue'
-  import { useRoute } from 'vue-router'
-  import Settings from '../Settings.vue'
-  import MemoryManager from '../MemoryManager.vue'
-  import Help from '@/components/organisms/Help.vue'
-  import About from '@/components/molecules/About.vue'
-  import { ITutorialHandler } from '@/composables/tutorialRoutine'
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
+import GameController from "@/model/2048 Standard/GameController";
+import LooseObject from "@/utils/LooseObject";
+import Leaderboard from "../Leaderboard.vue";
+import { defineComponent, ref, reactive, computed } from "vue";
+import { useRoute } from "vue-router";
+import Settings from "../Settings.vue";
+import MemoryManager from "../MemoryManager.vue";
+import Help from "@/components/organisms/Help.vue";
+import About from "@/components/atoms/About/About.vue";
+import { ITutorialHandler } from "@/composables/tutorialRoutine";
 
-  export default defineComponent({
-    components: { Settings, Leaderboard, MemoryManager, Help, About },
-    setup() {
-      const route = useRoute()
+export default defineComponent({
+  components: { Settings, Leaderboard, MemoryManager, Help, About },
+  setup() {
+    const route = useRoute();
 
-      const isHome = computed(() => route.name === 'home')
+    const isHome = computed(() => route.name === "home");
 
-      const btnConfig: LooseObject<string> = {
-        variant: 'text',
-        size: 'small',
-      }
+    const btnConfig: LooseObject<string> = {
+      variant: "text",
+      size: "small",
+    };
 
-      const game = ref<GameController | RoguelikeGameController>()
+    const game = ref<GameController | RoguelikeGameController>();
 
-      const isRoguelike = computed(
-        () => game.value instanceof RoguelikeGameController
-      )
+    const isRoguelike = computed(
+      () => game.value instanceof RoguelikeGameController
+    );
 
-      const display = reactive<LooseObject>({
-        settings: true,
-        leaderboard: true,
-        load: true,
-        save: true,
-      })
+    const display = reactive<LooseObject>({
+      settings: true,
+      leaderboard: true,
+      load: true,
+      save: true,
+    });
 
-      const setGame = (
-        newGame?: GameController | RoguelikeGameController,
-        {
-          showSettings = true,
-          showLeaderboard = true,
-          showSave = true,
-          showLoad = true,
-        } = {}
-      ) => {
-        game.value = newGame
-        display.settings = showSettings
-        display.leaderboard = showLeaderboard
-        display.save = showSave
-        display.load = showLoad
-      }
+    const setGame = (
+      newGame?: GameController | RoguelikeGameController,
+      {
+        showSettings = true,
+        showLeaderboard = true,
+        showSave = true,
+        showLoad = true,
+      } = {}
+    ) => {
+      game.value = newGame;
+      display.settings = showSettings;
+      display.leaderboard = showLeaderboard;
+      display.save = showSave;
+      display.load = showLoad;
+    };
 
-      const tutorialHandler = ref<ITutorialHandler>()
+    const tutorialHandler = ref<ITutorialHandler>();
 
-      const setTutorialHandler = (handler?: ITutorialHandler) => {
-        tutorialHandler.value = handler
-      }
+    const setTutorialHandler = (handler?: ITutorialHandler) => {
+      tutorialHandler.value = handler;
+    };
 
-      return {
-        game,
-        isHome,
-        isRoguelike,
-        display,
-        btnConfig,
-        tutorialHandler,
-        setGame,
-        setTutorialHandler,
-      }
-    },
-  })
+    return {
+      game,
+      isHome,
+      isRoguelike,
+      display,
+      btnConfig,
+      tutorialHandler,
+      setGame,
+      setTutorialHandler,
+    };
+  },
+});
 </script>
 
 <style lang="scss">
-  .navbar {
-    padding: $default-spacing * 0.25;
-    display: flex;
-    justify-content: space-between;
+.navbar {
+  padding: $default-spacing * 0.25;
+  display: flex;
+  justify-content: space-between;
 
-    &__left,
-    &__right {
-      display: flex;
-      gap: $default-spacing * 0.25;
-    }
+  &__left,
+  &__right {
+    display: flex;
+    gap: $default-spacing * 0.25;
   }
+}
 </style>
