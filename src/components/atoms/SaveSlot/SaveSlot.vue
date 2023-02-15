@@ -2,44 +2,22 @@
   <component
     :is="tag"
     class="save-slot"
-    :class="[
-      !save ? 'save-slot--empty' : `border--${theme} glow--${theme}`,
-      `save-slot--${mode}`,
-    ]"
+    :class="[isEmpty ? 'save-slot--empty' : `border--${theme} glow--${theme}`]"
     @click="$emit('select', slotName)"
   >
-    <span class="save-slot--title" :class="{ [`text--${theme}`]: save }">
+    <span class="save-slot--title" :class="{ [`text--${theme}`]: !isEmpty }">
       {{ slotName }}
     </span>
-    <div class="save-slot--details" v-if="!save">EMPTY SLOT</div>
+    <div class="save-slot--details" v-if="isEmpty">EMPTY SLOT</div>
     <div class="save-slot--details" v-else>
-      <Square
-        inline
-        :value="
-          roguelikeSave
-            ? roguelikeSave.bestRun.highestBlock
-            : save.progress.highestBlock
-        "
-      />
+      <Square inline :value="block" />
       <div class="save-slot--currency">
-        <DataChip
-          theme="score"
-          class="justify-center mx-auto"
-          :value="roguelikeSave?.bestRun?.score || save.progress.score"
-        />
-        <DataChip
-          v-if="roguelikeSave"
-          theme="run"
-          :value="roguelikeSave?.progress.run"
-        />
-        <DataChip
-          v-if="roguelikeSave"
-          theme="coins"
-          :value="roguelikeSave.inventory.coins"
-        />
+        <DataChip theme="score" class="justify-center mx-auto" :value="score" />
+        <DataChip v-if="isRoguelike" theme="run" :value="run" />
+        <DataChip v-if="isRoguelike" theme="coins" :value="coins" />
       </div>
       <span class="save-slot--shape">
-        {{ save.settings.width }} x {{ save.settings.height }}</span
+        {{ boardWidth }} x {{ boardHeight }}</span
       >
     </div>
   </component>
@@ -47,10 +25,7 @@
 
 <script lang="ts">
   import DataChip from '@/components/electrons/DataChip/DataChip.vue'
-  import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
-  import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
   import Square from '@/components/atoms/Square/Square.vue'
-  import { computed } from '@vue/runtime-core'
   import { MemoryCardMode } from '@/model/Game Utils/MemoryCard'
 
   export default {
@@ -61,19 +36,17 @@
     props: {
       tag: { type: String, default: 'li' },
       theme: { type: String, default: 'primary' },
-      mode: { default: MemoryCardMode.Load },
       slotName: { type: String, required: true },
-      save: { type: [SaveFile, RoguelikeSaveFile] },
+      score: { type: Number, default: 0 },
+      block: { type: Number, default: 0 },
+      coins: { type: Number, default: 0 },
+      boardWidth: { type: Number, default: 0 },
+      boardHeight: { type: Number, default: 0 },
+      run: { type: Number, default: 0 },
+      isEmpty: { type: Boolean, default: false },
+      isRoguelike: { type: Boolean, default: false },
     },
     emits: ['select'],
-    setup(props) {
-      const roguelikeSave = computed(() => {
-        return props.save instanceof RoguelikeSaveFile
-          ? (props.save as RoguelikeSaveFile)
-          : null
-      })
-      return { roguelikeSave }
-    },
   }
 </script>
 

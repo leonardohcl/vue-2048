@@ -2,27 +2,23 @@
   <component
     :is="tag"
     class="sidebar-item"
-    :class="[`sidebar-item__${item.id}`, active && 'sidebar-item--active']"
+    :class="[`sidebar-item__${id}`, active && 'sidebar-item--active']"
   >
     <v-badge
-      :content="`${item.quantity}/${item.capacity}`"
+      :content="`${quantity}/${capacity}`"
       color="secondary"
       @click="handleUse"
     >
       <v-progress-circular
         class="sidebar-item__icon rounded-circle"
-        :model-value="item.percentageFull"
+        :model-value="percentageFull"
         color="secondary"
       >
-        <Square
-          v-if="item.icon === '<Square/>'"
-          :value="(item as UpgradeItem).currentValue"
-          inline
-        />
+        <Square v-if="blockIcon >= 0" :value="blockIcon" inline />
         <v-icon
           v-else
           class="fa-fw"
-          :icon="item.icon"
+          :icon="icon"
           :color="isFull ? 'secondary' : 'grey-lighten-1'"
         />
       </v-progress-circular>
@@ -39,7 +35,7 @@
 
     <div class="sidebar-item__details">
       <span class="sidebar-item__name">
-        {{ item.name }}
+        {{ name }}
       </span>
       <v-chip
         v-if="isFull"
@@ -54,7 +50,7 @@
         :class="{
           'sidebar-item__price--affordable': allowPurchase && canAfford,
         }"
-        :price="item.price"
+        :price="price"
         :can-afford="allowPurchase && canAfford"
         @click="handlePurchase"
       />
@@ -62,55 +58,47 @@
   </component>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
   import PurchaseButton from '@/components/electrons/PurchaseButton/PurchaseButton.vue'
-  import Square from '../Square/Square.vue'
-  import { computed, defineComponent } from 'vue'
-  import Item from '@/model/Game Utils/Item/Item'
-  import UpgradeItem from '@/model/Game Utils/Item/Upgrade/Upgrade'
+  import { computed } from 'vue'
+import Square from '../Square/Square.vue';
 
-  export default defineComponent({
-    components: { Square, PurchaseButton },
-    props: {
-      item: { type: Item, required: true },
-      coins: { type: Number, default: 0 },
-      active: { type: Boolean, default: false },
-      allowUse: { type: Boolean, default: false },
-      allowPurchase: { type: Boolean, default: false },
-      tag: { type: String, default: 'div' },
-    },
-    emits: ['purchase', 'use', 'cancel'],
-    setup(props, { emit }) {
-      const isFull = computed(() => props.item.quantity >= props.item.capacity)
-
-      const canAfford = computed(() => {
-        return (
-          props.item.quantity < props.item.capacity &&
-          props.coins >= props.item.price
-        )
-      })
-
-      const handlePurchase = () => {
-        if (canAfford.value) emit('purchase', props.item)
-      }
-
-      const handleUse = () => {
-        if (props.item.quantity > 0 && props.allowUse) emit('use', props.item)
-      }
-
-      const handleCancel = () => {
-        if (props.active) emit('cancel', props.item)
-      }
-
-      return {
-        isFull,
-        canAfford,
-        handleUse,
-        handleCancel,
-        handlePurchase,
-      }
-    },
+  const props = defineProps({
+    id: { type: String, required: true },
+    name: { type: String, default: '' },
+    icon: { type: String, default: 'fas fa-fw fa-star' },
+    quantity: { type: Number, default: 0 },
+    capacity: { type: Number, default: 0 },
+    price: { type: Number, default: 0 },
+    active: { type: Boolean, default: false },
+    allowUse: { type: Boolean, default: false },
+    enoughCoins: { type: Boolean, default: false },
+    allowPurchase: { type: Boolean, default: false },
+    blockIcon: { type: Number, default: -1 },
+    tag: { type: String, default: 'div' },
   })
+
+  const emit = defineEmits(['purchase', 'use', 'cancel'])
+
+  const percentageFull = computed(() => (props.quantity / props.capacity) * 100)
+
+  const isFull = computed(() => props.quantity >= props.capacity)
+
+  const canAfford = computed(() => {
+    return props.quantity < props.capacity && props.enoughCoins
+  })
+
+  const handlePurchase = () => {
+    if (canAfford.value) emit('purchase')
+  }
+
+  const handleUse = () => {
+    if (props.quantity > 0 && props.allowUse) emit('use')
+  }
+
+  const handleCancel = () => {
+    if (props.active) emit('cancel')
+  }
 </script>
 
 <style lang="scss">
@@ -123,8 +111,8 @@
     width: 100%;
 
     &__icon {
-      width: 3em;
-      height: 3em;
+      width: 3em !important;
+      height: 3em !important;
       background: $bg;
       display: flex;
       justify-content: center;
@@ -144,20 +132,11 @@
         @include screen-above(sm) {
           font-size: 1.5em;
         }
-        @include screen-above(md) {
-          font-size: 2em;
-        }
+
       }
 
       .square {
         flex: 0 0 auto;
-        width: 2rem;
-        height: 2rem;
-
-        @include screen-above(md) {
-          width: 3rem;
-          height: 3rem;
-        }
       }
     }
 

@@ -15,7 +15,6 @@ export interface IItem extends IItemConfig {
     icon: string
     quantity?: number
     capacity?: number
-    percentageFull: number
 }
 
 
@@ -38,9 +37,7 @@ export default class Item implements IItem {
 
     get quantity() { return this._quantity }
     get capacity() { return this._capacity }
-    get percentageFull() {
-        return this.capacity ? 100 * (this._quantity / this._capacity) : 0
-    }
+
 
 
     get price() {

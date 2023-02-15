@@ -30,7 +30,6 @@
 <script lang="ts">
   import Square from '@/components/atoms/Square/Square.vue'
   import GameRewards from '@/model/2048 Roguelike/GameRewards'
-  import useDialogCommands from '@/composables/dialogCommands'
 
   export default {
     components: { Square },
@@ -39,9 +38,6 @@
         type: GameRewards,
         required: true,
       },
-    },
-    setup() {
-      return { ...useDialogCommands() }
     },
   }
 </script>

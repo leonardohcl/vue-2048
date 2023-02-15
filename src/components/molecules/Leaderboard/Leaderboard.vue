@@ -15,7 +15,6 @@
 
 <script lang="ts">
   import LeaderboardEntry from '@/components/atoms/LeaderboardEntry/LeaderboardEntry.vue'
-  import useDialogCommands from '@/composables/dialogCommands'
   import LeaderboardEntryClass from '@/model/Game Utils/Leaderboard/LeaderboardEntry'
   import { defineComponent } from 'vue'
 
@@ -33,7 +32,6 @@
       },
     },
     setup() {
-      return { ...useDialogCommands() }
     },
   })
 </script>

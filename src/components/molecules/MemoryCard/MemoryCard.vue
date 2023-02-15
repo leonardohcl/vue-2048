@@ -10,8 +10,14 @@
           v-for="name in slotList"
           :key="name"
           :slot-name="name"
-          :save="slots[name]"
-          :mode="mode"
+          :score="getScore(slots[name])"
+          :board-width="slots[name] && slots[name].state.board.width"
+          :board-height="slots[name] && slots[name].state.board.height"
+          :block="getBlock(slots[name])"
+          :run="getRun(slots[name])"
+          :cois="getCoins(slots[name])"
+          :is-roguelike="slots[name] instanceof RoguelikeSaveFile"
+          :is-empty="slots[name] ? false : true"
           @select="handleSelect"
         />
       </ul>
@@ -22,7 +28,7 @@
   </v-card>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
   import SaveSlot from '@/components/atoms/SaveSlot/SaveSlot.vue'
   import { computed } from 'vue'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
@@ -34,29 +40,49 @@
   } from '@/model/Game Utils/MemoryCard'
   import LooseObject from '@/utils/LooseObject'
 
-  export default {
-    components: { SaveSlot },
-    props: {
-      mode: { default: MemoryCardMode.Load },
-      memoryCard: { type: MemoryCard, required: true },
-    },
-    emits: ['select'],
-    setup(props, context) {
-      const slotList = computed(() =>
-        SLOTS_AVAILABLE.filter((x) => x !== SlotName.LastGame)
-      )
+  const props = defineProps({
+    mode: { default: MemoryCardMode.Load },
+    memoryCard: { type: MemoryCard, required: true },
+  })
 
-      const slots = computed(
-        () =>
-          props.memoryCard.slots as LooseObject<SaveFile | RoguelikeSaveFile>
-      )
+  const emit = defineEmits(['select'])
 
-      const handleSelect = (slotName: SlotName) => {
-        context.emit('select', slotName)
-      }
+  const slotList = computed(() =>
+    SLOTS_AVAILABLE.filter((x) => x !== SlotName.LastGame)
+  )
 
-      return { slots, slotList, handleSelect }
-    },
+  const slots = computed(
+    () => props.memoryCard.slots as LooseObject<SaveFile | RoguelikeSaveFile>
+  )
+
+  function handleSelect(slotName: SlotName) {
+    if (props.mode === MemoryCardMode.Load && !slots.value[slotName]) return
+    emit('select', slotName)
+  }
+
+  function getScore(slot?: RoguelikeSaveFile | SaveFile) {
+    if(!slot) return 0
+    if (slot instanceof RoguelikeSaveFile)
+    return (slot as RoguelikeSaveFile).bestRun.score
+    return slot.progress.score
+  }
+  function getBlock(slot?: RoguelikeSaveFile | SaveFile) {
+    if(!slot) return 0
+    if (slot instanceof RoguelikeSaveFile)
+    return (slot as RoguelikeSaveFile).bestRun.highestBlock
+    return slot.progress.highestBlock
+  }
+  
+  function getRun(slot?: RoguelikeSaveFile | SaveFile) {
+    if (slot && slot instanceof RoguelikeSaveFile)
+      return (slot as RoguelikeSaveFile).progress.run
+    return 0
+  }
+
+  function getCoins(slot?: RoguelikeSaveFile | SaveFile) {
+    if ( slot && slot instanceof RoguelikeSaveFile)
+      return (slot as RoguelikeSaveFile).inventory.coins
+    return 0
   }
 </script>
 
