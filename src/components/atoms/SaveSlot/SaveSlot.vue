@@ -51,6 +51,7 @@
   import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
   import Square from '@/components/atoms/Square/Square.vue'
   import { computed } from '@vue/runtime-core'
+  import { MemoryCardMode } from '@/model/Game Utils/MemoryCard'
 
   export default {
     components: {
@@ -60,7 +61,7 @@
     props: {
       tag: { type: String, default: 'li' },
       theme: { type: String, default: 'primary' },
-      mode: { type: String, default: 'load' },
+      mode: { default: MemoryCardMode.Load },
       slotName: { type: String, required: true },
       save: { type: [SaveFile, RoguelikeSaveFile] },
     },

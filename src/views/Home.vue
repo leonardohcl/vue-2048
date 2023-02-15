@@ -36,11 +36,8 @@
         New Game
       </v-btn>
 
-      <MemoryManager
-        :memory-card="memoryCard"
-        :theme="theme"
-        :allow-save="false"
-        :load-button-options="{
+      <v-btn
+        v-bind="{
           prependIcon: '',
           text: 'Load Game',
           color: theme,
@@ -48,10 +45,12 @@
           size: 'large',
           variant: 'elevated',
         }"
-        @load="handleLoad"
       >
-        <template #load-button> Load Game </template>
-      </MemoryManager>
+        Load Game
+        <v-dialog activator="parent" width="400">
+          <MemoryCard :memory-card="memoryCard" @select="handleLoad" />
+        </v-dialog>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -59,21 +58,21 @@
 <script lang="ts">
   import GameMode from '@/model/Game Utils/GameMode'
   import PageContainer from '@/components/organisms/PageContainer.vue'
-  import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
   import { computed, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  import MemoryCard, { SlotName } from '@/model/Game Utils/MemoryCard'
+  import MemoryCardClass, { SlotName } from '@/model/Game Utils/MemoryCard'
   import SaveFile from '@/model/Game Utils/SaveFile/SaveFile'
   import RoguelikeSaveFile from '@/model/Game Utils/SaveFile/RoguelikeSaveFile'
   import useTutorialHandler from '@/composables/tutorialRoutine'
   import Tutorials from '@/assets/tutorials'
   import useNavbar from '@/composables/navbar'
+  import MemoryCard from '@/components/molecules/MemoryCard/MemoryCard.vue'
 
   export default {
     components: {
       PageContainer,
-      MemoryManager,
+      MemoryCard,
     },
     setup() {
       const router = useRouter()
@@ -93,8 +92,8 @@
       )
 
       const memoryCards = {
-        [GameMode.Standard]: new MemoryCard<SaveFile>(GameMode.Standard),
-        [GameMode.Roguelike]: new MemoryCard<RoguelikeSaveFile>(
+        [GameMode.Standard]: new MemoryCardClass<SaveFile>(GameMode.Standard),
+        [GameMode.Roguelike]: new MemoryCardClass<RoguelikeSaveFile>(
           GameMode.Roguelike
         ),
       }

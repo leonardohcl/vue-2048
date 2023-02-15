@@ -1,5 +1,5 @@
 <template>
-  <SidebarMenu
+  <Sidebar
     class="inventory"
     title="Items"
     :items="items"
@@ -16,7 +16,7 @@
 
 <script lang="ts">
   import { computed, defineComponent, inject } from 'vue'
-  import SidebarMenu from '@/components/molecules/SidebarMenu.vue'
+  import Sidebar from '@/components/molecules/Sidebar/Sidebar.vue'
   import { BreakBlock } from '@/model/Game Utils/Item/Consumable/BreakBlock'
   import { UpgradeBlock } from '@/model/Game Utils/Item/Consumable/UpgradeBlock'
   import { ShrinkBlock } from '@/model/Game Utils/Item/Consumable/ShrinkBlock'
@@ -26,7 +26,7 @@
   import { Highlighter } from '@/keys'
 
   export default defineComponent({
-    components: { SidebarMenu },
+    components: { Sidebar },
     props: {
       game: { type: RoguelikeGameController, required: true },
     },

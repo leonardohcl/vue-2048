@@ -18,8 +18,6 @@
 <script lang="ts">
   import PageContainer from '@/components/organisms/PageContainer.vue'
   import Game from '@/components/organisms/Game.vue'
-  import Settings from '@/components/organisms/Settings.vue'
-  import MemoryManager from '@/components/organisms/MemoryManager.vue'
 
   import { defineComponent } from 'vue'
 
@@ -36,8 +34,6 @@ import useTutorialHandler from '@/composables/tutorialRoutine'
     components: {
       PageContainer,
       Game,
-      Settings,
-      MemoryManager,
     },
     setup() {
       const game = reactive<GameController>(

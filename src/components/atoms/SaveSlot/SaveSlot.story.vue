@@ -11,12 +11,7 @@
         <HstButtonGroup
           title="Memory mode"
           v-model="state.mode"
-          :options="['save', 'load']"
-        />
-        <HstButtonGroup
-          title="Theme"
-          v-model="state.theme"
-          :options="['primary', 'secondary']"
+          :options="[MemoryCardMode.Save, MemoryCardMode.Load]"
         />
       </template>
     </Variant>
@@ -33,11 +28,6 @@
           title="Memory mode"
           v-model="state.mode"
           :options="['save', 'load']"
-        />
-        <HstButtonGroup
-          title="Theme"
-          v-model="state.theme"
-          :options="['primary', 'secondary']"
         />
         <HstNumber title="Score" v-model="standardSave.progress.score" />
         <HstNumber title="Block" v-model="standardSave.progress.highestBlock" />
@@ -69,11 +59,6 @@
           v-model="state.mode"
           :options="['save', 'load']"
         />
-        <HstButtonGroup
-          title="Theme"
-          v-model="state.theme"
-          :options="['primary', 'secondary']"
-        />
         <HstNumber title="Score" v-model="roguelikeSave.progress.score" />
         <HstNumber
           title="Block"
@@ -99,22 +84,22 @@
 </template>
 
 <script lang="ts" setup>
-import GameController from "@/model/2048 Standard/GameController";
-import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
-import { logEvent } from "histoire/client";
-import SaveSlot from "./SaveSlot.vue";
-import { reactive } from "vue";
+  import GameController from '@/model/2048 Standard/GameController'
+  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
+  import { logEvent } from 'histoire/client'
+  import SaveSlot from './SaveSlot.vue'
+  import { reactive } from 'vue'
+  import { MemoryCardMode } from '@/model/Game Utils/MemoryCard'
 
-const state = reactive({
-  slotName: "slotname",
-  mode: "load",
-  theme: "primary",
-});
+  const state = reactive({
+    slotName: 'slotname',
+    mode: MemoryCardMode.Load,
+  })
 
-const roguelikeSave = reactive(new RoguelikeGameController().getSaveFile());
-const standardSave = reactive(new GameController().getSaveFile());
+  const roguelikeSave = reactive(new RoguelikeGameController().getSaveFile())
+  const standardSave = reactive(new GameController().getSaveFile())
 
-function handleSelect(slot: string) {
-  logEvent("select", { emmited: slot });
-}
+  function handleSelect(slot: string) {
+    logEvent('select', { emmited: slot })
+  }
 </script>

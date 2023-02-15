@@ -4,6 +4,11 @@ import SaveFile from './SaveFile/SaveFile'
 import GameMode from './GameMode'
 import { deepCopy } from '@/utils/copy'
 
+export const enum MemoryCardMode {
+  Save = 'save',
+  Load = 'load',
+}
+
 export const enum SlotName {
   LastGame = 'lastGame',
   Slot1 = 'slot1',
@@ -70,7 +75,6 @@ export default class MemoryCard<T> implements IMemoryCard<T> {
             ? (new RoguelikeSaveFile(data) as T)
             : (new SaveFile(data) as T)
       })
-
     } catch (err) {
       localStorage.removeItem(this.key)
       throw new CorruptedMemoryError()

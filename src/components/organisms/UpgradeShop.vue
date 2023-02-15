@@ -1,5 +1,5 @@
 <template>
-  <SidebarMenu
+  <Sidebar
     class="upgrade-shop"
     title="Upgrades"
     :coins="game.inventory.wallet.coins"
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import SidebarMenu from "@/components/molecules/SidebarMenu.vue";
+import Sidebar from "@/components/molecules/Sidebar/Sidebar.vue";
 import { computed, defineComponent } from "vue";
 import UpgradeItem from "@/model/Game Utils/Item/Upgrade/Upgrade";
 import WinningBlockUpgrade from "@/model/Game Utils/Item/Upgrade/WinningBlocks";
@@ -20,7 +20,7 @@ import HeightUpgrade from "@/model/Game Utils/Item/Upgrade/Height";
 import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
 
 export default defineComponent({
-  components: { SidebarMenu },
+  components: { Sidebar },
   props: {
     game: {
       type: RoguelikeGameController,
