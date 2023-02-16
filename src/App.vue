@@ -1,5 +1,5 @@
 <template>
-  <Navbar ref="navbar" />
+  <Navbar @mounted="setupNavbar" />
   <PageContainer>
     <router-view v-slot="{ Component, route }">
       <Transition :name="getTransitionName(route.meta)">
@@ -7,17 +7,11 @@
       </Transition>
     </router-view>
   </PageContainer>
-  <ElementHighlighter ref="elementHighlighter" />
+  <ElementHighlighter @mounted="setupHighlighter" />
 </template>
 
-<script lang="ts">
-import {
-  ref,
-  defineComponent,
-  provide,
-  reactive,
-  onMounted,
-} from "@vue/runtime-core";
+<script lang="ts" setup>
+import { provide, reactive } from "vue";
 import { Highlighter, Navbar as NavbarKey } from "@/keys";
 import ElementHighlighter from "./components/organisms/ElementHighlighter/ElementHighlighter.vue";
 import HighlighterFunctions from "@/components/organisms/ElementHighlighter/model/HighlighterFunctions";
@@ -26,55 +20,37 @@ import LooseObject from "./utils/LooseObject";
 import Navbar from "./components/organisms/Navbar/Navbar.vue";
 import NavbarFunctions from "./components/organisms/Navbar/model/NavbarFunctions";
 
-export default defineComponent({
-  name: "2048",
-  components: { ElementHighlighter, PageContainer, Navbar },
-  setup() {
-    const elementHighlighter = ref<InstanceType<typeof ElementHighlighter>>();
+const highlighter = reactive(new HighlighterFunctions());
+const navbar = reactive(new NavbarFunctions());
 
-    const highlighter = reactive(new HighlighterFunctions());
+provide<HighlighterFunctions>(Highlighter, highlighter);
+provide<NavbarFunctions>(NavbarKey, navbar);
 
-    const navbar = ref<InstanceType<typeof Navbar>>();
-    const navbarFunctions = reactive(new NavbarFunctions());
+function getTransitionName(meta: LooseObject) {
+  const prefix = "page-swap-";
+  let animation;
+  if (meta.previousPage)
+    if (meta.conditionalEnterFrom)
+      animation =
+        meta.conditionalEnterFrom(meta.previousTransitionDirection) || "fade";
+    else animation = meta.enterFrom || "fade";
+  else animation = "fade";
+  return prefix + animation;
+}
 
-    provide<HighlighterFunctions>(Highlighter, highlighter);
-    provide<NavbarFunctions>(NavbarKey, navbarFunctions);
+function setupNavbar(el: NavbarFunctions) {
+  navbar.setGame = el.setGame;
+  navbar.setTutorialHandler = el.setTutorialHandler;
+}
 
-    const getTransitionName = (meta: LooseObject) => {
-      const prefix = "page-swap-";
-      let animation;
-      if (meta.previousPage)
-        if (meta.conditionalEnterFrom)
-          animation =
-            meta.conditionalEnterFrom(meta.previousTransitionDirection) ||
-            "fade";
-        else animation = meta.enterFrom || "fade";
-      else animation = "fade";
-      return prefix + animation;
-    };
-
-    onMounted(() => {
-      if (elementHighlighter.value) {
-        highlighter.highlight = elementHighlighter.value.highlight;
-        highlighter.dismiss = elementHighlighter.value.dismiss;
-        highlighter.addText = elementHighlighter.value.addText;
-        highlighter.clearText = elementHighlighter.value.clearText;
-        highlighter.removeText = elementHighlighter.value.removeText;
-        highlighter.setConfig = elementHighlighter.value.setConfig;
-        highlighter.setBackgroundCallback = (bgCallback) => {
-          highlighter.setConfig({ bgCallback });
-        };
-      }
-
-      if (navbar.value) {
-        navbarFunctions.setGame = navbar.value.setGame;
-        navbarFunctions.setTutorialHandler = navbar.value.setTutorialHandler;
-      }
-    });
-
-    return { navbar, elementHighlighter, getTransitionName };
-  },
-});
+function setupHighlighter(el: HighlighterFunctions) {
+  highlighter.highlight = el.highlight;
+  highlighter.dismiss = el.dismiss;
+  highlighter.addText = el.addText;
+  highlighter.clearText = el.clearText;
+  highlighter.removeText = el.removeText;
+  highlighter.setConfig = el.setConfig;
+}
 </script>
 
 <style lang="scss">

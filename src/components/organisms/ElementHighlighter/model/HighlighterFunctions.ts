@@ -13,7 +13,6 @@ export interface IHighlighterFunctions {
     addText?: (dialog: IHighlightDialog, position?: IHighlightDialogPosition, animationDuration?: number) => void
     clearText?: (duration?: number) => Promise<void>
     removeText?: (id: string | number) => void
-    setBackgroundCallback?: (bgCallback: (evt: MouseEvent) => void) => void
     setConfig?: (data: IHighlighterConfig) => void
 }
 
@@ -27,7 +26,6 @@ export default class HighlighterFunctions implements IHighlighterFunctions {
     addText
     clearText
     removeText
-    setBackgroundCallback
     setConfig
 
     constructor({
@@ -36,7 +34,6 @@ export default class HighlighterFunctions implements IHighlighterFunctions {
         addText = (dialog: IHighlightDialog) => { throwMissingReference() },
         clearText = () => { throwMissingReference(); return Promise.resolve() },
         removeText = (id: string | number) => { throwMissingReference() },
-        setBackgroundCallback = (bgCallback: (evt: MouseEvent) => void) => { throwMissingReference() },
         setConfig = (data: IHighlighterConfig) => { throwMissingReference() }
     }: IHighlighterFunctions = {}) {
         this.highlight = highlight
@@ -44,7 +41,6 @@ export default class HighlighterFunctions implements IHighlighterFunctions {
         this.addText = addText
         this.clearText = clearText
         this.removeText = removeText
-        this.setBackgroundCallback = setBackgroundCallback
         this.setConfig = setConfig
     }
 }

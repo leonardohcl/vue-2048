@@ -50,14 +50,15 @@
     </div>
     <div class="navbar__right">
       <TransitionGroup name="scroll-y-reverse">
-        <v-btn prepend-icon="fas fa-fw fa-gears" v-bind="navitemConfig">
+        <v-btn
+          v-if="game && display.settings"
+          key="settings"
+          prepend-icon="fas fa-fw fa-gears"
+          v-bind="navitemConfig"
+        >
           <span class="d-none d-sm-inline"> Settings </span>
           <v-dialog activator="parent" width="300">
-            <Settings
-              v-if="game && display.settings"
-              key="settings"
-              :game="game"
-            />
+            <Settings key="settings" :game="game" />
           </v-dialog>
         </v-btn>
 
@@ -90,86 +91,90 @@
 </template>
 
 <script lang="ts" setup>
-  import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
-  import GameController from '@/model/2048 Standard/GameController'
-  import LooseObject from '@/utils/LooseObject'
-  import Leaderboard from '@/components/molecules/Leaderboard/Leaderboard.vue'
-  import { ref, reactive, computed } from 'vue'
-  import { useRoute } from 'vue-router'
-  import Help from '@/components/organisms/Help.vue'
-  import About from '@/components/atoms/About/About.vue'
-  import { ITutorialHandler } from '@/composables/tutorialRoutine'
-  import { MemoryCardMode } from '@/model/Game Utils/MemoryCard'
-  import MemoryCardManager from '../MemoryCardManager.vue'
-  import Settings from '@/components/molecules/Settings/Settings.vue'
+import RoguelikeGameController from "@/model/2048 Roguelike/GameController";
+import GameController from "@/model/2048 Standard/GameController";
+import LooseObject from "@/utils/LooseObject";
+import Leaderboard from "@/components/molecules/Leaderboard/Leaderboard.vue";
+import { ref, reactive, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import Help from "@/components/organisms/Help.vue";
+import About from "@/components/atoms/About/About.vue";
+import { ITutorialHandler } from "@/composables/tutorialRoutine";
+import { MemoryCardMode } from "@/model/Game Utils/MemoryCard";
+import MemoryCardManager from "../MemoryCardManager.vue";
+import Settings from "@/components/molecules/Settings/Settings.vue";
 
-  const route = useRoute()
+const route = useRoute();
 
-  const isHome = computed(() => route.name === 'home')
+const isHome = computed(() => route.name === "home");
 
-  const navitemConfig: LooseObject<string> = {
-    variant: 'text',
-    size: 'small',
-  }
+const navitemConfig: LooseObject<string> = {
+  variant: "text",
+  size: "small",
+};
 
-  const game = ref<GameController | RoguelikeGameController>()
+const game = ref<GameController | RoguelikeGameController>();
 
-  const isRoguelike = computed(
-    () => game.value instanceof RoguelikeGameController
-  )
+const isRoguelike = computed(
+  () => game.value instanceof RoguelikeGameController
+);
 
-  const display = reactive<LooseObject>({
-    settings: true,
-    leaderboard: true,
-    load: true,
-    save: true,
-  })
+const display = reactive<LooseObject>({
+  settings: true,
+  leaderboard: true,
+  load: true,
+  save: true,
+});
 
-  function setGame(
-    newGame?: GameController | RoguelikeGameController,
-    {
-      showSettings = true,
-      showLeaderboard = true,
-      showSave = true,
-      showLoad = true,
-    } = {}
-  ) {
-    game.value = newGame
-    display.settings = showSettings
-    display.leaderboard = showLeaderboard
-    display.save = showSave
-    display.load = showLoad
-  }
+function setGame(
+  newGame?: GameController | RoguelikeGameController,
+  {
+    showSettings = true,
+    showLeaderboard = true,
+    showSave = true,
+    showLoad = true,
+  } = {}
+) {
+  game.value = newGame;
+  display.settings = showSettings;
+  display.leaderboard = showLeaderboard;
+  display.save = showSave;
+  display.load = showLoad;
+}
 
-  const tutorialHandler = ref<ITutorialHandler>()
+const tutorialHandler = ref<ITutorialHandler>();
 
-  function setTutorialHandler(handler?: ITutorialHandler) {
-    tutorialHandler.value = handler
-  }
+function setTutorialHandler(handler?: ITutorialHandler) {
+  tutorialHandler.value = handler;
+}
 
-  defineExpose({ setTutorialHandler, setGame })
+const memoryCard = reactive({
+  isOpen: false,
+  mode: MemoryCardMode.Load,
+});
 
-  const memoryCard = reactive({
-    isOpen: false,
-    mode: MemoryCardMode.Load,
-  })
+const openMemoryCard = (mode: MemoryCardMode) => {
+  memoryCard.mode = mode;
+  memoryCard.isOpen = true;
+};
 
-  const openMemoryCard = (mode: MemoryCardMode) => {
-    memoryCard.mode = mode
-    memoryCard.isOpen = true
-  }
+const emit = defineEmits(["mounted"]);
+
+onMounted(() => {
+  emit("mounted", { setTutorialHandler, setGame });
+});
 </script>
 
 <style lang="scss">
-  .navbar {
-    padding: $default-spacing * 0.25;
-    display: flex;
-    justify-content: space-between;
+.navbar {
+  padding: $default-spacing * 0.25;
+  display: flex;
+  justify-content: space-between;
 
-    &__left,
-    &__right {
-      display: flex;
-      gap: $default-spacing * 0.25;
-    }
+  &__left,
+  &__right {
+    display: flex;
+    gap: $default-spacing * 0.25;
   }
+}
 </style>
