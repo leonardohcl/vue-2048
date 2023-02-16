@@ -15,7 +15,7 @@
         {{ idx }}
       </div>
     </div>
-    <ElementHighlighter @mounted="setHighlighter" fixed />
+    <ElementHighlighter @mounted="setHighlighter" />
     <template #controls>
       <div class="font-weight-bold htw-p-2">Highlight</div>
       <HstCheckbox title="Contained" v-model="config.contained" />

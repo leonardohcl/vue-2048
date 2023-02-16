@@ -25,58 +25,17 @@
         <span class="game__overlay--pause"> Game Paused </span>
       </div>
     </Transition>
-    <div class="game__hud">
-      <div class="game__hud--buttons">
-        <v-btn
-          v-if="allowRestart"
-          size="small"
-          variant="text"
-          @click="$emit('restart')"
-          >{{ restartText }}</v-btn
-        >
-        <v-btn
-          v-if="allowUndo && game.historySize"
-          size="small"
-          variant="text"
-          :disabled="game.history.length === 0"
-          @click="undo"
-        >
-          <span v-if="game.history.length" class="mr-1"
-            >({{ game.history.length }})</span
-          >
-          {{ undoText }}
-        </v-btn>
-      </div>
-      <div class="game__hud--score">
-        <TransitionGroup name="scroll-y-reverse">
-          <v-chip
-            v-if="game.isNewHighscore"
-            class="game__hud--new-highscore"
-            size="x-small"
-            color="error"
-            variant="flat"
-          >
-            New Best!
-          </v-chip>
-        </TransitionGroup>
-        Score:
-        <span class="points">
-          {{ game.score }}
-          <TransitionGroup name="scroll-y-reverse">
-            <span
-              v-for="idx in 3"
-              :key="animatedPoints[idx]?.id ?? -idx"
-              v-show="animatedPoints[idx]"
-              class="game__animated-point"
-              :id="animatedPoints[idx]?.id ?? -idx"
-              :style="animatedPointsStyle"
-            >
-              {{ animatedPoints[idx]?.points }}
-            </span>
-          </TransitionGroup>
-        </span>
-      </div>
-    </div>
+    <GameHud
+      :allow-restart="allowRestart"
+      :allow-undo="allowUndo"
+      :history-length="game.history.length"
+      :new-highscore="game.isNewHighscore"
+      :score="game.score"
+      :undo-text="undoText"
+      :restart-text="restartText"
+      :point-animation-duration="pointAnimationDuration"
+      ref="hud"
+    />
     <div class="game__board" :class="boardClasses">
       <div
         class="game__board--touch-area"
@@ -104,12 +63,12 @@
   import Board from '@/components/molecules/Board/Board.vue'
   import { computed, watch, ref } from 'vue'
   import { useGameCommands, BoardCommand } from '@/composables/boardCommands'
-  import { remove } from 'lodash'
   import Square from '@/model/2048/Square'
   import { SquareStateMeta } from '@/model/2048/interfaces/Square'
+  import GameHud from '../molecules/GameHud/GameHud.vue'
 
   export default {
-    components: { Board, GameControls },
+    components: { Board, GameControls, GameHud },
     name: 'Game',
     props: {
       game: {
@@ -189,6 +148,8 @@
         }, props.timeToIdle)
       }
 
+      const hud = ref<typeof GameHud>()
+
       const trackMove = (dir: BoardCommand, success: boolean) => {
         if (!success) return
         stateTracker.moveCountdown--
@@ -196,34 +157,6 @@
           context.emit('move', dir)
           stateTracker.moveCountdown = props.emitMovesInterval
         }
-      }
-
-      const animatedPoints = ref(new Array(3).fill(0))
-      const animatedPointsStyle = computed(() => ({
-        transition: `${
-          props.pointAnimationDuration / 2
-        }ms cubic-bezier(.15,.75,0,1)`,
-      }))
-
-      const animatePoints = (
-        dir: BoardCommand,
-        success: boolean,
-        points: number
-      ) => {
-        if (!points) return
-        const id = props.game.moves
-        const point = {
-          id,
-          points: points < 0 ? points : '+' + points,
-        }
-        animatedPoints.value.push(point)
-        if (animatedPoints.value.length > 3) animatedPoints.value.shift()
-        else if (animatedPoints.value.length < 3)
-          animatedPoints.value.unshift(0)
-        setTimeout(() => {
-          remove(animatedPoints.value, (p) => p.id === point.id)
-          if (animatedPoints.value.length < 3) animatedPoints.value.unshift(0)
-        }, props.pointAnimationDuration / 2)
       }
 
       const trackInvalidMove = (dir: BoardCommand, success: boolean) => {
@@ -243,7 +176,10 @@
       ) => void)[] = [trackInvalidMove]
       if (props.emitMovesInterval) moveCallbacks.push(trackMove)
       if (props.timeToIdle) moveCallbacks.push(resetIdle)
-      if (props.pointAnimationDuration) moveCallbacks.push(animatePoints)
+      if (props.pointAnimationDuration)
+        moveCallbacks.push((dir, success, points) => {
+          hud.value?.animatePoints(dir, success, points)
+        })
 
       const { move, undo } = useGameCommands(
         props.game,
@@ -268,11 +204,10 @@
       }
 
       return {
+        hud,
         move,
         undo,
         boardClasses,
-        animatedPoints,
-        animatedPointsStyle,
         handleSquareSelected,
       }
     },
@@ -342,24 +277,6 @@
       @include transition-animation(fade, 0.1s, ease);
     }
 
-    &__hud {
-      margin-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-
-      &--score {
-        position: relative;
-        font-size: 1rem;
-        font-weight: 300;
-        .points {
-          font-size: 1.3em;
-          font-weight: bold;
-        }
-      }
-    }
-
     &__board {
       position: relative;
       &--touch-area {
@@ -411,28 +328,6 @@
 
     &__command-listener {
       display: none;
-    }
-
-    &__animated-point {
-      display: none;
-      position: absolute;
-      font-size: 0.8em;
-      right: 0;
-      bottom: 90%;
-      opacity: 0.75;
-      font-weight: 500;
-
-      @include screen-above(sm) {
-        display: initial;
-      }
-    }
-
-    @include screen-above(md) {
-      &__hud {
-        &--score {
-          font-size: 1.2rem;
-        }
-      }
     }
 
     $bump-dislocation: 5px;

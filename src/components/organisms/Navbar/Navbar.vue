@@ -97,7 +97,7 @@ import LooseObject from "@/utils/LooseObject";
 import Leaderboard from "@/components/molecules/Leaderboard/Leaderboard.vue";
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import Help from "@/components/organisms/Help.vue";
+import Help from "@/components/molecules/Help/Help.vue";
 import About from "@/components/atoms/About/About.vue";
 import { ITutorialHandler } from "@/composables/tutorialRoutine";
 import { MemoryCardMode } from "@/model/Game Utils/MemoryCard";

@@ -1,3 +1,4 @@
+import HighlighterFunctions from '@/components/atoms/ElementHighlighter/model/HighlighterFunctions'
 import { ITutorial, ITutorialStep } from '@/model/Game Utils/Tutorial'
 import { reactive, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
@@ -11,9 +12,10 @@ export interface ITutorialHandler {
 }
 
 export default function useTutorialHandler(
-  tutorialList: ITutorial[]
+  tutorialList: ITutorial[],
+  highlighterFunctions?: HighlighterFunctions
 ): ITutorialHandler {
-  const highlighter = useHighlighter()
+  const highlighter = highlighterFunctions ?? useHighlighter()
   const tutorials = tutorialList
 
   const tracker = reactive<{
