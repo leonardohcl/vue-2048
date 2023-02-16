@@ -1,6 +1,8 @@
 
 export function getPageSize() {
     return {
+        top: 0,
+        left: 0,
         viewHeight: Math.min(
             document.body.clientHeight,
             document.documentElement.clientHeight

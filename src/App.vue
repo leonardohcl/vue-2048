@@ -13,8 +13,8 @@
 <script lang="ts" setup>
 import { provide, reactive } from "vue";
 import { Highlighter, Navbar as NavbarKey } from "@/keys";
-import ElementHighlighter from "./components/organisms/ElementHighlighter/ElementHighlighter.vue";
-import HighlighterFunctions from "@/components/organisms/ElementHighlighter/model/HighlighterFunctions";
+import ElementHighlighter from "./components/atoms/ElementHighlighter/ElementHighlighter.vue";
+import HighlighterFunctions from "@/components/atoms/ElementHighlighter/model/HighlighterFunctions";
 import PageContainer from "./components/organisms/PageContainer.vue";
 import LooseObject from "./utils/LooseObject";
 import Navbar from "./components/organisms/Navbar/Navbar.vue";

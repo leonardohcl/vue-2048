@@ -1,5 +1,6 @@
 export interface IHighlighterEntry {
   shouldDisplay?: boolean
+  wrapper?:string,
   selector?: string | { x: number | string; y: number | string }
   padding?: number
   bgColor?: string
@@ -14,16 +15,19 @@ export class HighlighterEntry implements IHighlighterEntry {
   bgColor
   bgOpacity
   transitionDuration
+  wrapper
   bgCallbacks: (() => void)[]
 
   constructor({
     selector = 'body',
     padding = 0,
+    wrapper = '',
     bgColor = 'black',
     bgOpacity = 0.75,
     transitionDuration = 0,
     bgCallbacks = [],
   }: IHighlighterEntry = {}) {
+    this.wrapper = wrapper
     this.selector = selector
     this.padding = padding
     this.bgColor = bgColor
@@ -49,6 +53,7 @@ export default class HighlighterMemory implements IHighlighterMemory {
     padding = 0,
     bgColor = 'black',
     bgOpacity = 0.75,
+    wrapper = '',
     bgCallbacks = [] as (() => void)[]
   } = {}) {
     this.lastHighlight = new HighlighterEntry({
@@ -56,7 +61,8 @@ export default class HighlighterMemory implements IHighlighterMemory {
       padding,
       bgColor,
       bgOpacity,
-      bgCallbacks
+      bgCallbacks,
+      wrapper
     })
   }
 }

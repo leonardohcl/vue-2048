@@ -1,4 +1,4 @@
-import IHighlighterFunctions from "./components/organisms/ElementHighlighter/model/HighlighterFunctions";
+import IHighlighterFunctions from "./components/atoms/ElementHighlighter/model/HighlighterFunctions";
 import { InjectionKey } from 'vue'
 import NavbarVue from "./components/organisms/Navbar/Navbar.vue";
 

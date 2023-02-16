@@ -1,5 +1,5 @@
-import { IHighlightDialog, IHighlightDialogPosition } from "@/components/organisms/ElementHighlighter/model/HighlighterDialog"
-import { IHighlighterEntry } from "@/components/organisms/ElementHighlighter/model/HighlighterMemory"
+import { IHighlightDialog, IHighlightDialogPosition } from "@/components/atoms/ElementHighlighter/model/HighlighterDialog"
+import { IHighlighterEntry } from "@/components/atoms/ElementHighlighter/model/HighlighterMemory"
 
 export interface ITutorialStep {
     highlight?: string | { x: string | number, y: string | number }
