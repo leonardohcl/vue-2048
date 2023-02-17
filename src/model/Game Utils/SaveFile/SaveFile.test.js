@@ -1,4 +1,4 @@
-import SaveFile from '../../2048 Standard/SaveFile'
+import SaveFile from './SaveFile'
 import MOCK_GAME from '../../../mocks/game.json'
 import GameController from '../../2048 Standard/GameController'
 import GameSettings from '../../2048 Standard/partials/GameSettings'

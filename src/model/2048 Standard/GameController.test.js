@@ -2,9 +2,9 @@ import GameController from './GameController'
 import LEGAL_MOVEMENTS from '../../mocks/legal-movements.json'
 import MOCK_GAME from '../../mocks/game.json'
 import { MoveDirection } from '../2048/interfaces/Game'
-import GameProgress from './partials/GameProgress'
-import GameState from './partials/GameState'
-import GameSettings from './partials/GameSettings'
+import GameProgress from '../Game Utils/SaveFile/interfaces/GameProgress'
+import GameState from '../Game Utils/SaveFile/interfaces/GameState'
+import GameSettings from '../Game Utils/SaveFile/interfaces/GameSettings'
 import { deepCopy } from '../../utils/copy'
 
 const moveBoardInCircle = async (game) => {

@@ -121,13 +121,14 @@ export default class Board implements IBoard {
     return this.squares[idx];
   }
 
-  canSquaresMerge(sqr: Square, target: Square) {
+  canSquaresMerge(sqr: Square, target: Square, ignoreMerged= false) {
+    if(ignoreMerged) return sqr.value === target.value
     return !target.meta[SquareStateMeta.Merged] && sqr.value === target.value;
   }
 
-  canSquareMove(sqr: Square, target: Square) {
+  canSquareMove(sqr: Square, target: Square, ignoreMerged=false) {
     if (target.isEmpty) return true;
-    return this.canSquaresMerge(sqr, target);
+    return this.canSquaresMerge(sqr, target, ignoreMerged);
   }
 
   getSquareValidMovement(

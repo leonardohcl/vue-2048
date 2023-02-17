@@ -2,7 +2,7 @@ import LooseObject from '@/utils/LooseObject'
 import RoguelikeSaveFile from './SaveFile/RoguelikeSaveFile'
 import SaveFile from './SaveFile/SaveFile'
 import GameMode from './GameMode'
-import { deepCopy } from '@/utils/copy'
+import { deepCopy } from '../../utils/copy'
 
 export const enum MemoryCardMode {
   Save = 'save',

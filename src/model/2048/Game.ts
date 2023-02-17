@@ -1,4 +1,4 @@
-import randomWeightedSelection from '@/utils/randomSelection'
+import randomWeightedSelection from '../../utils/randomSelection'
 import { orderBy } from 'lodash'
 import Board from './Board'
 import {
@@ -58,7 +58,7 @@ export default class Game implements IGame {
         dir
       )
       if (!neighbor) continue
-      if (this.board.canSquareMove(squares[idx], neighbor)) {
+      if (this.board.canSquareMove(squares[idx], neighbor, true)) {
         this._canMove[dir] = true
         return
       }
