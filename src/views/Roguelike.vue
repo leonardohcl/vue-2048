@@ -146,8 +146,8 @@
 
       const highlighter = useHighlighter()
 
-      const handleSquareSelected = (sqr: SquareType) => {
-        const consumed = game.selectSquare(sqr)
+      const handleSquareSelected = async (sqr: SquareType) => {
+        const consumed = await game.selectSquare(sqr)
         if (consumed) highlighter?.dismiss()
       }
 

@@ -6,7 +6,7 @@ export class ShrinkBlock extends ConsumableItem {
         return sqr.value > 2
     }
 
-    protected use([square]: Square[]) {
+    protected async use([square]: Square[]) {
         square.setValue(square.value / 2)
     }
 

@@ -21,7 +21,7 @@ export interface IConsumableItem extends IItem {
     squaresRequired: number,
     squareIsValid: (sqr: Square) => boolean
     prepareUse: (game: Game) => void
-    consume: () => boolean
+    consume: () => Promise<boolean>
 }
 
 export default class ConsumableItem extends Item implements IConsumableItem {
@@ -37,7 +37,7 @@ export default class ConsumableItem extends Item implements IConsumableItem {
         return this._squaresSelected.length === this._squaresRequired
     }
 
-    protected use(squares: Square[]) { }
+    protected async use(squares: Square[]): Promise<void> { }
 
     prepareUse(game: Game) {
         game.board.squares.forEach((sqr) =>
@@ -58,13 +58,13 @@ export default class ConsumableItem extends Item implements IConsumableItem {
     }
 
 
-    consume() {
+    async consume() {
         if (this.quantity < 0)
             throw new MissingItemError(this.id)
         if (!this.canConsume)
             throw new MissingItemTargetError(this.id)
 
-        this.use(this._squaresSelected)
+        await this.use(this._squaresSelected)
         this.remove(1)
         this._squaresSelected = []
         return true

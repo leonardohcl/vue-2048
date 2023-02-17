@@ -88,7 +88,7 @@ export default class RoguelikeGameController
     this.clearConsumableMeta()
   }
 
-  selectSquare(sqr: Square):boolean {
+  async selectSquare(sqr: Square):Promise<boolean> {
     if (!this._activeItem) throw new EmptyActiveItemError()
 
     if (!(this._activeItem instanceof ConsumableItem))
@@ -98,14 +98,14 @@ export default class RoguelikeGameController
 
     if (!this._activeItem.canConsume) {
       this._activeItem.prepareUse(this)
-      return false
+      return Promise.resolve(false)
     }
 
-    this._activeItem.consume()
+    await this._activeItem.consume()
     this.deactivateItem()
     this.updateGameState()
     this.saveCurrent()
-    return true;
+    return Promise.resolve(true);
   }
 
   //#endregion

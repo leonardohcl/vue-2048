@@ -67,6 +67,7 @@
 
         highlighter?.highlight('.board', {
           transitionDuration: 0,
+          bgOpacity: 0,
           bgColor: 'transparent',
           bgCallbacks: [handleCancel],
         })

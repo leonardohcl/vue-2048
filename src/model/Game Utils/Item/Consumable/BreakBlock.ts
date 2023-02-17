@@ -6,7 +6,7 @@ export class BreakBlock extends ConsumableItem {
         return sqr.value > 0
     }
 
-    protected use([square]: Square[]) {
+    protected async use([square]: Square[]) {
         square.setValue(0)
     }
 

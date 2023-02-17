@@ -38,7 +38,7 @@ export default class Square implements ISquare {
     this._value = value
   }
 
-  setMeta(key: string, value: boolean) {
+  setMeta(key: string, value: any) {
     this.meta[key] = value
   }
 
