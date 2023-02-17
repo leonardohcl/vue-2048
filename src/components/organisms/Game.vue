@@ -34,6 +34,9 @@
       :undo-text="undoText"
       :restart-text="restartText"
       :point-animation-duration="pointAnimationDuration"
+
+      @restart="$emit('restart')"
+      @undo="undo"
       ref="hud"
     />
     <div class="game__board" :class="boardClasses">
