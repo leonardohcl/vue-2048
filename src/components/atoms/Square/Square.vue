@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import { SquareTrackingMeta } from '@/model/2048 Standard/interfaces/Square'
   import { SquareStateMeta } from '@/model/2048/interfaces/Square'
   import { SquareConsumableMeta } from '@/model/Game Utils/Item/interfaces/Square'
@@ -51,7 +51,7 @@
           blockStyles: {},
         }
       }
-      const nextMove = computed(
+      const nextMove = computed<{ horizontal: number; vertical: number }>(
         () =>
           props.meta[SquareTrackingMeta.NextMove] || {
             vertical: 0,
@@ -61,7 +61,7 @@
 
       const stepSize = computed(() => {
         const { horizontal, vertical } = nextMove.value
-        return horizontal || vertical
+        return { horizontal, vertical }
       })
 
       const isReverse = computed(() => {
@@ -103,15 +103,24 @@
           }em`,
         }
 
-        if (stepSize.value) {
-          const transform = `calc(${stepSize.value * -100}% + ${
-            stepSize.value * -props.gap
-          }px)`
+        const { horizontal, vertical } = stepSize.value
 
-          const dir = nextMove.value.horizontal ? 'left' : 'top'
-          styles[dir] = transform
-          styles.transition = `${dir} ${props.transitionDuration}ms ease`
-        }
+        const transforms: { dir: 'top' | 'left'; step: number }[] = [
+          { dir: 'left', step: horizontal },
+          { dir: 'top', step: vertical },
+        ]
+        const transitions: string[] = []
+
+        transforms.forEach((axis) => {
+          if(axis.step === 0) return;
+          const transform = `calc(${axis.step * -100}% + ${
+            axis.step * -props.gap
+          }px)`
+          styles[axis.dir] = transform
+          transitions.push(`${axis.dir} ${props.transitionDuration}ms ease`)
+        })
+
+        styles.transition = transitions.join(', ')
 
         return styles
       })
