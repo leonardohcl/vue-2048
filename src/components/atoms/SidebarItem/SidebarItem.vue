@@ -171,7 +171,7 @@ import Square from '../Square/Square.vue';
 
     &__btn {
       &--cancel {
-        position: absolute;
+        position: absolute !important;
         left: 0;
         bottom: 0;
         transform: translate(-30%, 30%);

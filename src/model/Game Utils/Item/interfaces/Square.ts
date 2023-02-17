@@ -3,5 +3,6 @@ export const enum SquareConsumableMeta {
     Selectable = 'selectable',
     Frozen = 'frozen',
     Upgraded = 'upgraded',
-    Shrunk = 'shrunk'
+    Shrunk = 'shrunk',
+    Broken = 'broken'
 }

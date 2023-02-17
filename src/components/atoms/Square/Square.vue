@@ -78,7 +78,9 @@
 
         if (props.meta[SquareStateMeta.InvalidMove]) return classes
 
-        if (props.meta[SquareConsumableMeta.Upgraded])
+        if (props.meta[SquareConsumableMeta.Broken])
+          classes.push(`square__block--break`)
+        else if (props.meta[SquareConsumableMeta.Upgraded])
           classes.push(`square__block--upgrade`)
         else if (props.meta[SquareConsumableMeta.Shrunk])
           classes.push(`square__block--shrink`)
@@ -205,12 +207,17 @@
         animation-direction: alternate-reverse;
       }
 
+      &--break {
+        animation-name: despawn;
+        animation-duration: 500ms !important;
+      }
+
       &--upgrade {
         animation-name: upgrade-pulse;
         animation-duration: 500ms !important;
         animation-fill-mode: backwards;
       }
-      
+
       &--shrink {
         animation-name: shrink-pulse;
         animation-duration: 500ms !important;
@@ -239,6 +246,13 @@
     }
   }
 
+  @keyframes despawn {
+    100% {
+      transform: translate(100%,-100%) scale(2) rotate(360deg) rotateY(720deg);
+      opacity: 0;
+    }
+  }
+
   @keyframes pop {
     100% {
       transform: scale(1.1);
@@ -257,7 +271,7 @@
     70% {
       box-shadow: 0 0 0 15px fade-out($shrink-pulse-color, 1);
     }
-    
+
     100% {
       transform: scale(1);
       box-shadow: 0 0 0 0 fade-out($shrink-pulse-color, 1);
