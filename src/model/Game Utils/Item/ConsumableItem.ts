@@ -66,8 +66,16 @@ export default class ConsumableItem extends Item implements IConsumableItem {
 
         await this.use(this._squaresSelected)
         this.remove(1)
-        this._squaresSelected = []
+        this.clearSquaresSelected()
         return true
+    }
+
+    clearSquaresSelected(){
+        this._squaresSelected.forEach(sqr=>{
+            sqr.setMeta(SquareConsumableMeta.Selectable, false)
+            sqr.setMeta(SquareConsumableMeta.Selected, false)
+        })
+        this._squaresSelected = []
     }
 
     squareIsValid(sqr: Square) { return sqr !== undefined };

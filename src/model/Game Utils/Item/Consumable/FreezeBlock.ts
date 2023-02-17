@@ -1,6 +1,6 @@
-import { SquareStateMeta } from '@/model/2048/interfaces/Square'
 import Square from '@/model/2048/Square'
 import ConsumableItem, { Consumable } from '../ConsumableItem'
+import { SquareConsumableMeta } from '../interfaces/Square'
 
 export class FreezeBlock extends ConsumableItem {
   squareIsValid(sqr: Square): boolean {
@@ -8,7 +8,7 @@ export class FreezeBlock extends ConsumableItem {
   }
 
   protected async use([square]: Square[]) {
-    square.setMeta(SquareStateMeta.Locked, true)
+    square.setMeta(SquareConsumableMeta.Frozen, true)
   }
 
   constructor({

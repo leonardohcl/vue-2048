@@ -17,6 +17,8 @@ export class MoveBlock extends ConsumableItem {
   }
 
   protected async use([origin, destiny]: Square[]): Promise<void> {
+    this.clearSquaresSelected()
+
     destiny.setMeta(SquareTrackingMeta.NextMove, {
       vertical: destiny.row - origin.row,
       horizontal: destiny.col - origin.col,
@@ -25,8 +27,7 @@ export class MoveBlock extends ConsumableItem {
       vertical: origin.row - destiny.row,
       horizontal: origin.col - destiny.col,
     })
-    destiny.setMeta(SquareConsumableMeta.Selected, false)
-    origin.setMeta(SquareConsumableMeta.Selected, false)
+
     return new Promise((resolve) => {
       setTimeout(() => {
         destiny.setMeta(SquareTrackingMeta.NextMove, undefined)

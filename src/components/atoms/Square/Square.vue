@@ -64,27 +64,30 @@
         return { horizontal, vertical }
       })
 
-      const isReverse = computed(() => {
-        return props.meta[SquareTrackingMeta.IsReverse] || false
-      })
-
       const squareClasses = computed(() => ({
         'square--selectable': props.meta[SquareConsumableMeta.Selectable],
         'square--selected': props.meta[SquareConsumableMeta.Selected],
       }))
 
       const getBlockClasses = () => {
-        return {
-          [`square__block--${props.value}`]: true,
-          'square__block--spawn':
-            props.meta[SquareStateMeta.Spawned] &&
-            !props.meta[SquareStateMeta.InvalidMove],
-          'square__block--merged':
-            props.meta[SquareStateMeta.Merged] &&
-            !props.meta[SquareStateMeta.InvalidMove],
-          'square__block--reverse': isReverse.value,
-          'square__block--locked': props.meta[SquareStateMeta.Locked],
-        }
+        const classes = [
+          `square__block--${props.value}`,
+          props.meta[SquareTrackingMeta.IsReverse] && 'square__block--reverse',
+          props.meta[SquareConsumableMeta.Frozen] && 'square__block--frozen',
+        ]
+
+        if (props.meta[SquareStateMeta.InvalidMove]) return classes
+
+        if (props.meta[SquareConsumableMeta.Upgraded])
+          classes.push(`square__block--upgrade`)
+        else if (props.meta[SquareConsumableMeta.Shrunk])
+          classes.push(`square__block--shrink`)
+        else if (props.meta[SquareStateMeta.Spawned])
+          classes.push(`square__block--spawn`)
+        else if (props.meta[SquareStateMeta.Merged])
+          classes.push(`square__block--merged`)
+
+        return classes
       }
 
       const blockClasses = computed(getBlockClasses)
@@ -112,7 +115,7 @@
         const transitions: string[] = []
 
         transforms.forEach((axis) => {
-          if(axis.step === 0) return;
+          if (axis.step === 0) return
           const transform = `calc(${axis.step * -100}% + ${
             axis.step * -props.gap
           }px)`
@@ -141,6 +144,8 @@
 
 <style lang="scss">
   $pulse-color: white;
+  $upgrade-pulse-color: green;
+  $shrink-pulse-color: red;
 
   .square {
     position: relative;
@@ -191,13 +196,25 @@
         animation-name: slide-back;
       }
 
-      &--locked {
+      &--frozen {
         box-shadow: 0 0 3px 5px rgba(255, 255, 255, 0.5) inset;
       }
 
       &--merged {
         animation-name: pop;
         animation-direction: alternate-reverse;
+      }
+
+      &--upgrade {
+        animation-name: upgrade-pulse;
+        animation-duration: 500ms !important;
+        animation-fill-mode: backwards;
+      }
+      
+      &--shrink {
+        animation-name: shrink-pulse;
+        animation-duration: 500ms !important;
+        animation-fill-mode: backwards;
       }
 
       @each $key, $value in $block-colors {
@@ -226,6 +243,42 @@
     100% {
       transform: scale(1.1);
       opacity: 1;
+    }
+  }
+
+  @keyframes shrink-pulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 fade-out($shrink-pulse-color, 0.1);
+    }
+    25% {
+      transform: scale(0.8);
+    }
+    70% {
+      box-shadow: 0 0 0 15px fade-out($shrink-pulse-color, 1);
+    }
+    
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 fade-out($shrink-pulse-color, 1);
+    }
+  }
+
+  @keyframes upgrade-pulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 fade-out($upgrade-pulse-color, 0.1);
+    }
+    25% {
+      transform: scale(1.2);
+    }
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 15px fade-out($upgrade-pulse-color, 1);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 fade-out($upgrade-pulse-color, 1);
     }
   }
 

@@ -8,6 +8,7 @@ import {
   onUpdateSquareFn,
 } from './interfaces/Game'
 import { SquareStateMeta } from './interfaces/Square'
+import { SquareConsumableMeta } from '../Game Utils/Item/interfaces/Square'
 
 const SORTING_CONFIG = {
   [MoveDirection.Up]: { field: 'row', order: 'asc' },
@@ -81,9 +82,9 @@ export default class Game implements IGame {
 
     squares.forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value, {
-        [SquareStateMeta.Locked]: sqr.meta[SquareStateMeta.Locked],
+        [SquareConsumableMeta.Frozen]: sqr.meta[SquareConsumableMeta.Frozen],
       })
-      if (sqr.meta[SquareStateMeta.Locked]) return
+      if (sqr.meta[SquareConsumableMeta.Frozen]) return
       const { row: nextRow, col: nextCol } = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
@@ -96,7 +97,7 @@ export default class Game implements IGame {
       }
     })
     
-    nextBoard.resetMeta([SquareStateMeta.Locked])
+    nextBoard.resetMeta([SquareConsumableMeta.Frozen])
 
     return { nextBoard, pointsGained }
   }

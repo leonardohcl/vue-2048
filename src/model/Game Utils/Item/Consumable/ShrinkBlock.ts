@@ -1,5 +1,6 @@
 import Square from "@/model/2048/Square"
 import ConsumableItem, { Consumable, IConsumableItemConfig } from "../ConsumableItem"
+import { SquareConsumableMeta } from "../interfaces/Square"
 
 export class ShrinkBlock extends ConsumableItem {
     squareIsValid(sqr: Square): boolean {
@@ -7,6 +8,8 @@ export class ShrinkBlock extends ConsumableItem {
     }
 
     protected async use([square]: Square[]) {
+        square.setMeta(SquareConsumableMeta.Upgraded, false)
+        square.setMeta(SquareConsumableMeta.Shrunk, true)
         square.setValue(square.value / 2)
     }
 

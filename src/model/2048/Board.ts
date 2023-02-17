@@ -128,7 +128,7 @@ export default class Board implements IBoard {
   }
 
   canSquareMove(sqr: Square, target: Square, ignoreMerged = false) {
-    if (sqr.meta[SquareStateMeta.Locked]) return false
+    if (sqr.meta[SquareConsumableMeta.Frozen]) return false
     if (target.isEmpty) return true
     return this.canSquaresMerge(sqr, target, ignoreMerged)
   }
@@ -145,7 +145,7 @@ export default class Board implements IBoard {
     while (neighbor) {
       if (this.canSquareMove(sqr, neighbor)) {
         selectedNeighbor = neighbor
-        if (neighbor.meta[SquareStateMeta.Locked]) break
+        if (neighbor.meta[SquareConsumableMeta.Frozen]) break
       } else {
         break
       }

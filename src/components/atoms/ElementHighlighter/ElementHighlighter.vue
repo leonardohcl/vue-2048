@@ -1,6 +1,6 @@
 <template>
   <Transition name="fade">
-    <div v-show="display" class="element-highlighter" :style="containerStyle">
+    <div v-if="display" class="element-highlighter" :style="containerStyle">
       <div
         class="element-highlighter__background element-highlighter__top"
         :style="topStyle"

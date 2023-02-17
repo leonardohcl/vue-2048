@@ -23,7 +23,7 @@
       <HstCheckbox title="Inline" v-model="state.inline" />
       <HstCheckbox title="Selectable" v-model="state.selectable" />
       <HstCheckbox title="Selected" v-model="state.selected" />
-      <HstCheckbox title="Locked" v-model="state.locked" />
+      <HstCheckbox title="Frozen" v-model="state.frozen" />
       <div class="htw-p-2 htw-gap-2 d-flex">
         <HstButton
           class="htw-p-2"
@@ -61,19 +61,19 @@
     inline: false,
     selectable: false,
     selected: false,
-    locked: false,
+    frozen: false,
   })
 
   watch(state, (nextState) => {
     sqr.value.setMeta(SquareConsumableMeta.Selectable, nextState.selectable)
     sqr.value.setMeta(SquareConsumableMeta.Selected, nextState.selected)
-    sqr.value.setMeta(SquareStateMeta.Locked, nextState.locked)
+    sqr.value.setMeta(SquareConsumableMeta.Frozen, nextState.frozen)
   })
 
   function resetAnimations() {
     sqr.value.setMeta(SquareConsumableMeta.Selectable, state.selectable)
     sqr.value.setMeta(SquareConsumableMeta.Selected, state.selected)
-    sqr.value.setMeta(SquareStateMeta.Locked, state.locked)
+    sqr.value.setMeta(SquareConsumableMeta.Frozen, state.frozen)
   }
 
   function animateState(animation: SquareStateMeta) {
