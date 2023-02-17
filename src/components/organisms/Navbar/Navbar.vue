@@ -18,7 +18,7 @@
           v-bind="navitemConfig"
         >
           <span class="d-none d-sm-inline"> Leaderboard </span>
-          <v-dialog activator="parent" width="500" height="800">
+          <v-dialog activator="parent" width="500" max-height="800">
             <Leaderboard
               key="leaderboard"
               :entries="game.leaderboard"
@@ -159,6 +159,8 @@ const openMemoryCard = (mode: MemoryCardMode) => {
 };
 
 const emit = defineEmits(["mounted"]);
+
+defineExpose({setTutorialHandler, setGame})
 
 onMounted(() => {
   emit("mounted", { setTutorialHandler, setGame });

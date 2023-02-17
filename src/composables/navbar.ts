@@ -4,7 +4,7 @@ import { inject } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
 export default function useNavbar(): NavbarFunctions | undefined {
-  const navbar = inject(Navbar)
+  const navbar = inject(Navbar) as NavbarFunctions | undefined
 
   onBeforeRouteLeave(() => {
     navbar?.setGame()

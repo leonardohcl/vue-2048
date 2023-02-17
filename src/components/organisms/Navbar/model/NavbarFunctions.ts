@@ -7,7 +7,7 @@ export interface INavbarFunctions {
     game?: GameController | RoguelikeGameController,
     settings?: { showSettings: boolean }
   ) => void
-  setTutorialHandler?: (handler: ITutorialHandler) => void
+  setTutorialHandler?: (handler?: ITutorialHandler) => void
 }
 
 function throwMissingReference() {
