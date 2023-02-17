@@ -24,6 +24,7 @@
   import RoguelikeGameController from '@/model/2048 Roguelike/GameController'
   import ConsumableItem from '@/model/Game Utils/Item/ConsumableItem'
   import { Highlighter } from '@/keys'
+  import { FreezeBlock } from '@/model/Game Utils/Item/Consumable/FreezeBlock'
 
   export default defineComponent({
     components: { Sidebar },
@@ -43,6 +44,7 @@
           new UpgradeBlock(),
           new ShrinkBlock(),
           new MoveBlock(),
+          new FreezeBlock(),
         ]
 
         return list.map((item) => props.game.inventory.bag[item.id])

@@ -9,6 +9,7 @@ export const enum Consumable {
     ShrinkBlock = "shrinkBlock",
     UpgradeBlock = "upgradeBlock",
     MoveBlock = "moveBlock",
+    FreezeBlock = "freezeBlock"
 }
 
 export interface IConsumableItemConfig extends IItemConfig {

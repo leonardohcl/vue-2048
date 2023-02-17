@@ -2,6 +2,7 @@ import Item from '@/model/Game utils/Item/Item'
 import GameController from '../2048 Standard/GameController'
 import Game from '../2048/Game'
 import { BreakBlock } from './Item/Consumable/BreakBlock'
+import { FreezeBlock } from './Item/Consumable/FreezeBlock'
 import { MoveBlock } from './Item/Consumable/MoveBlock'
 import { ShrinkBlock } from './Item/Consumable/ShrinkBlock'
 import { UpgradeBlock } from './Item/Consumable/UpgradeBlock'
@@ -86,6 +87,7 @@ export default class Inventory implements IInventory {
       [Consumable.UpgradeBlock]: new UpgradeBlock(),
       [Consumable.ShrinkBlock]: new ShrinkBlock(),
       [Consumable.MoveBlock]: new MoveBlock(),
+      [Consumable.FreezeBlock]: new FreezeBlock(),
     }
   }
 
@@ -106,17 +108,20 @@ export default class Inventory implements IInventory {
   }
 
   loadConsumables(file: RoguelikeSaveFile) {
-    this.bag[Consumable.BreakBlock].setQuantity(
+    this.bag[Consumable.BreakBlock]?.setQuantity(
       file.inventory.bag[Consumable.BreakBlock] ?? 0
     )
-    this.bag[Consumable.UpgradeBlock].setQuantity(
+    this.bag[Consumable.UpgradeBlock]?.setQuantity(
       file.inventory.bag[Consumable.UpgradeBlock] ?? 0
     )
-    this.bag[Consumable.ShrinkBlock].setQuantity(
+    this.bag[Consumable.ShrinkBlock]?.setQuantity(
       file.inventory.bag[Consumable.ShrinkBlock] ?? 0
     )
-    this.bag[Consumable.MoveBlock].setQuantity(
+    this.bag[Consumable.MoveBlock]?.setQuantity(
       file.inventory.bag[Consumable.MoveBlock] ?? 0
+    )
+    this.bag[Consumable.FreezeBlock]?.setQuantity(
+      file.inventory.bag[Consumable.FreezeBlock] ?? 0
     )
   }
 
@@ -153,6 +158,7 @@ export default class Inventory implements IInventory {
         [Consumable.ShrinkBlock]: this.bag[Consumable.ShrinkBlock].quantity,
         [Consumable.MoveBlock]: this.bag[Consumable.MoveBlock].quantity,
         [Consumable.UpgradeBlock]: this.bag[Consumable.UpgradeBlock].quantity,
+        [Consumable.FreezeBlock]: this.bag[Consumable.FreezeBlock].quantity,
       },
       coins: this.wallet.coins,
     }

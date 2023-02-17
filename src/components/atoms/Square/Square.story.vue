@@ -23,6 +23,7 @@
       <HstCheckbox title="Inline" v-model="state.inline" />
       <HstCheckbox title="Selectable" v-model="state.selectable" />
       <HstCheckbox title="Selected" v-model="state.selected" />
+      <HstCheckbox title="Locked" v-model="state.locked" />
       <div class="htw-p-2 htw-gap-2 d-flex">
         <HstButton
           class="htw-p-2"
@@ -41,42 +42,49 @@
   </Story>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, watch } from "vue";
-import Square from "./Square.vue";
-import SquareClass from "@/model/2048/Square";
-import { SquareStateMeta } from "@/model/2048/interfaces/Square";
-import { logEvent } from "histoire/client";
-import { SquareConsumableMeta } from "@/model/Game Utils/Item/interfaces/Square";
+  import { reactive, ref, watch } from 'vue'
+  import Square from './Square.vue'
+  import SquareClass from '@/model/2048/Square'
+  import { SquareStateMeta } from '@/model/2048/interfaces/Square'
+  import { logEvent } from 'histoire/client'
+  import { SquareConsumableMeta } from '@/model/Game Utils/Item/interfaces/Square'
 
-const sqr = ref(new SquareClass(0, 0));
+  const sqr = ref(new SquareClass(0, 0))
 
-const values = [
-  0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768,
-  65536,
-];
+  const values = [
+    0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768,
+    65536,
+  ]
 
-const state = reactive({
-  transitionDuration: 200,
-  inline: false,
-  selectable: false,
-  selected: false,
-});
+  const state = reactive({
+    transitionDuration: 200,
+    inline: false,
+    selectable: false,
+    selected: false,
+    locked: false,
+  })
 
-watch(state, (nextState) => {
-  sqr.value.setMeta(SquareConsumableMeta.Selectable, nextState.selectable);
-  sqr.value.setMeta(SquareConsumableMeta.Selected, nextState.selected);
-});
+  watch(state, (nextState) => {
+    sqr.value.setMeta(SquareConsumableMeta.Selectable, nextState.selectable)
+    sqr.value.setMeta(SquareConsumableMeta.Selected, nextState.selected)
+    sqr.value.setMeta(SquareStateMeta.Locked, nextState.locked)
+  })
 
-function animateState(animation: SquareStateMeta) {
-  sqr.value.setMeta(animation, true);
-  setTimeout(() => {
-    sqr.value = new SquareClass(0, 0);
-    sqr.value.setMeta(SquareConsumableMeta.Selectable, state.selectable);
-    sqr.value.setMeta(SquareConsumableMeta.Selected, state.selected);
-  }, state.transitionDuration);
-}
+  function resetAnimations() {
+    sqr.value.setMeta(SquareConsumableMeta.Selectable, state.selectable)
+    sqr.value.setMeta(SquareConsumableMeta.Selected, state.selected)
+    sqr.value.setMeta(SquareStateMeta.Locked, state.locked)
+  }
 
-function handleClick(data: any) {
-  logEvent("click", { emitted: data });
-}
+  function animateState(animation: SquareStateMeta) {
+    sqr.value.setMeta(animation, true)
+    setTimeout(() => {
+      sqr.value = new SquareClass(0, 0)
+      resetAnimations()
+    }, state.transitionDuration)
+  }
+
+  function handleClick(data: any) {
+    logEvent('click', { emitted: data })
+  }
 </script>

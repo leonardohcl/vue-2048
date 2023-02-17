@@ -1,4 +1,4 @@
-import LooseObject from "@/utils/LooseObject"
+import LooseObject from '@/utils/LooseObject'
 
 export default interface ISquare {
   row: number
@@ -10,5 +10,6 @@ export default interface ISquare {
 export const enum SquareStateMeta {
   Merged = 'merged',
   Spawned = 'spawned',
-  InvalidMove = 'invalidMove'
+  InvalidMove = 'invalidMove',
+  Locked = 'locked',
 }

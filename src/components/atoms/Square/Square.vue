@@ -83,6 +83,7 @@
             props.meta[SquareStateMeta.Merged] &&
             !props.meta[SquareStateMeta.InvalidMove],
           'square__block--reverse': isReverse.value,
+          'square__block--locked': props.meta[SquareStateMeta.Locked],
         }
       }
 
@@ -179,6 +180,10 @@
 
       &--reverse {
         animation-name: slide-back;
+      }
+
+      &--locked {
+        box-shadow: 0 0 3px 5px rgba(255, 255, 255, 0.5) inset;
       }
 
       &--merged {

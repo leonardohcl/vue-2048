@@ -81,6 +81,7 @@ export default class Game implements IGame {
 
     squares.forEach((sqr) => {
       nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
+      if(sqr.meta[SquareStateMeta.Locked]) return;
       const { row: nextRow, col: nextCol } = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,

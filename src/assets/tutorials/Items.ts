@@ -3,6 +3,7 @@ import { MoveBlock } from '@/model/Game Utils/Item/Consumable/MoveBlock'
 import { ShrinkBlock } from '@/model/Game Utils/Item/Consumable/ShrinkBlock'
 import { UpgradeBlock } from '@/model/Game Utils/Item/Consumable/UpgradeBlock'
 import { Consumable } from '@/model/Game Utils/Item/ConsumableItem'
+import { FreezeBlock } from '@/model/Game Utils/item/Consumable/FreezeBlock'
 import { ITutorial } from '@/model/Game Utils/Tutorial'
 
 const ItemsTutorial: ITutorial = {
@@ -30,14 +31,16 @@ const ItemsTutorial: ITutorial = {
     {
       dialog: {
         append: true,
-        content: 'The board will highlight the squares in which the item can be used',
+        content:
+          'The board will highlight the squares in which the item can be used',
         config: { maxWidth: 200 },
       },
     },
     {
       dialog: {
         append: true,
-        content: 'Clicking on the square that you want to use the item will activate its effect',
+        content:
+          'Clicking on the square that you want to use the item will activate its effect',
         config: { maxWidth: 200 },
       },
     },
@@ -84,6 +87,16 @@ const ItemsTutorial: ITutorial = {
         content: `<b>${
           new MoveBlock().name
         }</b> moves a block to an empty square or switch places with another block`,
+        config: { maxWidth: 200 },
+      },
+    },
+    {
+      highlight: `.sidebar-item__${Consumable.FreezeBlock}`,
+      clearTextBeforeHighlight: true,
+      dialog: {
+        content: `<b>${
+          new FreezeBlock().name
+        }</b> will freeze the block in place so it won't move on your next play`,
         config: { maxWidth: 200 },
       },
     },
