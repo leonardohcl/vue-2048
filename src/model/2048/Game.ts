@@ -80,8 +80,10 @@ export default class Game implements IGame {
     )
 
     squares.forEach((sqr) => {
-      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value)
-      if(sqr.meta[SquareStateMeta.Locked]) return;
+      nextBoard.updateSquare(sqr.row, sqr.col, sqr.value, {
+        [SquareStateMeta.Locked]: sqr.meta[SquareStateMeta.Locked],
+      })
+      if (sqr.meta[SquareStateMeta.Locked]) return
       const { row: nextRow, col: nextCol } = nextBoard.getSquareValidMovement(
         sqr.row,
         sqr.col,
@@ -93,6 +95,8 @@ export default class Game implements IGame {
         onUpdateSquare(sqr, { nextRow, nextCol })
       }
     })
+    
+    nextBoard.resetMeta([SquareStateMeta.Locked])
 
     return { nextBoard, pointsGained }
   }

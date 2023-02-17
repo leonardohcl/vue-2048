@@ -8,7 +8,6 @@ export class FreezeBlock extends ConsumableItem {
   }
 
   protected async use([square]: Square[]) {
-    console.log('lock')
     square.setMeta(SquareStateMeta.Locked, true)
   }
 

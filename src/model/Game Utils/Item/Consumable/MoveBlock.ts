@@ -1,6 +1,7 @@
 import { SquareTrackingMeta } from '@/model/2048 Standard/interfaces/Square'
 import Square from '@/model/2048/Square'
 import ConsumableItem, { Consumable } from '../ConsumableItem'
+import { SquareConsumableMeta } from '../interfaces/Square'
 
 export class MoveBlock extends ConsumableItem {
   squareIsValid(sqr: Square): boolean {
@@ -24,6 +25,8 @@ export class MoveBlock extends ConsumableItem {
       vertical: origin.row - destiny.row,
       horizontal: origin.col - destiny.col,
     })
+    destiny.setMeta(SquareConsumableMeta.Selected, false)
+    origin.setMeta(SquareConsumableMeta.Selected, false)
     return new Promise((resolve) => {
       setTimeout(() => {
         destiny.setMeta(SquareTrackingMeta.NextMove, undefined)
@@ -36,7 +39,7 @@ export class MoveBlock extends ConsumableItem {
 
         destiny.meta = origin.meta
         origin.meta = aux.meta
-        
+
         resolve()
       }, 200)
     })

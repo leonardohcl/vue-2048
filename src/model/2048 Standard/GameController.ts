@@ -127,7 +127,7 @@ export default class GameController extends Game implements IGameController {
 
     return new Promise<{ success: boolean; pointsLost: number }>((resolve) => {
       setTimeout(() => {
-        this.clearTrackingMeta(this.board.filledSquares)
+        this.clearTrackingMeta()
         this._isWaintingUpdate = false
         resolve({ success: true, pointsLost: pointsGained })
       }, this._updateDelay)
@@ -280,11 +280,8 @@ export default class GameController extends Game implements IGameController {
     }
   }
 
-  clearTrackingMeta(squares: Square[] = this.board.squares) {
-    squares.forEach((sqr) => {
-      sqr.setMeta(SquareTrackingMeta.NextMove, { vertical: 0, horizontal: 0 })
-      sqr.setMeta(SquareTrackingMeta.IsReverse, false)
-    })
+  clearTrackingMeta() {
+    this.board.resetMeta([SquareTrackingMeta.NextMove, SquareTrackingMeta.IsReverse], true)    
   }
 
   restart() {
